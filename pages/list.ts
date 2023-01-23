@@ -20,13 +20,11 @@ export class ListPage {
       data: { id: "" },
       message: "",
     };
-    console.log(list_create.ok());
-    console.log(list_create.status());
-    // expect(list_create.ok()).toBeTruthy();
+
+    expect(list_create.ok()).toBeTruthy();
 
     try {
       list_create_response = await list_create.json();
-      // console.log(list_create_response);
       expect(list_create_response.message).toEqual(
         "List created successfully."
       );
