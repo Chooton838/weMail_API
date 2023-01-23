@@ -11,13 +11,13 @@ let subscriber_id: string = "";
 let campaign_id: string = "";
 
 /* ------------------------ Login ------------------------ */
-test.only("Login", async ({ request }) => {
+test("Login", async ({ request }) => {
   const login = new LoginPage(request);
   await login.login(process.env.USER_NAME, process.env.PASSWORD);
 });
 
 /* ------------------------ CRUD Functionalities of List ------------------------ */
-test.only("List Create", async ({ request }) => {
+test("List Create", async ({ request }) => {
   let list_name: string = faker.lorem.words(2);
   const list = new ListPage(request);
 
