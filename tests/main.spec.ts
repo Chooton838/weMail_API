@@ -3,14 +3,17 @@ import { test } from "@playwright/test";
 import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
 import { SubscriberPage } from "../pages/subscriber";
+import { CampaignPage } from "../pages/campaign";
+import { campaign_data } from "../utils/data";
 
 let list_id: string = "";
 let subscriber_id: string = "";
+let campaign_id: string = "";
 
 /* ------------------------ Login ------------------------ */
 test("Login", async ({ request }) => {
   const login = new LoginPage(request);
-  await login.login(process.env.USERNAME, process.env.PASSWORD);
+  await login.login(process.env.USER_NAME, process.env.PASSWORD);
 });
 
 /* ------------------------ CRUD Functionalities of List ------------------------ */
@@ -67,4 +70,15 @@ test.skip("Subscriber Update", async ({ request }) => {
 test.skip("Subscriber Delete", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   await subscriber.subscriber_delete(subscriber_id);
+});
+
+/* ------------------------ CRUD Functionalities of Campaign ------------------------ */
+test("Campaign Create", async ({ request }) => {
+  const campaign = new CampaignPage(request);
+  campaign_id = await campaign.create_campaign(campaign_data);
+});
+
+test("Campaign Send", async ({ request }) => {
+  const campaign = new CampaignPage(request);
+  await campaign.send_campaign(campaign_id);
 });
