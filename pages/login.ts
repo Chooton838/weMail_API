@@ -10,6 +10,8 @@ export class LoginPage {
   }
 
   async login(email, password) {
+    console.log(email);
+    console.log(password);
     const login = await this.request.post(`${base_url}/v1/onboarding/login`, {
       data: {
         email: email,
@@ -23,6 +25,7 @@ export class LoginPage {
 
     try {
       login_response = await login.json();
+      console.log(login_response);
       config.use!.extraHTTPHeaders!.authorization = `Bearer ${login_response.meta.token}`;
     } catch (err) {
       console.log("Error: ", login.statusText());

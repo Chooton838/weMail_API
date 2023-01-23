@@ -26,7 +26,7 @@ export class ListPage {
 
     try {
       list_create_response = await list_create.json();
-      console.log(list_create_response);
+      // console.log(list_create_response);
       expect(list_create_response.message).toEqual(
         "List created successfully."
       );
