@@ -40,6 +40,28 @@ export class SubscriberPage {
     }
   }
 
+  async subscriber_update(subscriber_updated_data, subscriber_id) {
+    const subscriber_update = await this.request.put(
+      `${base_url}/v1/subscribers/${subscriber_id}`,
+      {
+        data: subscriber_updated_data,
+      }
+    );
+
+    let subscriber_update_response: { data: { id: string } } = {
+      data: { id: "" },
+    };
+
+    expect(subscriber_update.ok()).toBeTruthy();
+
+    try {
+      subscriber_update_response = await subscriber_update.json();
+      expect(subscriber_update_response.data.id).toEqual(subscriber_id);
+    } catch (err) {
+      console.log("Error is: ", subscriber_update.statusText());
+    }
+  }
+
   async subscriber_delete(subscriber_id) {
     const subscriber_delete = await this.request.delete(
       `${base_url}/v1/subscribers/${subscriber_id}`,

@@ -4,7 +4,7 @@ import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
 import { SubscriberPage } from "../pages/subscriber";
 import { CampaignPage } from "../pages/campaign";
-import { campaign_data } from "../utils/data";
+import { campaign_data, subscriber_updated_data } from "../utils/data";
 
 let list_id: string = "";
 let subscriber_id: string = "";
@@ -61,10 +61,9 @@ test("Subscriber Create", async ({ request }) => {
   );
 });
 
-test.skip("Subscriber Update", async ({ request }) => {
-  let subscriber_email: string = faker.internet.email();
+test("Subscriber Update", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
-  await subscriber.subscriber_create(subscriber_email.toLowerCase(), list_id);
+  await subscriber.subscriber_update(subscriber_updated_data, subscriber_id);
 });
 
 test.skip("Subscriber Delete", async ({ request }) => {
@@ -81,4 +80,15 @@ test("Campaign Create", async ({ request }) => {
 test("Campaign Send", async ({ request }) => {
   const campaign = new CampaignPage(request);
   await campaign.send_campaign(campaign_id);
+});
+
+test("Duplicate a Campaign & Send", async ({ request }) => {
+  const campaign = new CampaignPage(request);
+  let duplicate_campaign_id: string = await campaign.duplicate_campaign(campaign_id);
+  await campaign.send_campaign(duplicate_campaign_id);
+});
+
+test("Campaign Delete", async ({ request }) => {
+  const campaign = new CampaignPage(request);
+  await campaign.delete_campaign(campaign_id);
 });
