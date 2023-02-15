@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { test } from "@playwright/test";
+import { CampaignPage } from "../pages/campaign";
 import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
 import { SubscriberPage } from "../pages/subscriber";
-import { CampaignPage } from "../pages/campaign";
 import { campaign_data, subscriber_updated_data } from "../utils/data";
 
 let list_id: string = "";
@@ -84,7 +84,9 @@ test("Campaign Send", async ({ request }) => {
 
 test("Duplicate a Campaign & Send", async ({ request }) => {
   const campaign = new CampaignPage(request);
-  let duplicate_campaign_id: string = await campaign.duplicate_campaign(campaign_id);
+  let duplicate_campaign_id: string = await campaign.duplicate_campaign(
+    campaign_id
+  );
   await campaign.send_campaign(duplicate_campaign_id);
 });
 

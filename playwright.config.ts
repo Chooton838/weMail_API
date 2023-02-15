@@ -1,10 +1,5 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
-import { devices } from "@playwright/test";
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
 require("dotenv").config();
 
 /**
@@ -31,7 +26,7 @@ const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
 
-  reporter: [["html", { open: "never" }], ["list"]],
+  reporter: [["html", { open: "never" }], ["list"], ["allure-playwright"]],
 
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -48,25 +43,6 @@ const config: PlaywrightTestConfig = {
       site: process.env.SITE_ID!,
     },
   },
-
-  /* Configure projects for major browsers */
-  projects: [
-    {
-      name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-      },
-    },
-  ],
-
-  /* Folder for test artifacts such as screenshots, videos, traces, etc. */
-  // outputDir: 'test-results/',
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   port: 3000,
-  // },
 };
 
 export default config;
