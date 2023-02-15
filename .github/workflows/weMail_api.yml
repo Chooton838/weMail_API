@@ -36,7 +36,6 @@ jobs:
           retention-days: 30
 
       - name: Generate Allure Report
-        uses: actions/upload-artifact@v3
         run: allure generate allure-results -o allure-report --clean
 
       - uses: actions/upload-artifact@master
