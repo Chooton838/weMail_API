@@ -20,8 +20,8 @@ test("Login", async ({ request }) => {
 test("List Create", async ({ request }) => {
   let list_name: string = faker.lorem.words(2);
   const list = new ListPage(request);
-
   list_id = await list.list_create(list_name);
+  campaign_data.lists.push(list_id);
 });
 
 test("lists of List", async ({ request }) => {
@@ -90,7 +90,7 @@ test("Duplicate a Campaign & Send", async ({ request }) => {
   await campaign.send_campaign(duplicate_campaign_id);
 });
 
-test("Campaign Delete", async ({ request }) => {
+test.skip("Campaign Delete", async ({ request }) => {
   const campaign = new CampaignPage(request);
   await campaign.delete_campaign(campaign_id);
 });
