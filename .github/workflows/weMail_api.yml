@@ -27,13 +27,13 @@ jobs:
           SITE_ID: ${{ secrets.SITE_ID }}
         run: npx playwright test
 
-      - name: Save Default HTML Report
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+      # - name: Save Default HTML Report
+      #   uses: actions/upload-artifact@v3
+      #   if: always()
+      #   with:
+      #     name: playwright-report
+      #     path: playwright-report/
+      #     retention-days: 30
 
       - name: Get Allure history
         uses: actions/checkout@v3
@@ -67,6 +67,17 @@ jobs:
           echo "https://chooton838.github.io/weMail_API"
           echo https://chooton838.github.io/weMail_API/
           echo https://chooton838.github.io/weMail_API/${{ github.run_number }}
+
+      
+      - name: Save Default HTML Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+          echo https://chooton838.github.io/weMail_API/${{ github.run_number }}
+
 
       # - name: Post the link to the report
       #   if: always()
