@@ -1,5 +1,5 @@
 import { APIRequestContext, expect } from "@playwright/test";
-import { base_url, campaign_data } from "../utils/data";
+import { data } from "../utils/data";
 
 export class CampaignPage {
   readonly request: APIRequestContext;
@@ -10,7 +10,7 @@ export class CampaignPage {
 
   async create_campaign(campaign_data) {
     const create_campaign = await this.request.post(
-      `${base_url}/v1/campaigns`,
+      `${data.base_url}/v1/campaigns`,
       {
         data: campaign_data,
       }
@@ -34,7 +34,7 @@ export class CampaignPage {
 
   async duplicate_campaign(main_campaign_id) {
     const duplicate_campaign = await this.request.post(
-      `${base_url}/v1/campaigns/${main_campaign_id}/duplicate`,
+      `${data.base_url}/v1/campaigns/${main_campaign_id}/duplicate`,
       {}
     );
 
@@ -47,7 +47,7 @@ export class CampaignPage {
     try {
       duplicate_campaign_response = await duplicate_campaign.json();
       expect(duplicate_campaign_response.data.name).toEqual(
-        `Duplicate: ${campaign_data.name}`
+        `Duplicate: ${data.campaign_data.name}`
       );
       return duplicate_campaign_response.data.id;
     } catch (err) {
@@ -58,7 +58,7 @@ export class CampaignPage {
 
   async send_campaign(campaign_id) {
     const send_campaign = await this.request.post(
-      `${base_url}/v1/campaigns/${campaign_id}/send`,
+      `${data.base_url}/v1/campaigns/${campaign_id}/send`,
       {}
     );
 
@@ -78,7 +78,7 @@ export class CampaignPage {
 
   async delete_campaign(campaign_id) {
     const delete_campaign = await this.request.delete(
-      `${base_url}/v1/campaigns/${campaign_id}`,
+      `${data.base_url}/v1/campaigns/${campaign_id}`,
       {}
     );
 

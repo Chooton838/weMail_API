@@ -1,5 +1,5 @@
 import { APIRequestContext, expect } from "@playwright/test";
-import { base_url } from "../utils/data";
+import { data } from "../utils/data";
 
 export class SubscriberPage {
   readonly request: APIRequestContext;
@@ -10,7 +10,7 @@ export class SubscriberPage {
 
   async subscriber_create(subscriber_email, list_id) {
     const subscriber_create = await this.request.post(
-      `${base_url}/v1/subscribers`,
+      `${data.base_url}/v1/subscribers`,
       {
         data: {
           email: subscriber_email,
@@ -42,7 +42,7 @@ export class SubscriberPage {
 
   async subscriber_update(subscriber_updated_data, subscriber_id) {
     const subscriber_update = await this.request.put(
-      `${base_url}/v1/subscribers/${subscriber_id}`,
+      `${data.base_url}/v1/subscribers/${subscriber_id}`,
       {
         data: subscriber_updated_data,
       }
@@ -64,7 +64,7 @@ export class SubscriberPage {
 
   async subscriber_delete(subscriber_id) {
     const subscriber_delete = await this.request.delete(
-      `${base_url}/v1/subscribers/${subscriber_id}`,
+      `${data.base_url}/v1/subscribers/${subscriber_id}`,
       {
         data: {
           permanent: true,

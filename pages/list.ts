@@ -1,5 +1,5 @@
 import { APIRequestContext, expect } from "@playwright/test";
-import { base_url } from "../utils/data";
+import { data } from "../utils/data";
 
 export class ListPage {
   readonly request: APIRequestContext;
@@ -9,7 +9,7 @@ export class ListPage {
   }
 
   async list_create(list_name) {
-    const list_create = await this.request.post(`${base_url}/v1/lists`, {
+    const list_create = await this.request.post(`${data.base_url}/v1/lists`, {
       data: {
         name: list_name,
         description: "", //Optional
@@ -36,7 +36,7 @@ export class ListPage {
   }
 
   async lists_of_list(list_id) {
-    const lists_of_list = await this.request.get(`${base_url}/v1/lists`);
+    const lists_of_list = await this.request.get(`${data.base_url}/v1/lists`);
 
     let lists_of_list_response: {
       data: Array<{ id: string }>;
@@ -56,7 +56,7 @@ export class ListPage {
 
   async list_details(list_id) {
     const list_details = await this.request.get(
-      `${base_url}/v1/lists/${list_id}`
+      `${data.base_url}/v1/lists/${list_id}`
     );
 
     let list_details_response: {
@@ -77,7 +77,7 @@ export class ListPage {
 
   async list_update(list_id, updated_list_name, list_description) {
     const list_update = await this.request.put(
-      `${base_url}/v1/lists/${list_id}`,
+      `${data.base_url}/v1/lists/${list_id}`,
       {
         data: {
           name: updated_list_name,
@@ -101,7 +101,7 @@ export class ListPage {
   }
 
   async list_delete(lists) {
-    const list_delete = await this.request.post(`${base_url}/v1/lists`, {
+    const list_delete = await this.request.post(`${data.base_url}/v1/lists`, {
       data: {
         ids: lists,
         _method: "DELETE",

@@ -3,8 +3,9 @@ import { test } from "@playwright/test";
 import { CampaignPage } from "../pages/campaign";
 import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
+import { GatewayPage } from "../pages/sending_gateways";
 import { SubscriberPage } from "../pages/subscriber";
-import { campaign_data, subscriber_updated_data } from "../utils/data";
+import { data } from "../utils/data";
 
 let list_id: string = "";
 let subscriber_id: string = "";
@@ -21,7 +22,7 @@ test("List Create", async ({ request }) => {
   let list_name: string = faker.lorem.words(2);
   const list = new ListPage(request);
   list_id = await list.list_create(list_name);
-  campaign_data.lists.push(list_id);
+  data.campaign_data.lists.push(list_id);
 });
 
 test("lists of List", async ({ request }) => {
@@ -63,7 +64,10 @@ test("Subscriber Create", async ({ request }) => {
 
 test("Subscriber Update", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
-  await subscriber.subscriber_update(subscriber_updated_data, subscriber_id);
+  await subscriber.subscriber_update(
+    data.subscriber_updated_data,
+    subscriber_id
+  );
 });
 
 test.skip("Subscriber Delete", async ({ request }) => {
@@ -71,10 +75,20 @@ test.skip("Subscriber Delete", async ({ request }) => {
   await subscriber.subscriber_delete(subscriber_id);
 });
 
+test("Sending Gateway Connect", async ({ request }) => {
+  let gateway: string = "smtp";
+  const sending_gateways = new GatewayPage(request);
+  await sending_gateways.connect_gateway(gateway, data.smtp_data);
+  await sending_gateways.set_default_Form_Reply(
+    gateway,
+    data.defauld_sender_data
+  );
+});
+
 /* ------------------------ CRUD Functionalities of Campaign ------------------------ */
 test("Campaign Create", async ({ request }) => {
   const campaign = new CampaignPage(request);
-  campaign_id = await campaign.create_campaign(campaign_data);
+  campaign_id = await campaign.create_campaign(data.campaign_data);
 });
 
 test("Campaign Send", async ({ request }) => {
