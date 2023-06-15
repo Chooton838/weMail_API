@@ -1,8 +1,6 @@
 import { faker } from "@faker-js/faker";
 
 let data: {
-  base_url: string;
-
   campaign_data: {
     from_email: string;
     from_name: string;
@@ -45,8 +43,6 @@ let data: {
     reply_to_email: string;
   };
 } = {
-  base_url: "https://api.getwemail.io",
-
   campaign_data: {
     from_email: "choton838@gmail.com",
     from_name: "Wedevs QA",

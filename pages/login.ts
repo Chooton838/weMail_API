@@ -1,6 +1,6 @@
 import { APIRequestContext, expect } from "@playwright/test";
 import config from "../playwright.config";
-import { data } from "../utils/data";
+import { BasePage } from "../utils/base_functions";
 
 export class LoginPage {
   readonly request: APIRequestContext;
@@ -9,26 +9,35 @@ export class LoginPage {
     this.request = request;
   }
 
-  async login(email, password) {
+  async login(login_data: string[]) {
     const login = await this.request.post(
-      `${data.base_url}/v1/onboarding/login`,
+      `${config.use?.baseURL}/v1/onboarding/login`,
       {
         data: {
-          email: email,
-          password: password,
+          email: login_data[0],
+          password: login_data[1],
         },
       }
     );
 
-    expect(login.ok()).toBeTruthy();
+    let login_response: {
+      data: { user: { email: string } };
+      meta: { token: string };
+    } = {
+      data: { user: { email: "" } },
+      meta: { token: "" },
+    };
 
-    let login_response: { meta: { token: string } } = { meta: { token: "" } };
+    const base = new BasePage(this.request);
+    login_response = await base.response_checker(login);
 
     try {
-      login_response = await login.json();
+      expect(login_response.data.user.email).toEqual(login_data[0]);
       config.use!.extraHTTPHeaders!.authorization = `Bearer ${login_response.meta.token}`;
     } catch (err) {
-      console.log("Error is: ", login.statusText());
+      console.log("User authentication is failed");
+      console.log(login_response);
+      expect(login.ok()).toBeFalsy();
     }
   }
 }

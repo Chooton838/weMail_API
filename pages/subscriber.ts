@@ -1,6 +1,6 @@
 import { APIRequestContext, expect } from "@playwright/test";
-import { data } from "../utils/data";
-
+import config from "../playwright.config";
+import { BasePage } from "../utils/base_functions";
 export class SubscriberPage {
   readonly request: APIRequestContext;
 
@@ -8,9 +8,9 @@ export class SubscriberPage {
     this.request = request;
   }
 
-  async subscriber_create(subscriber_email, list_id) {
+  async subscriber_create(subscriber_email: string, list_id: string) {
     const subscriber_create = await this.request.post(
-      `${data.base_url}/v1/subscribers`,
+      `${config.use?.baseURL}/v1/subscribers`,
       {
         data: {
           email: subscriber_email,
@@ -27,22 +27,24 @@ export class SubscriberPage {
     let subscriber_create_response: { data: { email: string; id: string } } = {
       data: { email: "", id: "" },
     };
+    let subscriber_id: string = "";
 
-    expect(subscriber_create.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    subscriber_create_response = await base.response_checker(subscriber_create);
 
     try {
-      subscriber_create_response = await subscriber_create.json();
       expect(subscriber_create_response.data.email).toEqual(subscriber_email);
-      return subscriber_create_response.data.id;
+      subscriber_id = subscriber_create_response.data.id;
     } catch (err) {
-      console.log("Error is: ", subscriber_create.statusText());
-      return "";
+      console.log(subscriber_create_response);
+      expect(subscriber_create.ok()).toBeFalsy();
     }
+    return subscriber_id;
   }
 
-  async subscriber_update(subscriber_updated_data, subscriber_id) {
+  async subscriber_update(subscriber_updated_data: {}, subscriber_id: string) {
     const subscriber_update = await this.request.put(
-      `${data.base_url}/v1/subscribers/${subscriber_id}`,
+      `${config.use?.baseURL}/v1/subscribers/${subscriber_id}`,
       {
         data: subscriber_updated_data,
       }
@@ -52,19 +54,20 @@ export class SubscriberPage {
       data: { id: "" },
     };
 
-    expect(subscriber_update.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    subscriber_update_response = await base.response_checker(subscriber_update);
 
     try {
-      subscriber_update_response = await subscriber_update.json();
       expect(subscriber_update_response.data.id).toEqual(subscriber_id);
     } catch (err) {
-      console.log("Error is: ", subscriber_update.statusText());
+      console.log(subscriber_update_response);
+      expect(subscriber_update.ok()).toBeFalsy();
     }
   }
 
-  async subscriber_delete(subscriber_id) {
+  async subscriber_delete(subscriber_id: string) {
     const subscriber_delete = await this.request.delete(
-      `${data.base_url}/v1/subscribers/${subscriber_id}`,
+      `${config.use?.baseURL}/v1/subscribers/${subscriber_id}`,
       {
         data: {
           permanent: true,
@@ -74,13 +77,14 @@ export class SubscriberPage {
 
     let subscriber_delete_response: { deleted: number } = { deleted: 0 };
 
-    expect(subscriber_delete.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    subscriber_delete_response = await base.response_checker(subscriber_delete);
 
     try {
-      subscriber_delete_response = await subscriber_delete.json();
       expect(subscriber_delete_response.deleted).toEqual(1);
     } catch (err) {
-      console.log("Error is: ", subscriber_delete.statusText());
+      console.log(subscriber_delete_response);
+      expect(subscriber_delete.ok()).toBeFalsy();
     }
   }
 }

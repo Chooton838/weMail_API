@@ -1,5 +1,6 @@
 import { APIRequestContext, expect } from "@playwright/test";
-import { data } from "../utils/data";
+import config from "../playwright.config";
+import { BasePage } from "../utils/base_functions";
 
 export class GatewayPage {
   readonly request: APIRequestContext;
@@ -8,7 +9,15 @@ export class GatewayPage {
     this.request = request;
   }
 
-  async connect_gateway(gateway, configure_data) {
+  async connect_gateway(
+    gateway: string,
+    configure_data: {
+      mail_server: string;
+      password: string;
+      port: string;
+      username: string;
+    }
+  ) {
     let driver: string = gateway;
     let gateway_data: {} = {};
 
@@ -54,7 +63,7 @@ export class GatewayPage {
     }
 
     const connect_gateway = await this.request.post(
-      `${data.base_url}/v1/settings/email-outbound`,
+      `${config.use?.baseURL}/v1/settings/email-outbound`,
       {
         data: gateway_data,
       }
@@ -62,21 +71,30 @@ export class GatewayPage {
 
     let connect_gateway_response: { message: string } = { message: "" };
 
-    expect(connect_gateway.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    connect_gateway_response = await base.response_checker(connect_gateway);
 
     try {
-      connect_gateway_response = await connect_gateway.json();
       expect(connect_gateway_response.message).toEqual(
         "Settings saved successfully."
       );
     } catch (err) {
-      console.log("Error is: ", connect_gateway.statusText());
+      console.log(connect_gateway_response);
+      expect(connect_gateway.ok()).toBeFalsy();
     }
   }
 
-  async set_default_Form_Reply(gateway, configure_data) {
+  async set_default_Form_Reply(
+    gateway: string,
+    configure_data: {
+      from_name: string;
+      from_email: string;
+      reply_to_name: string;
+      reply_to_email: string;
+    }
+  ) {
     const set_default_Form_Reply = await this.request.post(
-      `${data.base_url}/v1/settings/email-default-settings`,
+      `${config.use?.baseURL}/v1/settings/email-default-settings`,
       {
         data: {
           from_name: configure_data.from_name,
@@ -90,15 +108,18 @@ export class GatewayPage {
 
     let set_default_Form_Reply_response: { message: string } = { message: "" };
 
-    expect(set_default_Form_Reply.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    set_default_Form_Reply_response = await base.response_checker(
+      set_default_Form_Reply
+    );
 
     try {
-      set_default_Form_Reply_response = await set_default_Form_Reply.json();
       expect(set_default_Form_Reply_response.message).toEqual(
         "Settings saved successfully."
       );
     } catch (err) {
-      console.log("Error is: ", set_default_Form_Reply.statusText());
+      console.log(set_default_Form_Reply_response);
+      expect(set_default_Form_Reply.ok()).toBeFalsy();
     }
   }
 }

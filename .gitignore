@@ -2,5 +2,7 @@ node_modules/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+/allure-results
 .env
+.vscode
 .DS_Store
