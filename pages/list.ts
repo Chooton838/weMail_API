@@ -15,7 +15,7 @@ export class ListPage {
       {
         data: {
           name: list_name,
-          description: `${list_name} is a test list created by automation script`, //Optional
+          description: `${list_name} is a test list - created by automation script`, //Optional
         },
       }
     );

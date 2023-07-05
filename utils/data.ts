@@ -44,8 +44,8 @@ let data: {
   };
 } = {
   campaign_data: {
-    from_email: "choton838@gmail.com",
-    from_name: "Wedevs QA",
+    from_email: "sqa@wedevsqa.com",
+    from_name: "sqa",
     lists: [],
     name: "Automation Test Campaign",
     segments: [],
@@ -74,15 +74,15 @@ let data: {
   smtp_data: {
     mail_server: "smtp.mailtrap.io",
     port: "2525",
-    username: "a4424883743930",
-    password: "49ef2f7b688b3e",
+    username: "e5af9bb2b2bac9",
+    password: "04c40f93b1204c",
   },
 
   defauld_sender_data: {
-    from_name: "info",
-    from_email: "info@gmail.com",
-    reply_to_name: "info",
-    reply_to_email: "info@gmail.com",
+    from_name: "sqa",
+    from_email: "sqa@wedevsqa.com",
+    reply_to_name: "sdet",
+    reply_to_email: "sdet@weedevssqa.com",
   },
 };
 

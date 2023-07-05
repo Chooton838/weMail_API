@@ -1,4 +1,6 @@
 import { APIRequestContext, expect } from "@playwright/test";
+import config from "../playwright.config";
+import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
 
 export class CampaignPage {
@@ -10,7 +12,7 @@ export class CampaignPage {
 
   async create_campaign(campaign_data) {
     const create_campaign = await this.request.post(
-      `${data.base_url}/v1/campaigns`,
+      `${config.use?.baseURL}/v1/campaigns`,
       {
         data: campaign_data,
       }
@@ -19,46 +21,53 @@ export class CampaignPage {
     let create_campaign_response: { data: { name: string; id: string } } = {
       data: { name: "", id: "" },
     };
+    let campaign_id: string = "";
 
-    expect(create_campaign.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    create_campaign_response = await base.response_checker(create_campaign);
 
     try {
-      create_campaign_response = await create_campaign.json();
       expect(create_campaign_response.data.name).toEqual(campaign_data.name);
-      return create_campaign_response.data.id;
+      campaign_id = create_campaign_response.data.id;
     } catch (err) {
-      console.log("Error is: ", create_campaign.statusText());
-      return "";
+      console.log(create_campaign_response);
+      expect(create_campaign.ok()).toBeFalsy();
     }
+
+    return campaign_id;
   }
 
-  async duplicate_campaign(main_campaign_id) {
+  async duplicate_campaign(main_campaign_id: string) {
     const duplicate_campaign = await this.request.post(
-      `${data.base_url}/v1/campaigns/${main_campaign_id}/duplicate`,
+      `${config.use?.baseURL}/v1/campaigns/${main_campaign_id}/duplicate`,
       {}
     );
 
     let duplicate_campaign_response: { data: { name: string; id: string } } = {
       data: { name: "", id: "" },
     };
+    let duplicated_campaign_id: string = "";
 
-    expect(duplicate_campaign.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    duplicate_campaign_response = await base.response_checker(
+      duplicate_campaign
+    );
 
     try {
-      duplicate_campaign_response = await duplicate_campaign.json();
       expect(duplicate_campaign_response.data.name).toEqual(
         `Duplicate: ${data.campaign_data.name}`
       );
-      return duplicate_campaign_response.data.id;
+      duplicated_campaign_id = duplicate_campaign_response.data.id;
     } catch (err) {
-      console.log("Error is: ", duplicate_campaign.statusText());
-      return "";
+      console.log(duplicate_campaign_response);
+      expect(duplicate_campaign.ok()).toBeFalsy();
     }
+    return duplicated_campaign_id;
   }
 
-  async send_campaign(campaign_id) {
+  async send_campaign(campaign_id: string) {
     const send_campaign = await this.request.post(
-      `${data.base_url}/v1/campaigns/${campaign_id}/send`,
+      `${config.use?.baseURL}/v1/campaigns/${campaign_id}/send`,
       {}
     );
 
@@ -66,31 +75,33 @@ export class CampaignPage {
       data: { status: "" },
     };
 
-    expect(send_campaign.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    send_campaign_response = await base.response_checker(send_campaign);
 
     try {
-      send_campaign_response = await send_campaign.json();
       expect(send_campaign_response.data.status).toEqual("active");
     } catch (err) {
-      console.log("Error is: ", send_campaign.statusText());
+      console.log(send_campaign_response);
+      expect(send_campaign.ok()).toBeFalsy();
     }
   }
 
   async delete_campaign(campaign_id) {
     const delete_campaign = await this.request.delete(
-      `${data.base_url}/v1/campaigns/${campaign_id}`,
+      `${config.use?.baseURL}/v1/campaigns/${campaign_id}`,
       {}
     );
 
     let delete_campaign_response: { message: string } = { message: "" };
 
-    expect(delete_campaign.ok()).toBeTruthy();
+    const base = new BasePage(this.request);
+    delete_campaign_response = await base.response_checker(delete_campaign);
 
     try {
-      delete_campaign_response = await delete_campaign.json();
       expect(delete_campaign_response.message).toEqual("Deleted!");
     } catch (err) {
-      console.log("Error is: ", delete_campaign.statusText());
+      console.log(delete_campaign_response);
+      expect(delete_campaign.ok()).toBeFalsy();
     }
   }
 }

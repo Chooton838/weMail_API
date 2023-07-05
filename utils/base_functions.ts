@@ -14,6 +14,7 @@ export class BasePage {
       expect(request.ok()).toBeTruthy();
       return (request_response = await request.json());
     } catch (err) {
+      console.log(await request.json());
       console.log(
         `Response status code is: ${request.status()}, & status text is: ${request.statusText()}`
       );

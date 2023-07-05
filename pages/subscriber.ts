@@ -16,7 +16,6 @@ export class SubscriberPage {
           email: subscriber_email,
           first_name: "",
           last_name: "",
-
           phone: "",
           lists: [list_id],
           event: 0,
@@ -85,6 +84,45 @@ export class SubscriberPage {
     } catch (err) {
       console.log(subscriber_delete_response);
       expect(subscriber_delete.ok()).toBeFalsy();
+    }
+  }
+
+  async subscribers_list(list_id: string, subscriber_email: string) {
+    const subscribers_list = await this.request.get(
+      `${config.use?.baseURL}/v1/lists/${list_id}/subscribers`,
+      {}
+    );
+
+    let subscribers_list_response: { data: Array<{ email: string }> } = {
+      data: [],
+    };
+    let flag: boolean = false;
+
+    const base = new BasePage(this.request);
+    subscribers_list_response = await base.response_checker(subscribers_list);
+
+    try {
+      if (subscribers_list_response.data.length >= 1) {
+        for (
+          let i: number = 0;
+          i < subscribers_list_response.data.length;
+          i++
+        ) {
+          if (
+            subscriber_email.toLowerCase() ==
+            subscribers_list_response.data[i].email
+          ) {
+            flag = true;
+            break;
+          }
+        }
+      }
+      if (flag == false) {
+        expect(subscribers_list.ok()).toBeFalsy();
+      }
+    } catch {
+      console.log("Created Subscriber Not Found");
+      expect(subscribers_list.ok()).toBeFalsy();
     }
   }
 }
