@@ -13,11 +13,12 @@ let list_id: string = "";
 let list_name: string = faker.lorem.words(2);
 let subscriber_id: string = "";
 let subscriber_email: string = faker.internet.email();
+let forms_id: string[] = [];
 let campaign_id: string = "";
 let campaign_sending_gateway: string = "smtp";
 
 /* ------------------------ Login ------------------------ */
-test("Login", async ({ request }) => {
+test.only("Login", async ({ request }) => {
   const login_data: Array<string> = [
     config.use?.httpCredentials?.username!,
     config.use?.httpCredentials?.password!,
@@ -28,10 +29,11 @@ test("Login", async ({ request }) => {
 });
 
 /* ------------------------ CRUD Functionalities of List ------------------------ */
-test("List Create", async ({ request }) => {
+test.only("List Create", async ({ request }) => {
   const list = new ListPage(request);
   list_id = await list.list_create(list_name);
   data.campaign_data.lists.push(list_id);
+  data.form_data.list_id = list_id;
 });
 
 test("Lists of List", async ({ request }) => {
@@ -111,10 +113,42 @@ test("Campaign Delete", async ({ request }) => {
   await campaign.delete_campaign(campaign_id);
 });
 
-test.skip("Form Create", async ({ request }) => {
+test.only("Inline Form Create", async ({ request }) => {
   const form = new FormPage(request);
-  // await form.form_create(list_id);
-  await form.form_create("7536b847-0792-448a-9aef-546685d5ee36");
+  data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
+  data.form_data.type = "inline";
+  forms_id.push(await form.form_create(data.form_data));
+});
+
+test.only("Modal Form Create", async ({ request }) => {
+  const form = new FormPage(request);
+  data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
+  data.form_data.type = "modal";
+  forms_id.push(await form.form_create(data.form_data));
+});
+
+test.only("Forms Update", async ({ request }) => {
+  const form = new FormPage(request);
+  if (forms_id.length >= 1) {
+    for (let i: number = 0; i < forms_id.length; i++) {
+      data.updated_form_data.name = `Updated form - ${forms_id[i]}`;
+      await form.form_update(forms_id[i], data.updated_form_data);
+    }
+  } else {
+    console.log("Forms Not Found");
+  }
+});
+
+test.only("Forms Delete", async ({ request }) => {
+  await new Promise((r) => setTimeout(r, 10000));
+  const form = new FormPage(request);
+  if (forms_id.length >= 1) {
+    for (let i: number = 1; i < forms_id.length; i++) {
+      await form.form_delete(forms_id[i]);
+    }
+  } else {
+    console.log("Forms Not Found");
+  }
 });
 
 test.skip("Subscriber Delete", async ({ request }) => {

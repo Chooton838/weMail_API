@@ -8,15 +8,12 @@ export class BasePage {
   }
 
   async response_checker(request) {
-    let request_response;
-
     try {
       expect(request.ok()).toBeTruthy();
-      return (request_response = await request.json());
+      return await request.json();
     } catch (err) {
-      console.log(await request.json());
       console.log(
-        `Response status code is: ${request.status()}, & status text is: ${request.statusText()}`
+        `Response status code is: ${request.status()}, & status text is: ${request.statusText()}, & text is: ${await request.text()}`
       );
       expect(request.ok()).toBeTruthy();
     }
