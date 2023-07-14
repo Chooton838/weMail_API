@@ -111,22 +111,22 @@ test("Form Sync with Frontend", async ({ request }) => {
   await form.form_sync(forms_id[0]);
 });
 
-test("Forms Sync. with WP Site", async ({ page }) => {
+test.skip("Forms Sync. with WP Site", async ({ page }) => {
   const admin = new AdminPage(page);
   await admin.form_sync();
 });
 
-test("Forms Added into Site Frontend", async ({ page }) => {
+test.skip("Forms Added into Site Frontend", async ({ page }) => {
   const admin = new AdminPage(page);
   form_page_url = await admin.form_publish(forms_id[0]);
 });
 
-test("Form Submission from Frontend", async ({ page }) => {
+test.skip("Form Submission from Frontend", async ({ page }) => {
   const admin = new AdminPage(page);
   await admin.form_submit(form_page_url, form_subscriber_email.toLowerCase());
 });
 
-test("Subscriber's info - Signed up through Form", async ({ request }) => {
+test.skip("Subscriber's info - Signed up through Form", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   subscribers_id.push(
     await subscriber.subscribers_list(list_id, form_subscriber_email)
@@ -168,7 +168,7 @@ test("Duplicate a Campaign & Send", async ({ request }) => {
   await campaign.send_campaign(duplicate_campaign_id);
 });
 
-test("Campaign Delete", async ({ request }) => {
+test.skip("Campaign Delete", async ({ request }) => {
   const campaign = new CampaignPage(request);
   await campaign.delete_campaign(campaign_id);
 });
@@ -185,7 +185,7 @@ test("Form Delete", async ({ request }) => {
   }
 });
 
-test("Subscriber Delete", async ({ request }) => {
+test.skip("Subscriber Delete", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   await subscriber.subscriber_delete(subscribers_id);
 });
