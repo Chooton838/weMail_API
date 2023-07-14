@@ -1,4 +1,5 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
+import { devices } from "@playwright/test";
 
 require("dotenv").config();
 
@@ -49,10 +50,18 @@ const config: PlaywrightTestConfig = {
       authorization: "",
       site:
         process.env.STAGING === "1"
-          ? process.env.STAGING_SITE_ID!
-          : process.env.SITE_ID!,
+          ? process.env.STAGING_WP_SITE_ID!
+          : process.env.WP_SITE_ID!,
     },
   },
+  projects: [
+    {
+      name: "firefox",
+      use: {
+        ...devices["Desktop Firefox"],
+      },
+    },
+  ],
 };
 
 export default config;

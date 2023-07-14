@@ -64,9 +64,9 @@ export class SubscriberPage {
     }
   }
 
-  async subscriber_delete(subscriber_id: string) {
+  async subscriber_delete(subscriber_id: string[]) {
     const subscriber_delete = await this.request.delete(
-      `${config.use?.baseURL}/v1/subscribers/${subscriber_id}`,
+      `${config.use?.baseURL}/v1/subscribers/${subscriber_id[0]}`,
       {
         data: {
           permanent: true,
@@ -93,9 +93,12 @@ export class SubscriberPage {
       {}
     );
 
-    let subscribers_list_response: { data: Array<{ email: string }> } = {
+    let subscribers_list_response: {
+      data: Array<{ email: string; id: string }>;
+    } = {
       data: [],
     };
+    let subscriber_id: string = "";
     let flag: boolean = false;
 
     const base = new BasePage(this.request);
@@ -113,6 +116,7 @@ export class SubscriberPage {
             subscribers_list_response.data[i].email
           ) {
             flag = true;
+            subscriber_id = subscribers_list_response.data[i].id;
             break;
           }
         }
@@ -124,5 +128,6 @@ export class SubscriberPage {
       console.log("Created Subscriber Not Found");
       expect(subscribers_list.ok()).toBeFalsy();
     }
+    return subscriber_id;
   }
 }

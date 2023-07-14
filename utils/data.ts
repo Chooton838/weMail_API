@@ -59,6 +59,8 @@ let data: {
     template: {};
     settings: {};
   };
+
+  wordpress_site_data: Array<string>;
 } = {
   campaign_data: {
     from_email: "sqa@wedevsqa.com",
@@ -466,6 +468,19 @@ let data: {
       },
     },
   },
+
+  wordpress_site_data:
+    process.env.STAGING === "1"
+      ? [
+          process.env.STAGING_WP_SITE_URL!,
+          process.env.STAGING_WP_SITE_USER_NAME!,
+          process.env.STAGING_WP_SITE_USER_PASSWORD!,
+        ]
+      : [
+          process.env.WP_SITE_URL!,
+          process.env.WP_SITE_USER_NAME!,
+          process.env.WP_SITE_USER_PASSWORD!,
+        ],
 };
 
 export { data };

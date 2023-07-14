@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { test } from "@playwright/test";
 import { CampaignPage } from "../pages/campaign";
+import { AdminPage } from "../pages/form_on_wp_site";
 import { FormPage } from "../pages/forms";
 import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
@@ -11,14 +12,16 @@ import { data } from "../utils/data";
 
 let list_id: string = "";
 let list_name: string = faker.lorem.words(2);
-let subscriber_id: string = "";
+let subscribers_id: string[] = [];
 let subscriber_email: string = faker.internet.email();
+let form_subscriber_email: string = faker.internet.email();
 let forms_id: string[] = [];
+let form_page_url: string = "";
 let campaign_id: string = "";
 let campaign_sending_gateway: string = "smtp";
 
 /* ------------------------ Login ------------------------ */
-test.only("Login", async ({ request }) => {
+test("Login", async ({ request }) => {
   const login_data: Array<string> = [
     config.use?.httpCredentials?.username!,
     config.use?.httpCredentials?.password!,
@@ -29,7 +32,7 @@ test.only("Login", async ({ request }) => {
 });
 
 /* ------------------------ CRUD Functionalities of List ------------------------ */
-test.only("List Create", async ({ request }) => {
+test("List Create", async ({ request }) => {
   const list = new ListPage(request);
   list_id = await list.list_create(list_name);
   data.campaign_data.lists.push(list_id);
@@ -54,9 +57,8 @@ test("List Details", async ({ request }) => {
 /* ------------------------ CRUD Functionalities of Subscribers ------------------------ */
 test("Subscriber Create", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
-  subscriber_id = await subscriber.subscriber_create(
-    subscriber_email.toLowerCase(),
-    list_id
+  subscribers_id.push(
+    await subscriber.subscriber_create(subscriber_email.toLowerCase(), list_id)
   );
 });
 
@@ -69,7 +71,62 @@ test("Subscriber Update", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   await subscriber.subscriber_update(
     data.subscriber_updated_data,
-    subscriber_id
+    subscribers_id[0]
+  );
+});
+
+/* ------------------------ CRUD Functionalities of Forms ------------------------ */
+test("Inline Form Create", async ({ request }) => {
+  const form = new FormPage(request);
+  data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
+  data.form_data.type = "inline";
+  forms_id.push(await form.form_create(data.form_data));
+});
+
+test("Modal Form Create", async ({ request }) => {
+  const form = new FormPage(request);
+  data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
+  data.form_data.type = "modal";
+  forms_id.push(await form.form_create(data.form_data));
+});
+
+test("Forms Update", async ({ request }) => {
+  const form = new FormPage(request);
+  if (forms_id.length >= 1) {
+    for (let i: number = 0; i < forms_id.length; i++) {
+      data.updated_form_data.name = `Updated form - ${forms_id[i]}`;
+      data.updated_form_data.list_id = list_id;
+      await form.form_update(forms_id[i], data.updated_form_data);
+    }
+  } else {
+    console.log("Forms Not Found");
+  }
+});
+
+test("Form Sync with Frontend", async ({ request }) => {
+  const form = new FormPage(request);
+  await form.form_sync(forms_id[0]);
+});
+
+test("Forms Sync. with WP Site", async ({ page }) => {
+  const admin = new AdminPage(page);
+  await admin.form_sync();
+});
+
+test("Forms Added into Site Frontend", async ({ page }) => {
+  const admin = new AdminPage(page);
+  form_page_url = await admin.form_publish(forms_id[0]);
+});
+
+test("Form Submission from Frontend", async ({ page }) => {
+  const admin = new AdminPage(page);
+  await admin.form_submit(form_page_url, form_subscriber_email.toLowerCase());
+});
+
+test("Subscriber's info - Signed up through Form", async ({ request }) => {
+  const subscriber = new SubscriberPage(request);
+  subscribers_id.push(
+    await subscriber.subscribers_list(list_id, form_subscriber_email)
   );
 });
 
@@ -113,33 +170,7 @@ test("Campaign Delete", async ({ request }) => {
   await campaign.delete_campaign(campaign_id);
 });
 
-test.only("Inline Form Create", async ({ request }) => {
-  const form = new FormPage(request);
-  data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
-  data.form_data.type = "inline";
-  forms_id.push(await form.form_create(data.form_data));
-});
-
-test.only("Modal Form Create", async ({ request }) => {
-  const form = new FormPage(request);
-  data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
-  data.form_data.type = "modal";
-  forms_id.push(await form.form_create(data.form_data));
-});
-
-test.only("Forms Update", async ({ request }) => {
-  const form = new FormPage(request);
-  if (forms_id.length >= 1) {
-    for (let i: number = 0; i < forms_id.length; i++) {
-      data.updated_form_data.name = `Updated form - ${forms_id[i]}`;
-      await form.form_update(forms_id[i], data.updated_form_data);
-    }
-  } else {
-    console.log("Forms Not Found");
-  }
-});
-
-test.only("Forms Delete", async ({ request }) => {
+test("Form Delete", async ({ request }) => {
   await new Promise((r) => setTimeout(r, 10000));
   const form = new FormPage(request);
   if (forms_id.length >= 1) {
@@ -151,9 +182,9 @@ test.only("Forms Delete", async ({ request }) => {
   }
 });
 
-test.skip("Subscriber Delete", async ({ request }) => {
+test("Subscriber Delete", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
-  await subscriber.subscriber_delete(subscriber_id);
+  await subscriber.subscriber_delete(subscribers_id);
 });
 
 test.skip("List Delete", async ({ request }) => {

@@ -54,6 +54,36 @@ export class FormPage {
     }
   }
 
+  async form_sync(form_id: string) {
+    const form_sync = await this.request.get(
+      `${config.use?.baseURL}/v1/overview/forms?refresh=true`
+    );
+
+    let form_sync_response: { forms: Array<{ id: string }> };
+
+    const base = new BasePage(this.request);
+    form_sync_response = await base.response_checker(form_sync);
+
+    try {
+      let flag: boolean = false;
+      for (let i: number = 0; i < form_sync_response.forms.length; i++) {
+        if (form_id == form_sync_response.forms[i].id) {
+          flag = true;
+          break;
+        }
+      }
+
+      if (flag == true) {
+        console.log("Form Synched Successfully");
+      } else {
+        console.log("Created Form Not Found");
+      }
+    } catch (err) {
+      console.log(form_sync_response);
+      expect(form_sync.ok()).toBeFalsy();
+    }
+  }
+
   async form_delete(form_id: string) {
     const form_delete = await this.request.delete(
       `${config.use?.baseURL}/v1/forms`,
