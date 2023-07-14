@@ -15,7 +15,7 @@ const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI
     ? [
-        ["html", { open: "never" }],
+        ["html", { open: "never", outputFolder: "playwright-report" }],
         ["list", { printSteps: true }],
         ["junit", { outputFile: "playwright-report/results.xml" }],
         ["allure-playwright"],

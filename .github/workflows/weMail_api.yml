@@ -11,7 +11,7 @@ on:
 env:
   CI: true
 
-  STAGING: ${{secrets.STAGING}}
+  STAGING: ${{ secrets.STAGING }}
 
   USER_NAME: ${{ secrets.USER_NAME }}
   PASSWORD: ${{ secrets.PASSWORD }}
@@ -45,6 +45,7 @@ jobs:
         run: |
           npm ci
           npm install allure-commandline
+          npx playwright install
 
       - name: Run Playwright tests on Production
         # working-directory: ./tests/api_automation
@@ -139,6 +140,7 @@ jobs:
         run: |
           npm ci
           npm install allure-commandline
+          npx playwright install
 
       - name: Run Playwright tests on Staging
         # working-directory: ./tests/api_automation
