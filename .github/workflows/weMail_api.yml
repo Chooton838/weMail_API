@@ -140,7 +140,7 @@ jobs:
         run: |
           npm ci
           npm install allure-commandline
-          npx playwright install
+          npx playwright install firefox
 
       - name: Run Playwright tests on Staging
         # working-directory: ./tests/api_automation
