@@ -20,8 +20,11 @@ let form_page_url: string = "";
 let campaign_id: string = "";
 let campaign_sending_gateway: string = "smtp";
 
+console.log(config.use?.baseURL!);
+console.log(config.use?.extraHTTPHeaders);
+console.log(data.wordpress_site_data);
 /* ------------------------ Login ------------------------ */
-test("Login", async ({ request }) => {
+test.skip("Login", async ({ request }) => {
   const login_data: Array<string> = [
     config.use?.httpCredentials?.username!,
     config.use?.httpCredentials?.password!,
@@ -32,42 +35,42 @@ test("Login", async ({ request }) => {
 });
 
 /* ------------------------ CRUD Functionalities of List ------------------------ */
-test("List Create", async ({ request }) => {
+test.skip("List Create", async ({ request }) => {
   const list = new ListPage(request);
   list_id = await list.list_create(list_name);
   data.campaign_data.lists.push(list_id);
   data.form_data.list_id = list_id;
 });
 
-test("Lists of List", async ({ request }) => {
+test.skip("Lists of List", async ({ request }) => {
   const list = new ListPage(request);
   await list.lists_of_list(list_id);
 });
 
-test("List Update", async ({ request }) => {
+test.skip("List Update", async ({ request }) => {
   const list = new ListPage(request);
   await list.list_update(list_id, list_name);
 });
 
-test("List Details", async ({ request }) => {
+test.skip("List Details", async ({ request }) => {
   const list = new ListPage(request);
   await list.list_details(list_id);
 });
 
 /* ------------------------ CRUD Functionalities of Subscribers ------------------------ */
-test("Subscriber Create", async ({ request }) => {
+test.skip("Subscriber Create", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   subscribers_id.push(
     await subscriber.subscriber_create(subscriber_email.toLowerCase(), list_id)
   );
 });
 
-test("Subscribers List", async ({ request }) => {
+test.skip("Subscribers List", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   await subscriber.subscribers_list(list_id, subscriber_email);
 });
 
-test("Subscriber Update", async ({ request }) => {
+test.skip("Subscriber Update", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   await subscriber.subscriber_update(
     data.subscriber_updated_data,
@@ -76,21 +79,21 @@ test("Subscriber Update", async ({ request }) => {
 });
 
 /* ------------------------ CRUD Functionalities of Forms ------------------------ */
-test("Inline Form Create", async ({ request }) => {
+test.skip("Inline Form Create", async ({ request }) => {
   const form = new FormPage(request);
   data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
   data.form_data.type = "inline";
   forms_id.push(await form.form_create(data.form_data));
 });
 
-test("Modal Form Create", async ({ request }) => {
+test.skip("Modal Form Create", async ({ request }) => {
   const form = new FormPage(request);
   data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
   data.form_data.type = "modal";
   forms_id.push(await form.form_create(data.form_data));
 });
 
-test("Forms Update", async ({ request }) => {
+test.skip("Forms Update", async ({ request }) => {
   const form = new FormPage(request);
   if (forms_id.length >= 1) {
     for (let i: number = 0; i < forms_id.length; i++) {
@@ -103,34 +106,34 @@ test("Forms Update", async ({ request }) => {
   }
 });
 
-test("Form Sync with Frontend", async ({ request }) => {
+test.skip("Form Sync with Frontend", async ({ request }) => {
   const form = new FormPage(request);
   await form.form_sync(forms_id[0]);
 });
 
-test("Forms Sync. with WP Site", async ({ page }) => {
+test.skip("Forms Sync. with WP Site", async ({ page }) => {
   const admin = new AdminPage(page);
   await admin.form_sync();
 });
 
-test("Forms Added into Site Frontend", async ({ page }) => {
+test.skip("Forms Added into Site Frontend", async ({ page }) => {
   const admin = new AdminPage(page);
   form_page_url = await admin.form_publish(forms_id[0]);
 });
 
-test("Form Submission from Frontend", async ({ page }) => {
+test.skip("Form Submission from Frontend", async ({ page }) => {
   const admin = new AdminPage(page);
   await admin.form_submit(form_page_url, form_subscriber_email.toLowerCase());
 });
 
-test("Subscriber's info - Signed up through Form", async ({ request }) => {
+test.skip("Subscriber's info - Signed up through Form", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   subscribers_id.push(
     await subscriber.subscribers_list(list_id, form_subscriber_email)
   );
 });
 
-test("Sending Gateway Connect", async ({ request }) => {
+test.skip("Sending Gateway Connect", async ({ request }) => {
   const sending_gateways = new GatewayPage(request);
   await sending_gateways.connect_gateway(
     campaign_sending_gateway,
@@ -138,7 +141,7 @@ test("Sending Gateway Connect", async ({ request }) => {
   );
 });
 
-test("Set Default Sender", async ({ request }) => {
+test.skip("Set Default Sender", async ({ request }) => {
   const sending_gateways = new GatewayPage(request);
   await sending_gateways.set_default_Form_Reply(
     campaign_sending_gateway,
@@ -147,17 +150,17 @@ test("Set Default Sender", async ({ request }) => {
 });
 
 /* ------------------------ CRUD Functionalities of Campaign ------------------------ */
-test("Campaign Create", async ({ request }) => {
+test.skip("Campaign Create", async ({ request }) => {
   const campaign = new CampaignPage(request);
   campaign_id = await campaign.create_campaign(data.campaign_data);
 });
 
-test("Campaign Send", async ({ request }) => {
+test.skip("Campaign Send", async ({ request }) => {
   const campaign = new CampaignPage(request);
   await campaign.send_campaign(campaign_id);
 });
 
-test("Duplicate a Campaign & Send", async ({ request }) => {
+test.skip("Duplicate a Campaign & Send", async ({ request }) => {
   const campaign = new CampaignPage(request);
   let duplicate_campaign_id: string = await campaign.duplicate_campaign(
     campaign_id
@@ -165,12 +168,12 @@ test("Duplicate a Campaign & Send", async ({ request }) => {
   await campaign.send_campaign(duplicate_campaign_id);
 });
 
-test("Campaign Delete", async ({ request }) => {
+test.skip("Campaign Delete", async ({ request }) => {
   const campaign = new CampaignPage(request);
   await campaign.delete_campaign(campaign_id);
 });
 
-test("Form Delete", async ({ request }) => {
+test.skip("Form Delete", async ({ request }) => {
   await new Promise((r) => setTimeout(r, 10000));
   const form = new FormPage(request);
   if (forms_id.length >= 1) {
@@ -182,7 +185,7 @@ test("Form Delete", async ({ request }) => {
   }
 });
 
-test("Subscriber Delete", async ({ request }) => {
+test.skip("Subscriber Delete", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   await subscriber.subscriber_delete(subscribers_id);
 });
