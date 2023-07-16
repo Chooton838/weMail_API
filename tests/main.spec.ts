@@ -111,9 +111,9 @@ test("Form Sync with Frontend", async ({ request }) => {
   await form.form_sync(forms_id[0]);
 });
 
-test.skip("Forms Sync. with WP Site", async ({ page }) => {
+test("Forms Sync. with WP Site", async ({ page }) => {
   const admin = new AdminPage(page);
-  await admin.form_sync();
+  await admin.form_sync_with_frontend();
 });
 
 test.skip("Forms Added into Site Frontend", async ({ page }) => {

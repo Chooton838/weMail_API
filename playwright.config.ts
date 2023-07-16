@@ -28,8 +28,9 @@ const config: PlaywrightTestConfig = {
       ],
   use: {
     actionTimeout: 0,
-    headless: true,
+    headless: !true,
     trace: "on-first-retry",
+    video: "on",
 
     baseURL:
       process.env.STAGING === "1"

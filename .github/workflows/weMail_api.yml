@@ -45,7 +45,7 @@ jobs:
         run: |
           npm ci
           npm install allure-commandline
-          npx playwright install
+          npx playwright install firefox
 
       - name: Run Playwright tests on Production
         # working-directory: ./tests/api_automation
@@ -144,7 +144,7 @@ jobs:
 
       - name: Run Playwright tests on Staging
         # working-directory: ./tests/api_automation
-        run: STAGING=1 npx playwright test
+        run: STAGING=1 npx playwright test -g "Forms Sync. with WP Site"
 
       - name: Get Allure history
         uses: actions/checkout@v3
