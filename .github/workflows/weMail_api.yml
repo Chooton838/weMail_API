@@ -135,16 +135,25 @@ jobs:
         with:
           node-version: 16
 
-      - name: Install jq
-        run: sudo apt-get install jq -y
+      # - name: Install jq
+      #   run: sudo apt-get install jq -y
 
+      # - name: Get User Agent
+      #   run: |
+      #     user_agent=$(curl -s -I -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+      #       "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+      #       | awk -F':' '/User-Agent/{print $2}')
+      #     echo "User Agent: $user_agent"
+      #     echo "User Agent: ${{ env.GITHUB_ACTOR }}"
       - name: Get User Agent
+        id: get_user_agent
         run: |
-          user_agent=$(curl -s -I -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            | awk -F':' '/User-Agent/{print $2}')
+          echo "::set-env name=RUN_URL::https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      - name: Retrieve User Agent
+        run: |
+          run_url=$RUN_URL
+          user_agent=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$run_url" | jq -r '.head_commit.author.user_agent')
           echo "User Agent: $user_agent"
-          echo "User Agent: ${{ env.GITHUB_ACTOR }}"
 
       - name: Install dependencies
         # working-directory: ./tests/api_automation
