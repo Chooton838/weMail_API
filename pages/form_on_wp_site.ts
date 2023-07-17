@@ -10,11 +10,14 @@ export class AdminPage {
 
   async form_sync_with_frontend() {
     await this.page.goto(data.wordpress_site_data[0]);
+
     await this.page.waitForLoadState("networkidle");
     await this.page.waitForTimeout(5000);
+
     await this.page
       .locator('//*[@id="user_login"]')
       .fill(data.wordpress_site_data[1]);
+
     // await this.page
     //   .locator('//*[@id="user_pass"]')
     //   .fill(data.wordpress_site_data[2]);

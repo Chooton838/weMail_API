@@ -20,9 +20,6 @@ let form_page_url: string = "";
 let campaign_id: string = "";
 let campaign_sending_gateway: string = "smtp";
 
-console.log(config.use?.baseURL!);
-console.log(config.use?.extraHTTPHeaders);
-console.log(data.wordpress_site_data);
 /* ------------------------ Login ------------------------ */
 test("Login", async ({ request }) => {
   const login_data: Array<string> = [
