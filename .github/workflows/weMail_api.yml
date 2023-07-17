@@ -142,6 +142,10 @@ jobs:
           npm install allure-commandline
           npx playwright install firefox
 
+      - name: Print User Agent
+        run: |
+          echo "User Agent: ${{ github.event.request.headers['User-Agent'] }}"
+
       - name: Run Playwright tests on Staging
         # working-directory: ./tests/api_automation
         run: STAGING=1 npx playwright test -g "Forms Sync. with WP Site"

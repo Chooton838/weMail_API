@@ -9,34 +9,33 @@ export class AdminPage {
   }
 
   async form_sync_with_frontend() {
-    console.log(data.wordpress_site_data[0]);
     await this.page.goto(data.wordpress_site_data[0]);
     await this.page.waitForLoadState("networkidle");
     await this.page.waitForTimeout(5000);
     await this.page
       .locator('//*[@id="user_login"]')
       .fill(data.wordpress_site_data[1]);
-    await this.page
-      .locator('//*[@id="user_pass"]')
-      .fill(data.wordpress_site_data[2]);
-    await this.page.locator('//*[@id="wp-submit"]').click();
-    await this.page.waitForLoadState("networkidle");
+    // await this.page
+    //   .locator('//*[@id="user_pass"]')
+    //   .fill(data.wordpress_site_data[2]);
+    // await this.page.locator('//*[@id="wp-submit"]').click();
+    // await this.page.waitForLoadState("networkidle");
 
-    await this.page
-      .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
-      .click();
-    await this.page.waitForLoadState("domcontentloaded");
-    await this.page.waitForLoadState("networkidle");
+    // await this.page
+    //   .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
+    //   .click();
+    // await this.page.waitForLoadState("domcontentloaded");
+    // await this.page.waitForLoadState("networkidle");
 
-    await this.page.locator('//a[contains(text(),"Forms")]').click();
-    await this.page.waitForLoadState("networkidle");
+    // await this.page.locator('//a[contains(text(),"Forms")]').click();
+    // await this.page.waitForLoadState("networkidle");
 
-    await this.page
-      .locator('//button[@title="Sync forms with your website."]')
-      .click();
-    await this.page.waitForLoadState("networkidle");
+    // await this.page
+    //   .locator('//button[@title="Sync forms with your website."]')
+    //   .click();
+    // await this.page.waitForLoadState("networkidle");
 
-    await this.page.waitForSelector('//p[@class="iziToast-message slideIn"]');
+    // await this.page.waitForSelector('//p[@class="iziToast-message slideIn"]');
   }
 
   async form_publish(form_id: string) {
