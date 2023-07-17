@@ -1,113 +1,127 @@
-import { Page, expect } from "@playwright/test";
+import { expect, firefox } from "@playwright/test";
 import { data } from "../utils/data";
 
 export class AdminPage {
-  readonly page: Page;
-
-  constructor(page: Page) {
-    this.page = page;
-  }
+  /**
+   * "userAgent" - Added on browser.newContext to open the  using this userAgent (needed for e2e)
+   */
 
   async form_sync_with_frontend() {
-    await this.page.goto(data.wordpress_site_data[0]);
+    const browser = await firefox.launch();
+    const context = await browser.newContext({
+      userAgent:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    });
+    const page = await context.newPage();
 
-    await this.page.waitForLoadState("networkidle");
-    await this.page.waitForTimeout(5000);
+    await page.goto(data.wordpress_site_data[0]);
+    await page.waitForLoadState("networkidle");
 
-    await this.page
+    await page
       .locator('//*[@id="user_login"]')
       .fill(data.wordpress_site_data[1]);
+    await page
+      .locator('//*[@id="user_pass"]')
+      .fill(data.wordpress_site_data[2]);
+    await page.locator('//*[@id="wp-submit"]').click();
+    await page.waitForLoadState("networkidle");
 
-    // await this.page
-    //   .locator('//*[@id="user_pass"]')
-    //   .fill(data.wordpress_site_data[2]);
-    // await this.page.locator('//*[@id="wp-submit"]').click();
-    // await this.page.waitForLoadState("networkidle");
+    await page
+      .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
+      .click();
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForLoadState("networkidle");
 
-    // await this.page
-    //   .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
-    //   .click();
-    // await this.page.waitForLoadState("domcontentloaded");
-    // await this.page.waitForLoadState("networkidle");
+    await page.locator('//a[contains(text(),"Forms")]').click();
+    await page.waitForLoadState("networkidle");
 
-    // await this.page.locator('//a[contains(text(),"Forms")]').click();
-    // await this.page.waitForLoadState("networkidle");
+    await page
+      .locator('//button[@title="Sync forms with your website."]')
+      .click();
+    await page.waitForLoadState("networkidle");
 
-    // await this.page
-    //   .locator('//button[@title="Sync forms with your website."]')
-    //   .click();
-    // await this.page.waitForLoadState("networkidle");
+    await page.waitForSelector('//p[@class="iziToast-message slideIn"]');
 
-    // await this.page.waitForSelector('//p[@class="iziToast-message slideIn"]');
+    await browser.close();
   }
 
   async form_publish(form_id: string) {
+    const browser = await firefox.launch();
+    const context = await browser.newContext({
+      userAgent:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    });
+    const page = await context.newPage();
+
     let page_url;
-    await this.page.goto(data.wordpress_site_data[0]);
-    await this.page.waitForLoadState("networkidle");
-    await this.page
+    await page.goto(data.wordpress_site_data[0]);
+    await page.waitForLoadState("networkidle");
+    await page
       .locator('//*[@id="user_login"]')
       .fill(data.wordpress_site_data[1]);
-    await this.page
+    await page
       .locator('//*[@id="user_pass"]')
       .fill(data.wordpress_site_data[2]);
-    await this.page.locator('//*[@id="wp-submit"]').click();
-    await this.page.waitForLoadState("networkidle");
+    await page.locator('//*[@id="wp-submit"]').click();
+    await page.waitForLoadState("networkidle");
 
-    await this.page.goto(
+    await page.goto(
       `${data.wordpress_site_data[0]}/post-new.php?post_type=page`
     );
-    await this.page.waitForLoadState("networkidle");
+    await page.waitForLoadState("networkidle");
 
-    await expect(this.page.locator(".wp-heading-inline")).toHaveText(
-      "Add New Page"
-    );
+    await expect(page.locator(".wp-heading-inline")).toHaveText("Add New Page");
 
-    await this.page.locator("#title").fill(`Automated Forms`);
+    await page.locator("#title").fill(`Automated Forms`);
 
-    await this.page.locator('//button[text()="Text"]').click();
-    await this.page.locator('//textarea[@id="content"]').click();
-    await this.page
+    await page.locator('//button[text()="Text"]').click();
+    await page.locator('//textarea[@id="content"]').click();
+    await page
       .locator('//textarea[@id="content"]')
       .fill(`[wemail_form id="${form_id}"]`);
-    await this.page.waitForTimeout(3000);
-    await this.page.waitForLoadState("networkidle");
+    await page.waitForTimeout(3000);
+    await page.waitForLoadState("networkidle");
 
-    await this.page.locator('//input[@id="publish"]').click();
+    await page.locator('//input[@id="publish"]').click();
 
-    await this.page.waitForLoadState("networkidle");
+    await page.waitForLoadState("networkidle");
 
-    if (await this.page.locator('//*[@id="message"]/p/a').isVisible()) {
-      page_url = await this.page
+    if (await page.locator('//*[@id="message"]/p/a').isVisible()) {
+      page_url = await page
         .locator('//*[@id="message"]/p/a')
         .getAttribute("href");
     } else {
       page_url = "";
     }
-
+    await browser.close();
     return page_url;
   }
 
   async form_submit(form_page_url: string, subscriber_email: string) {
-    await this.page.goto(form_page_url);
-    await this.page.waitForLoadState("networkidle");
-    // await this.page.waitForLoadState("domcontentloaded");
+    const browser = await firefox.launch();
+    const context = await browser.newContext({
+      userAgent:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    });
+    const page = await context.newPage();
+    await page.goto(form_page_url);
 
-    await this.page.locator("#wemail-form-field-3").fill("dummy user");
-    await this.page.locator("#wemail-form-field-4").fill(subscriber_email);
-    await this.page.waitForTimeout(5000);
-    await this.page
+    await page.locator("#wemail-form-field-3").fill("dummy user");
+    await page.locator("#wemail-form-field-4").fill(subscriber_email);
+    // await page.waitForTimeout(5000);
+    await page
       .locator(
         '//button[@class="submit-button" and contains(text(), "Join Today")]'
       )
       .click();
-    // await this.page.waitForLoadState("domcontentloaded");
-    await this.page.waitForTimeout(5000);
-    await expect(this.page.locator('//div[@class="swal-title"]')).toContainText(
+    // await page.waitForLoadState("domcontentloaded");
+    await page.waitForTimeout(5000);
+    await expect(page.locator('//div[@class="swal-title"]')).toContainText(
       "Success!"
     );
-    await this.page
+    await page
       .locator('//button[@class="swal-button swal-button--confirm"]')
       .click();
+    await browser.close();
   }
 }

@@ -142,15 +142,10 @@ jobs:
           npm install allure-commandline
           npx playwright install firefox
 
-      - name: Set User Agent
-        run: |
-          echo "USER_AGENT='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'"
-
       - name: Run Playwright tests on Staging
         # working-directory: ./tests/api_automation
         run: |
-          user_agent=$USER_AGENT
-          STAGING=1 npx playwright test -g "Forms Sync. with WP Site"
+          STAGING=1 npx playwright test
 
       - name: Get Allure history
         uses: actions/checkout@v3

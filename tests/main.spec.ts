@@ -108,22 +108,22 @@ test("Form Sync with Frontend", async ({ request }) => {
   await form.form_sync(forms_id[0]);
 });
 
-test("Forms Sync. with WP Site", async ({ page }) => {
-  const admin = new AdminPage(page);
+test("Forms Sync. with WP Site", async ({}) => {
+  const admin = new AdminPage();
   await admin.form_sync_with_frontend();
 });
 
-test.skip("Forms Added into Site Frontend", async ({ page }) => {
-  const admin = new AdminPage(page);
+test("Forms Added into Site Frontend", async ({}) => {
+  const admin = new AdminPage();
   form_page_url = await admin.form_publish(forms_id[0]);
 });
 
-test.skip("Form Submission from Frontend", async ({ page }) => {
-  const admin = new AdminPage(page);
+test("Form Submission from Frontend", async ({}) => {
+  const admin = new AdminPage();
   await admin.form_submit(form_page_url, form_subscriber_email.toLowerCase());
 });
 
-test.skip("Subscriber's info - Signed up through Form", async ({ request }) => {
+test("Subscriber's info - Signed up through Form", async ({ request }) => {
   const subscriber = new SubscriberPage(request);
   subscribers_id.push(
     await subscriber.subscribers_list(list_id, form_subscriber_email)
@@ -170,7 +170,7 @@ test.skip("Campaign Delete", async ({ request }) => {
   await campaign.delete_campaign(campaign_id);
 });
 
-test("Form Delete", async ({ request }) => {
+test.skip("Form Delete", async ({ request }) => {
   await new Promise((r) => setTimeout(r, 10000));
   const form = new FormPage(request);
   if (forms_id.length >= 1) {
