@@ -145,10 +145,20 @@ jobs:
       #       | awk -F':' '/User-Agent/{print $2}')
       #     echo "User Agent: $user_agent"
       #     echo "User Agent: ${{ env.GITHUB_ACTOR }}"
+      # - name: Get User Agent
+      #   id: get_user_agent
+      #   run: |
+      #     echo "::set-env name=RUN_URL::https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      # - name: Retrieve User Agent
+      #   run: |
+      #     run_url=$RUN_URL
+      #     user_agent=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$run_url" | jq -r '.head_commit.author.user_agent')
+      #     echo "User Agent: $user_agent"
+
       - name: Get User Agent
         id: get_user_agent
         run: |
-          echo "::set-env name=RUN_URL::https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "::set-output name=run_url::https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
       - name: Retrieve User Agent
         run: |
           run_url=$RUN_URL
