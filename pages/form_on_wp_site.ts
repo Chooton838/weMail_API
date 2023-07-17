@@ -8,41 +8,43 @@ export class AdminPage {
 
   async form_sync_with_frontend() {
     const browser = await firefox.launch();
-    const context = await browser.newContext({
-      userAgent:
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-    });
+    // const context = await browser.newContext({
+    //   userAgent:
+    //     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    // });
+    const context = await browser.newContext();
     const page = await context.newPage();
 
     await page.goto(data.wordpress_site_data[0]);
+    console.log(await page.evaluate(() => window.navigator.userAgent));
     await page.waitForLoadState("networkidle");
 
-    await page
-      .locator('//*[@id="user_login"]')
-      .fill(data.wordpress_site_data[1]);
-    await page
-      .locator('//*[@id="user_pass"]')
-      .fill(data.wordpress_site_data[2]);
-    await page.locator('//*[@id="wp-submit"]').click();
-    await page.waitForLoadState("networkidle");
+    // await page
+    //   .locator('//*[@id="user_login"]')
+    //   .fill(data.wordpress_site_data[1]);
+    // await page
+    //   .locator('//*[@id="user_pass"]')
+    //   .fill(data.wordpress_site_data[2]);
+    // await page.locator('//*[@id="wp-submit"]').click();
+    // await page.waitForLoadState("networkidle");
 
-    await page
-      .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
-      .click();
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForLoadState("networkidle");
+    // await page
+    //   .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
+    //   .click();
+    // await page.waitForLoadState("domcontentloaded");
+    // await page.waitForLoadState("networkidle");
 
-    await page.locator('//a[contains(text(),"Forms")]').click();
-    await page.waitForLoadState("networkidle");
+    // await page.locator('//a[contains(text(),"Forms")]').click();
+    // await page.waitForLoadState("networkidle");
 
-    await page
-      .locator('//button[@title="Sync forms with your website."]')
-      .click();
-    await page.waitForLoadState("networkidle");
+    // await page
+    //   .locator('//button[@title="Sync forms with your website."]')
+    //   .click();
+    // await page.waitForLoadState("networkidle");
 
-    await page.waitForSelector('//p[@class="iziToast-message slideIn"]');
+    // await page.waitForSelector('//p[@class="iziToast-message slideIn"]');
 
-    await browser.close();
+    // await browser.close();
   }
 
   async form_publish(form_id: string) {
