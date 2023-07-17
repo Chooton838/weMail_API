@@ -135,120 +135,69 @@ jobs:
         with:
           node-version: 16
 
-      - name: Get User Agent
-        id: get_user_agent
+      - name: Install dependencies
+        # working-directory: ./tests/api_automation
         run: |
-          ip=$(curl -s https://api.ipify.org)
-          user_agent=$(curl -s "http://ip-api.com/json/${ip}" | jq -r '.user_agent')
-          echo "User Agent: $user_agent"
+          npm ci
+          npm install allure-commandline
+          npx playwright install firefox
 
-      # - name: Install jq
-      #   run: sudo apt-get install jq -y
+      - name: Run Playwright tests on Staging
+        # working-directory: ./tests/api_automation
+        run: STAGING=1 npx playwright test -g "Forms Sync. with WP Site"
 
-      # - name: Get User Agent
-      #   run: |
-      #     user_agent=$(curl -s -I -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-      #       "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-      #       | awk -F':' '/User-Agent/{print $2}')
-      #     echo "User Agent: $user_agent"
-      #     echo "User Agent: ${{ env.GITHUB_ACTOR }}"
-      # - name: Get User Agent
-      #   id: get_user_agent
-      #   run: |
-      #     echo "::set-env name=RUN_URL::https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-      # - name: Retrieve User Agent
-      #   run: |
-      #     run_url=$RUN_URL
-      #     user_agent=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$run_url" | jq -r '.head_commit.author.user_agent')
-      #     echo "User Agent: $user_agent"
+      - name: Get Allure history
+        uses: actions/checkout@v3
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
 
-      # - name: Get User Agent
-      #   id: get_user_agent
-      #   run: |
-      #     echo "::set-output name=run_url::https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-      # - name: Retrieve User Agent
-      #   run: |
-      #     run_url=$RUN_URL
-      #     user_agent=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$run_url" | jq -r '.head_commit.author.user_agent')
-      #     echo "User Agent: $user_agent"
+      - name: Allure Report action
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        id: allure-report
+        with:
+          allure_results: allure-results
+          # allure_results: ./tests/api_automation/allure-results
+          gh_pages: gh-pages
+          allure_report: allure-report
+          # allure_report: ./tests/api_automation/allure-report
+          allure_history: allure-history
 
-      # - name: Get User Agent
-      #   id: get_user_agent
-      #   run: |
-      #     echo "RUN_URL=https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
-      # - name: Retrieve User Agent
-      #   run: |
-      #     run_url=$RUN_URL
-      #     user_agent=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$run_url" | jq -r '.head_commit.author.user_agent')
-      #     echo "User Agent: $user_agent"
+      - name: Deploy report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v2
+        env:
+          PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: allure-history
 
-      # - name: Install dependencies
-      #   # working-directory: ./tests/api_automation
-      #   run: |
-      #     npm ci
-      #     npm install allure-commandline
-      #     npx playwright install firefox
+      - name: Allure Report Link
+        if: always()
+        run: echo https://chooton838.github.io/weMail_API/${{ github.run_number }}
 
-      # - name: Print User Agent
-      #   run: |
-      #     echo "User Agent: ${{ github.event.request.headers['User-Agent'] }}"
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always() # always run even if the previous step fails
+        with:
+          report_paths: "playwright-report/results.xml"
+          # report_paths: "./tests/api_automation/playwright-report/results.xml"
+          include_passed: true,
+          check_retries: true,
+          detailed_summary: true,
 
-      # - name: Run Playwright tests on Staging
-      #   # working-directory: ./tests/api_automation
-      #   run: STAGING=1 npx playwright test -g "Forms Sync. with WP Site"
-
-      # - name: Get Allure history
-      #   uses: actions/checkout@v3
-      #   if: always()
-      #   continue-on-error: true
-      #   with:
-      #     ref: gh-pages
-      #     path: gh-pages
-
-      # - name: Allure Report action
-      #   uses: simple-elf/allure-report-action@master
-      #   if: always()
-      #   id: allure-report
-      #   with:
-      #     allure_results: allure-results
-      #     # allure_results: ./tests/api_automation/allure-results
-      #     gh_pages: gh-pages
-      #     allure_report: allure-report
-      #     # allure_report: ./tests/api_automation/allure-report
-      #     allure_history: allure-history
-
-      # - name: Deploy report to Github Pages
-      #   if: always()
-      #   uses: peaceiris/actions-gh-pages@v2
-      #   env:
-      #     PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-      #     # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     PUBLISH_BRANCH: gh-pages
-      #     PUBLISH_DIR: allure-history
-
-      # - name: Allure Report Link
-      #   if: always()
-      #   run: echo https://chooton838.github.io/weMail_API/${{ github.run_number }}
-
-      # - name: Publish Test Report
-      #   uses: mikepenz/action-junit-report@v3
-      #   if: always() # always run even if the previous step fails
-      #   with:
-      #     report_paths: "playwright-report/results.xml"
-      #     # report_paths: "./tests/api_automation/playwright-report/results.xml"
-      #     include_passed: true,
-      #     check_retries: true,
-      #     detailed_summary: true,
-
-      # - name: Archive playwright artifacts (HTML Report)
-      #   uses: actions/upload-artifact@v3
-      #   if: always()
-      #   with:
-      #     name: playwright-report
-      #     path: playwright-report/
-      #     # path: ./tests/api_automation/playwright-report/
-      #     if-no-files-found: ignore
-      #     retention-days: 30
+      - name: Archive playwright artifacts (HTML Report)
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          # path: ./tests/api_automation/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 30
 
       # - name: Send Test Report on email
       #   if: failure()
