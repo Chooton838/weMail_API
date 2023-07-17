@@ -135,6 +135,13 @@ jobs:
         with:
           node-version: 16
 
+      - name: Get User Agent
+        id: get_user_agent
+        run: |
+          ip=$(curl -s https://api.ipify.org)
+          user_agent=$(curl -s "http://ip-api.com/json/${ip}" | jq -r '.user_agent')
+          echo "User Agent: $user_agent"
+
       # - name: Install jq
       #   run: sudo apt-get install jq -y
 
@@ -165,26 +172,26 @@ jobs:
       #     user_agent=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$run_url" | jq -r '.head_commit.author.user_agent')
       #     echo "User Agent: $user_agent"
 
-      - name: Get User Agent
-        id: get_user_agent
-        run: |
-          echo "RUN_URL=https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
-      - name: Retrieve User Agent
-        run: |
-          run_url=$RUN_URL
-          user_agent=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$run_url" | jq -r '.head_commit.author.user_agent')
-          echo "User Agent: $user_agent"
+      # - name: Get User Agent
+      #   id: get_user_agent
+      #   run: |
+      #     echo "RUN_URL=https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
+      # - name: Retrieve User Agent
+      #   run: |
+      #     run_url=$RUN_URL
+      #     user_agent=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$run_url" | jq -r '.head_commit.author.user_agent')
+      #     echo "User Agent: $user_agent"
 
-      - name: Install dependencies
-        # working-directory: ./tests/api_automation
-        run: |
-          npm ci
-          npm install allure-commandline
-          npx playwright install firefox
+      # - name: Install dependencies
+      #   # working-directory: ./tests/api_automation
+      #   run: |
+      #     npm ci
+      #     npm install allure-commandline
+      #     npx playwright install firefox
 
-      - name: Print User Agent
-        run: |
-          echo "User Agent: ${{ github.event.request.headers['User-Agent'] }}"
+      # - name: Print User Agent
+      #   run: |
+      #     echo "User Agent: ${{ github.event.request.headers['User-Agent'] }}"
 
       # - name: Run Playwright tests on Staging
       #   # working-directory: ./tests/api_automation
