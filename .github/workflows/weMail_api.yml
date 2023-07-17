@@ -140,9 +140,9 @@ jobs:
 
       - name: Get User Agent
         run: |
-          curl -s -H "Authorization: Bearer ${{ secrets.PERSONAL_TOKEN }}" \
+          curl -s -I -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            | jq -r '.head_commit.author.user_agent'
+            | awk -F':' '/User-Agent/{print $2}'
 
       - name: Install dependencies
         # working-directory: ./tests/api_automation
