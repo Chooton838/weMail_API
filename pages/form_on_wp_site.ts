@@ -9,12 +9,16 @@ export class AdminPage {
   async form_sync_with_frontend() {
     const browser = await firefox.launch();
     const context = await browser.newContext({
+      recordVideo: { dir: "../test-results/" },
       userAgent:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
     });
     const page = await context.newPage();
-
+    await page.screenshot({ path: "screenshot.png" });
     await page.goto(data.wordpress_site_data[0]);
+    // await page.goto("https://wesxtcfvgb.cyvubhndevsqa.com/wp-admin");
+    await page.screenshot({ path: "screenshot2.png" });
+    await page.screenshot({ path: "../playwright-report/ssss.png" });
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(5000);
 
@@ -42,8 +46,9 @@ export class AdminPage {
     // await page.waitForLoadState("networkidle");
 
     // await page.waitForSelector('//p[@class="iziToast-message slideIn"]');
-
-    await browser.close();
+    // await browserContext.close();
+    await context.close();
+    // await browser.close();
   }
 
   async form_publish(form_id: string) {
