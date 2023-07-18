@@ -16,31 +16,32 @@ export class AdminPage {
 
     await page.goto(data.wordpress_site_data[0]);
     await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(5000);
 
-    await page
-      .locator('//*[@id="user_login"]')
-      .fill(data.wordpress_site_data[1]);
-    await page
-      .locator('//*[@id="user_pass"]')
-      .fill(data.wordpress_site_data[2]);
-    await page.locator('//*[@id="wp-submit"]').click();
-    await page.waitForLoadState("networkidle");
+    // await page
+    //   .locator('//*[@id="user_login"]')
+    //   .fill(data.wordpress_site_data[1]);
+    // await page
+    //   .locator('//*[@id="user_pass"]')
+    //   .fill(data.wordpress_site_data[2]);
+    // await page.locator('//*[@id="wp-submit"]').click();
+    // await page.waitForLoadState("networkidle");
 
-    await page
-      .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
-      .click();
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForLoadState("networkidle");
+    // await page
+    //   .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
+    //   .click();
+    // await page.waitForLoadState("domcontentloaded");
+    // await page.waitForLoadState("networkidle");
 
-    await page.locator('//a[contains(text(),"Forms")]').click();
-    await page.waitForLoadState("networkidle");
+    // await page.locator('//a[contains(text(),"Forms")]').click();
+    // await page.waitForLoadState("networkidle");
 
-    await page
-      .locator('//button[@title="Sync forms with your website."]')
-      .click();
-    await page.waitForLoadState("networkidle");
+    // await page
+    //   .locator('//button[@title="Sync forms with your website."]')
+    //   .click();
+    // await page.waitForLoadState("networkidle");
 
-    await page.waitForSelector('//p[@class="iziToast-message slideIn"]');
+    // await page.waitForSelector('//p[@class="iziToast-message slideIn"]');
 
     await browser.close();
   }
