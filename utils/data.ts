@@ -61,6 +61,24 @@ let data: {
   };
 
   wordpress_site_data: Array<string>;
+
+  automation_create_data: {
+    template: string;
+    name: string;
+    triggers: [
+      {
+        name: string;
+        icon: string;
+        title: string;
+        description: string;
+        payload: {
+          list_id: string;
+          rejoin: boolean;
+        };
+      }
+    ];
+    steps: {}[];
+  };
 } = {
   campaign_data: {
     from_email: "sqa@wedevsqa.com",
@@ -481,6 +499,45 @@ let data: {
           process.env.WP_SITE_USER_NAME!,
           process.env.WP_SITE_USER_PASSWORD!,
         ],
+
+  automation_create_data: {
+    template: "welcome-message",
+    name: "Automated - Welcome Message",
+    triggers: [
+      {
+        name: "SubscriberJoin",
+        icon: "https://cdn-staging.getwemail.io/images/automation/triggers/subscriber-join.svg",
+        title: "When subscriber joins a list",
+        description: "Automation triggers when a new subscriber joins a list",
+        payload: {
+          list_id: "",
+          rejoin: true,
+        },
+      },
+    ],
+    steps: [
+      {
+        _name: "Delay",
+        type: "minutes",
+        offset: 1,
+        _index: 0,
+      },
+      {
+        _name: "SendEmail",
+        mail: {
+          name: "Untitled",
+          pre_header: null,
+          subject: "Subject: Untitled",
+          from_name: null,
+          from_email: null,
+          different_reply: false,
+          reply_to_name: null,
+          reply_to_email: null,
+        },
+        _index: 1,
+      },
+    ],
+  },
 };
 
 export { data };

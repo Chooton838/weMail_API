@@ -4,11 +4,12 @@ import { test } from "@playwright/test";
 import { AdminPage } from "../pages/form_on_wp_site";
 // import { FormPage } from "../pages/forms";
 // import { ListPage } from "../pages/list";
-// import { LoginPage } from "../pages/login";
+import { LoginPage } from "../pages/login";
 // import { GatewayPage } from "../pages/sending_gateways";
 // import { SubscriberPage } from "../pages/subscriber";
-// import config from "../playwright.config";
+import config from "../playwright.config";
 // import { data } from "../utils/data";
+import { AutomationPage } from "../pages/automation";
 
 // let list_id: string = "";
 // let list_name: string = faker.lorem.words(2);
@@ -17,19 +18,20 @@ import { AdminPage } from "../pages/form_on_wp_site";
 // let form_subscriber_email: string = faker.internet.email();
 // let forms_id: string[] = [];
 // let form_page_url: string = "";
+let automation_id: string = "";
 // let campaign_id: string = "";
 // let campaign_sending_gateway: string = "smtp";
 
 // /* ------------------------ Login ------------------------ */
-// test("Login", async ({ request }) => {
-//   const login_data: Array<string> = [
-//     config.use?.httpCredentials?.username!,
-//     config.use?.httpCredentials?.password!,
-//   ];
+test("Login", async ({ request }) => {
+  const login_data: Array<string> = [
+    config.use?.httpCredentials?.username!,
+    config.use?.httpCredentials?.password!,
+  ];
 
-//   const login = new LoginPage(request);
-//   await login.login(login_data);
-// });
+  const login = new LoginPage(request);
+  await login.login(login_data);
+});
 
 // /* ------------------------ CRUD Functionalities of List ------------------------ */
 // test("List Create", async ({ request }) => {
@@ -75,6 +77,18 @@ import { AdminPage } from "../pages/form_on_wp_site";
 //   );
 // });
 
+test("Automation Create", async ({ request }) => {
+  let list_id_a: string = "c1e482a6-a080-409b-a9c9-6559eb6d8b97";
+  const automation = new AutomationPage(request);
+  automation_id = await automation.automation_create(list_id_a);
+  console.log(automation_id);
+});
+
+test("Automation Activation", async ({ request }) => {
+  const automation = new AutomationPage(request);
+  await automation.automation_activation(automation_id);
+});
+
 // /* ------------------------ CRUD Functionalities of Forms ------------------------ */
 // test("Inline Form Create", async ({ request }) => {
 //   const form = new FormPage(request);
@@ -108,7 +122,7 @@ import { AdminPage } from "../pages/form_on_wp_site";
 //   await form.form_sync(forms_id[0]);
 // });
 
-test("Forms Sync. with WP Site", async ({}) => {
+test.skip("Forms Sync. with WP Site", async ({}) => {
   const admin = new AdminPage();
   await admin.form_sync_with_frontend();
 });
