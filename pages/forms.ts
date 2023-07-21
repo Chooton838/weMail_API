@@ -73,9 +73,7 @@ export class FormPage {
         }
       }
 
-      if (flag == true) {
-        console.log("Form Synched Successfully");
-      } else {
+      if (flag == false) {
         console.log("Created Form Not Found");
       }
     } catch (err) {

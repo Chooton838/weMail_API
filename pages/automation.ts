@@ -10,7 +10,7 @@ export class AutomationPage {
     this.request = request;
   }
 
-  async automation_create(list_id: string) {
+  async welcome_automation_create(list_id: string) {
     data.automation_create_data.triggers[0].payload.list_id = list_id;
     const automation_create = await this.request.post(
       `${config.use?.baseURL}/v1/automations`,
@@ -49,7 +49,7 @@ export class AutomationPage {
       }
     );
 
-    let automation_activation_response;
+    let automation_activation_response: { message: string };
 
     const base = new BasePage(this.request);
     automation_activation_response = await base.response_checker(
@@ -57,106 +57,56 @@ export class AutomationPage {
     );
 
     try {
-      console.log(automation_activation_response);
+      expect(automation_activation_response.message).toEqual(
+        "Automation has updated!"
+      );
     } catch (err) {
       console.log(automation_activation_response);
       expect(automation_activation.ok()).toBeFalsy();
     }
   }
 
-  //   async lists_of_list(list_id: string) {
-  //     const lists_of_list = await this.request.get(
-  //       `${config.use?.baseURL}/v1/lists`
-  //     );
+  async automation_activity(automation_id: string, subscriber_email: string) {
+    const automation_activity = await this.request.get(
+      `${config.use?.baseURL}/v1/automations/${automation_id}/subscribers`
+    );
 
-  //     let lists_of_list_response: {
-  //       data: Array<{ id: string }>;
-  //     } = {
-  //       data: [{ id: "" }],
-  //     };
+    let automation_activity_response: { data: [{ id: string; email: string }] };
 
-  //     const base = new BasePage(this.request);
-  //     lists_of_list_response = await base.response_checker(lists_of_list);
+    const base = new BasePage(this.request);
+    automation_activity_response = await base.response_checker(
+      automation_activity
+    );
 
-  //     try {
-  //       expect(lists_of_list_response.data[0].id).toEqual(list_id);
-  //     } catch (err) {
-  //       console.log(lists_of_list_response);
-  //       expect(lists_of_list.ok()).toBeFalsy();
-  //     }
-  //   }
+    try {
+      if (
+        subscriber_email.toLowerCase() !=
+        automation_activity_response.data[0].email
+      ) {
+        console.log("Automation Not Triggured");
+      }
+    } catch (err) {
+      console.log(automation_activity_response);
+      expect(automation_activity.ok()).toBeFalsy();
+    }
+  }
 
-  //   async list_details(list_id: string) {
-  //     const list_details = await this.request.get(
-  //       `${config.use?.baseURL}/v1/lists/${list_id}`
-  //     );
+  async automation_delete(automatoin_id: string) {
+    const automation_delete = await this.request.post(
+      `${config.use?.baseURL}/v1/campaigns/${automatoin_id}`,
+      { data: { _method: "delete" } }
+    );
 
-  //     let list_details_response: {
-  //       data: { id: string };
-  //     } = {
-  //       data: { id: "" },
-  //     };
+    let automation_delete_reponse: { success: boolean; message: string };
 
-  //     const base = new BasePage(this.request);
-  //     list_details_response = await base.response_checker(list_details);
+    const base = new BasePage(this.request);
+    automation_delete_reponse = await base.response_checker(automation_delete);
 
-  //     try {
-  //       expect(list_details_response.data.id).toEqual(list_id);
-  //     } catch (err) {
-  //       console.log(list_details_response);
-  //       expect(list_details.ok()).toBeFalsy();
-  //     }
-  //   }
-
-  //   async list_update(list_id: string, list_name: string) {
-  //     const list_update = await this.request.put(
-  //       `${config.use?.baseURL}/v1/lists/${list_id}`,
-  //       {
-  //         data: {
-  //           name: `Updated - ${list_name}`,
-  //           description: `${list_name}'s description is also updated`, //Optional
-  //         },
-  //       }
-  //     );
-
-  //     let list_update_response: { message: string } = { message: "" };
-
-  //     const base = new BasePage(this.request);
-  //     list_update_response = await base.response_checker(list_update);
-
-  //     try {
-  //       expect(list_update_response.message).toEqual(
-  //         "List updated successfully."
-  //       );
-  //     } catch (err) {
-  //       console.log(list_update_response);
-  //       expect(list_update.ok()).toBeFalsy();
-  //     }
-  //   }
-
-  //   async list_delete(lists: string[]) {
-  //     const list_delete = await this.request.post(
-  //       `${config.use?.baseURL}/v1/lists`,
-  //       {
-  //         data: {
-  //           ids: lists,
-  //           _method: "DELETE",
-  //         },
-  //       }
-  //     );
-
-  //     let list_delete_response: { message: string } = { message: "" };
-
-  //     const base = new BasePage(this.request);
-  //     list_delete_response = await base.response_checker(list_delete);
-
-  //     try {
-  //       expect(list_delete_response.message).toEqual(
-  //         "Lists deleted successfully"
-  //       );
-  //     } catch (err) {
-  //       console.log(list_delete_response);
-  //       expect(list_delete.ok()).toBeFalsy();
-  //     }
-  //   }
+    try {
+      expect(automation_delete_reponse.success).toEqual(true);
+    } catch (err) {
+      console.log(automation_delete_reponse);
+      expect(automation_delete.ok()).toBeFalsy();
+    }
+  }
 }
