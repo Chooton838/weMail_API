@@ -4,6 +4,7 @@ import { AutomationPage } from "../pages/automation";
 import { CampaignPage } from "../pages/campaign";
 import { AdminPage } from "../pages/form_on_wp_site";
 import { FormPage } from "../pages/forms";
+import { IntegrationsPage } from "../pages/integrations";
 import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
 import { GatewayPage } from "../pages/sending_gateways";
@@ -39,6 +40,9 @@ test("List Create", async ({ request }) => {
   list_id = await list.list_create(list_name);
   data.campaign_data.lists.push(list_id);
   data.form_data.list_id = list_id;
+  data.affiliate_integration_data.list = await list.list_create(
+    faker.lorem.words(2)
+  );
 });
 
 test("Lists of List", async ({ request }) => {
@@ -76,6 +80,17 @@ test("Subscriber Update", async ({ request }) => {
     subscribers_id[0]
   );
 });
+
+test("Affiliate Integration", async ({ request }) => {
+  const integration = new IntegrationsPage(request);
+  await integration.integrate_affiliatewp();
+});
+
+test("Create Affiliate",async ({request}) => {
+  const integration = new IntegrationsPage(request);
+  await integration.create_affiliate(subscriber_email);
+});
+
 
 test("Automation Create", async ({ request }) => {
   const automation = new AutomationPage(request);

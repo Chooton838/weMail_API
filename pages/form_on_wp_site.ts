@@ -77,7 +77,10 @@ export class AdminPage {
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    await page.goto(form_page_url, { waitUntil: "networkidle" });
+    // await page.goto(form_page_url, { waitUntil: "networkidle" });
+    await page.goto(form_page_url);
+    // await page.waitForLoadState("domcontentloaded");
+    // await page.waitForLoadState("networkidle");
 
     await page.locator("#wemail-form-field-3").fill("dummy user");
     await page.locator("#wemail-form-field-4").fill(subscriber_email);

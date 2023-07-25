@@ -79,6 +79,15 @@ let data: {
     ];
     steps: {}[];
   };
+
+  affiliate_integration_data: {
+    key: string;
+    token: string;
+    list: string;
+    sync_existing_data: boolean;
+    rest_url: string;
+    is_affiliate_enabled: boolean;
+  };
 } = {
   campaign_data: {
     from_email: "sqa@wedevsqa.com",
@@ -537,6 +546,15 @@ let data: {
         _index: 1,
       },
     ],
+  },
+
+  affiliate_integration_data: {
+    key: "d499402b178628eae03507a27ad34fd7",
+    token: "596353328e3bed355ec468553a90a764",
+    list: "",
+    sync_existing_data: true,
+    rest_url: "",
+    is_affiliate_enabled: true,
   },
 };
 
