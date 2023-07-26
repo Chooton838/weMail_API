@@ -77,11 +77,15 @@ export class Rat_ListsPage {
       data: [{ id: "" }],
     };
 
-    getListsAllResponse = await getListsRequest.json();
-
-    console.log(`Status is: ${getListsRequest.status()}`);
-    console.log(`Status Text is: ${getListsRequest.statusText()}`);
-    console.log(`The ID of Item[0] is: ${getListsAllResponse.data[0].id}`);
+    try {
+      expect(getListsRequest.ok()).toBeTruthy();
+      getListsAllResponse = await getListsRequest.json();
+      console.log(`The ID of Item[0] is: ${getListsAllResponse.data[0].id}`);
+    } catch (err) {
+      console.log(`Status is: ${getListsRequest.status()}`);
+      console.log(`Status Text is: ${getListsRequest.statusText()}`);
+      console.log(`The ID of Item[0] is: ${getListsAllResponse.data[0].id}`);
+    }
 
     try {
       expect(getListsAllResponse.data[0].id).toEqual(list_created_id);
