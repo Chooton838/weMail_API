@@ -2,8 +2,8 @@ import { faker } from "@faker-js/faker";
 import { test } from "@playwright/test";
 // import { AutomationPage } from "../pages/automation";
 // import { CampaignPage } from "../pages/campaign";
-// import { AdminPage } from "../pages/form_on_wp_site";
-// import { FormPage } from "../pages/forms";
+import { AdminPage } from "../pages/form_on_wp_site";
+import { FormPage } from "../pages/forms";
 // import { IntegrationsPage } from "../pages/integrations";
 import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
@@ -83,7 +83,7 @@ test.describe("CRUD Functionalities of Subscribers", () => {
   let subscribers_id: string[] = [];
   let subscriber_email: string = faker.internet.email();
 
-  test("List Create", async ({ request }) => {
+  test("List Create for Subscriber", async ({ request }) => {
     const list = new ListPage(request);
     list_id = await list.list_create(list_name);
   });
@@ -114,6 +114,17 @@ test.describe("CRUD Functionalities of Subscribers", () => {
     const subscriber = new SubscriberPage(request);
     await subscriber.subscriber_delete(subscribers_id);
   });
+
+  test("Delete Subscriber Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    // For multiple list delete, push list_id on lists array
+    // lists.push("3992afb1-68ba-4ba7-a3c2-ae5dedffb21a");
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
 });
 
 // test("Affiliate Integration", async ({ request }) => {
@@ -136,60 +147,105 @@ test.describe("CRUD Functionalities of Subscribers", () => {
 //   await automation.automation_activation(automation_id);
 // });
 
-// // /* ------------------------ CRUD Functionalities of Forms ------------------------ */
-// test("Inline Form Create", async ({ request }) => {
-//   const form = new FormPage(request);
-//   data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
-//   data.form_data.type = "inline";
-//   forms_id.push(await form.form_create(data.form_data));
-// });
+/* ------------------------ CRUD Functionalities of Forms ------------------------ */
+test.describe.only("Form's Functionalities", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let subscribers_id: string[] = [];
+  let form_subscriber_email: string = faker.internet.email();
+  let forms_id: string[] = [];
+  let form_page_url: string = "";
 
-// test("Modal Form Create", async ({ request }) => {
-//   const form = new FormPage(request);
-//   data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
-//   data.form_data.type = "modal";
-//   forms_id.push(await form.form_create(data.form_data));
-// });
+  test("Forms - List Create", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+    data.form_data.list_id = list_id;
+  });
 
-// test("Forms Update", async ({ request }) => {
-//   const form = new FormPage(request);
-//   if (forms_id.length >= 1) {
-//     for (let i: number = 0; i < forms_id.length; i++) {
-//       data.updated_form_data.name = `Updated form - ${forms_id[i]}`;
-//       data.updated_form_data.list_id = list_id;
-//       await form.form_update(forms_id[i], data.updated_form_data);
-//     }
-//   } else {
-//     console.log("Forms Not Found");
-//   }
-// });
+  test("Inline Form Create", async ({ request }) => {
+    const form = new FormPage(request);
+    data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
+    data.form_data.type = "inline";
+    forms_id.push(await form.form_create(data.form_data));
+  });
 
-// test("Form Sync with Frontend", async ({ request }) => {
-//   const form = new FormPage(request);
-//   await form.form_sync(forms_id[0]);
-// });
+  test("Modal Form Create", async ({ request }) => {
+    const form = new FormPage(request);
+    data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
+    data.form_data.type = "modal";
+    forms_id.push(await form.form_create(data.form_data));
+  });
 
-// test("Forms Sync. with WP Site", async ({ request }) => {
-//   const admin = new AdminPage();
-//   await admin.form_sync_with_frontend(request);
-// });
+  test("Forms Update", async ({ request }) => {
+    const form = new FormPage(request);
+    if (forms_id.length >= 1) {
+      for (let i: number = 0; i < forms_id.length; i++) {
+        data.updated_form_data.name = `Updated form - ${forms_id[i]}`;
+        data.updated_form_data.list_id = list_id;
+        await form.form_update(forms_id[i], data.updated_form_data);
+      }
+    } else {
+      console.log("Created Forms Not Found");
+    }
+  });
 
-// test("Forms Added into Site Frontend", async ({ request }) => {
-//   const admin = new AdminPage();
-//   form_page_url = await admin.form_publish(request, forms_id[0]);
-// });
+  test("Form Sync with Frontend", async ({ request }) => {
+    const form = new FormPage(request);
+    await form.form_sync(forms_id[0]);
+    await form.form_sync(forms_id[1]);
+  });
 
-// test("Form Submission from Frontend", async ({}) => {
-//   const admin = new AdminPage();
-//   await admin.form_submit(form_page_url, form_subscriber_email.toLowerCase());
-// });
+  test("Forms Sync. with WP Site", async ({ request }) => {
+    const admin = new AdminPage();
+    await admin.form_sync_with_frontend(request);
+  });
 
-// test("Subscriber's info - Signed up through Form", async ({ request }) => {
-//   const subscriber = new SubscriberPage(request);
-//   subscribers_id.push(
-//     await subscriber.subscribers_list(list_id, form_subscriber_email)
-//   );
-// });
+  test("Forms Added into Site Frontend", async ({ request }) => {
+    const admin = new AdminPage();
+    console.log(forms_id);
+    form_page_url = await admin.form_publish(request, forms_id[0]);
+  });
+
+  test("Form Submission from Frontend", async ({}) => {
+    const admin = new AdminPage();
+    await admin.form_submit(form_page_url, form_subscriber_email.toLowerCase());
+  });
+
+  test("Subscriber's info - Signed up through Form", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    subscribers_id.push(
+      await subscriber.subscribers_list(list_id, form_subscriber_email)
+    );
+  });
+
+  test("Form Delete", async ({ request }) => {
+    await new Promise((r) => setTimeout(r, 10000));
+    const form = new FormPage(request);
+    if (forms_id.length >= 1) {
+      for (let i: number = 1; i < forms_id.length; i++) {
+        await form.form_delete(forms_id[i]);
+      }
+    } else {
+      console.log("Forms Not Found");
+    }
+  });
+
+  test("Forms Subscriber Delete", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(subscribers_id);
+  });
+
+  test("Delete Forms Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    // For multiple list delete, push list_id on lists array
+    // lists.push("3992afb1-68ba-4ba7-a3c2-ae5dedffb21a");
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+});
 
 // test("Sending Gateway Connect", async ({ request }) => {
 //   const sending_gateways = new GatewayPage(request);
@@ -239,16 +295,4 @@ test.describe("CRUD Functionalities of Subscribers", () => {
 // test("Automation Delete", async ({ request }) => {
 //   const automation = new AutomationPage(request);
 //   await automation.automation_delete(automation_id);
-// });
-
-// test("Form Delete", async ({ request }) => {
-//   await new Promise((r) => setTimeout(r, 10000));
-//   const form = new FormPage(request);
-//   if (forms_id.length >= 1) {
-//     for (let i: number = 1; i < forms_id.length; i++) {
-//       await form.form_delete(forms_id[i]);
-//     }
-//   } else {
-//     console.log("Forms Not Found");
-//   }
 // });
