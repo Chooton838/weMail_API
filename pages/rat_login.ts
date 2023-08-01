@@ -35,8 +35,6 @@ export class Rat_LoginPage {
     try {
       expect(loginRequest.ok()).toBeTruthy();
       loginResponseData = await loginRequest.json();
-      console.log(`Status is: ${loginRequest.status()}`);
-      console.log(`Status Text is: ${loginRequest.statusText()}`);
     } catch (err) {
       console.log(`Status is: ${loginRequest.status()}`);
       console.log(`Status Text is: ${loginRequest.statusText()}`);
@@ -46,9 +44,6 @@ export class Rat_LoginPage {
     try {
       expect(loginResponseData.data.user.email).toEqual(username);
       config.use!.extraHTTPHeaders!.authorization = `Bearer ${loginResponseData.meta.token}`;
-      console.log(
-        `Updated Token is: ${config.use!.extraHTTPHeaders!.authorization}`
-      );
     } catch (err) {
       console.log("Login auth Failed");
       console.log(`Response Data is: ${loginResponseData}`);

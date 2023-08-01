@@ -12,12 +12,21 @@ let data: {
     version: string;
   };
 
+  subscriber_data: {
+    subs_id: string;
+    subs_email: string;
+    subs_first_name: string;
+    subs_last_name: string;
+    subs_phone: string;
+    updated_subs_id: string;
+  };
+
   subscriber_updated_data: {
     first_name: string;
     last_name: string;
     date_of_birth: null;
     source: null;
-    phone: null;
+    phone: string;
     mobile: null;
     address1: null;
     address2: null;
@@ -91,12 +100,21 @@ let data: {
     version: "1.12.0",
   },
 
+  subscriber_data: {
+    subs_id: "",
+    subs_email: faker.internet.email(),
+    subs_first_name: faker.name.firstName(),
+    subs_last_name: faker.name.lastName(),
+    subs_phone: faker.phone.number(),
+    updated_subs_id: "",
+  },
+
   subscriber_updated_data: {
     first_name: faker.name.firstName(),
     last_name: faker.name.lastName(),
     date_of_birth: null,
     source: null,
-    phone: null,
+    phone: faker.phone.number(),
     mobile: null,
     address1: null,
     address2: null,
@@ -494,11 +512,7 @@ let data: {
           process.env.STAGING_WP_SITE_USER_NAME!,
           process.env.STAGING_WP_SITE_USER_PASSWORD!,
         ]
-      : [
-          process.env.WP_SITE_URL!,
-          process.env.WP_SITE_USER_NAME!,
-          process.env.WP_SITE_USER_PASSWORD!,
-        ],
+      : [process.env.WP_SITE_URL!, process.env.WP_SITE_USER_NAME!, process.env.WP_SITE_USER_PASSWORD!],
 
   automation_create_data: {
     template: "welcome-message",
