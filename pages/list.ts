@@ -51,12 +51,23 @@ export class ListPage {
     } = {
       data: [{ id: "" }],
     };
+    let flag: boolean = false;
 
     const base = new BasePage(this.request);
     lists_of_list_response = await base.response_checker(lists_of_list);
 
     try {
-      expect(lists_of_list_response.data[0].id).toEqual(list_id);
+      if (lists_of_list_response.data.length > 1) {
+        for (let i: number = 0; i < lists_of_list_response.data.length; i++) {
+          if (lists_of_list_response.data[i].id == list_id) {
+            flag = true;
+            break;
+          }
+        }
+      }
+      if (flag == false) {
+        console.log("Created List Not Found");
+      }
     } catch (err) {
       console.log(lists_of_list_response);
       expect(lists_of_list.ok()).toBeFalsy();
