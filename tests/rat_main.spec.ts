@@ -6,6 +6,7 @@ import { data } from "../utils/data";
 import { Rat_LoginPage } from "../pages/rat_login";
 import { Rat_ListsPage } from "../pages/rat_lists";
 import { Rat_SubscribersPage } from "../pages/rat_subscribers";
+import { Rat_IntegrationsPage } from "../pages/rat_intergrations";
 
 //Faker Data
 const listName = faker.lorem.words(2);
@@ -65,14 +66,42 @@ test("Test-6: Create Subscriber", async ({ request }) => {
 test("Test-7: Validate Subscriber added in List", async ({ request }) => {
   const subscribers = new Rat_SubscribersPage(request);
 
-  const subs_id = await subscribers.validate_subscriber(data.form_data.list_id, data.subscriber_data.subs_id);
-
+  const subs_id = await subscribers.validate_subscriber(
+    data.form_data.list_id,
+    data.subscriber_data.subs_id
+  );
 });
 
 test("Test-8: Update Subscriber in List", async ({ request }) => {
   const subscribers = new Rat_SubscribersPage(request);
 
-  const updated_subs_id = await subscribers.update_subscriber(data.subscriber_data.subs_phone, data.subscriber_data.subs_id);
+  const updated_subs_id = await subscribers.update_subscriber(
+    data.subscriber_data.subs_phone,
+    data.subscriber_data.subs_id
+  );
 
   data.subscriber_data.updated_subs_id = updated_subs_id;
+});
+
+test("Test-9: Delete Subscriber from List", async ({ request }) => {
+  const subscribers = new Rat_SubscribersPage(request);
+
+  await subscribers.delete_subscriber(data.subscriber_data.updated_subs_id);
+});
+
+/**
+ *
+ * Integrations - Contact Forms
+ *
+ */
+
+test("Test-10: Setup - 'Contact Form 7'...", async ({ request }) => {
+  //Create New List
+  const list = new Rat_ListsPage(request);
+  const integrations = new Rat_IntegrationsPage(request);
+
+  const list_created_id = await list.list_create(`[Rat-QA] Contact-Form-7 [001]`);
+  data.form_data.list_id = list_created_id;
+  //Setup - 'Contact Form 7'...
+
 });

@@ -134,4 +134,39 @@ export class Rat_SubscribersPage {
 
     return update_Subscriber_Response.data.id;
   }
+
+  async delete_subscriber(updated_subs_id) {
+    const delete_Subscriber_Request = await this.request.delete(
+      `${config.use?.baseURL}/v1/subscribers/${updated_subs_id}`,
+      {
+        data: {
+          permanent: true,
+        },
+      }
+    );
+
+    try {
+      expect(delete_Subscriber_Request.ok()).toBeTruthy();
+    } catch (err) {
+      console.log(`Status is: ${delete_Subscriber_Request.status()}`);
+      console.log(`StatusText is: ${delete_Subscriber_Request.statusText()}`);
+      expect(delete_Subscriber_Request.ok()).toBeTruthy();
+    }
+
+    let delete_Subscriber_Response: {
+      deleted: number;
+    } = {
+      deleted: 0,
+    };
+
+    try {
+      delete_Subscriber_Response = await delete_Subscriber_Request.json();
+      console.log(`Reponse is: ${delete_Subscriber_Response.deleted}`);
+      expect(delete_Subscriber_Response.deleted).toBe(1);
+    } catch (err) {
+      console.log(`Status is: ${delete_Subscriber_Request.status()}`);
+      console.log(`StatusText is: ${delete_Subscriber_Request.statusText()}`);
+      expect(delete_Subscriber_Request.ok()).toBeTruthy();
+    }
+  }
 }
