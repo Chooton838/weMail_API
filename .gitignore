@@ -3,6 +3,7 @@ node_modules/
 /playwright-report/
 /playwright/.cache/
 /allure-results
+state.json
 .env
 .vscode
 .DS_Store

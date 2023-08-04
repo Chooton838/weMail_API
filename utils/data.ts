@@ -62,6 +62,22 @@ let data: {
 
   wordpress_site_data: Array<string>;
 
+  integrations: {
+    contact_form_7: {
+      settings: [
+        {
+          id: string;
+          list_id: string;
+          overwrite: boolean;
+          map: {
+            "your-name": string;
+            "your-email": string;
+          };
+        }
+      ];
+    };
+  };
+
   automation_create_data: {
     template: string;
     name: string;
@@ -88,6 +104,8 @@ let data: {
     rest_url: string;
     is_affiliate_enabled: boolean;
   };
+
+  rest_url: string;
 } = {
   campaign_data: {
     from_email: "sqa@wedevsqa.com",
@@ -556,6 +574,30 @@ let data: {
     rest_url: "",
     is_affiliate_enabled: true,
   },
+
+  integrations: {
+    contact_form_7: {
+      settings: [
+        {
+          id: "",
+          list_id: "",
+          overwrite: true,
+          map: {
+            "your-name": "first_name",
+            "your-email": "email",
+          },
+        },
+      ],
+    },
+  },
+
+  rest_url: "",
 };
 
 export { data };
+
+data.rest_url =
+  data.wordpress_site_data[0].substring(
+    0,
+    data.wordpress_site_data[0].lastIndexOf("/wp-admin")
+  ) + "/wp-json/";

@@ -56,7 +56,7 @@ export class ListPage {
     lists_of_list_response = await base.response_checker(lists_of_list);
 
     try {
-      expect(lists_of_list_response.data[0].id).toEqual(list_id);
+      expect(lists_of_list_response.data[1].id).toEqual(list_id);
     } catch (err) {
       console.log(lists_of_list_response);
       expect(lists_of_list.ok()).toBeFalsy();

@@ -17,7 +17,7 @@ export class AdminPage {
     await page.waitForLoadState("domcontentloaded");
     await page.waitForLoadState("networkidle");
 
-    await page.locator('//a[contains(text(),"Forms")]').click();
+    await page.locator('//a[text()="Forms"]').click();
     await page.waitForLoadState("networkidle");
 
     await page

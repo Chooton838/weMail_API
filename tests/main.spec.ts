@@ -22,6 +22,7 @@ let form_page_url: string = "";
 let automation_id: string = "";
 let campaign_id: string = "";
 let campaign_sending_gateway: string = "smtp";
+let contact_form_id: string = "";
 
 // /* ------------------------ Login ------------------------ */
 test("Login", async ({ request }) => {
@@ -86,11 +87,10 @@ test("Affiliate Integration", async ({ request }) => {
   await integration.integrate_affiliatewp();
 });
 
-test("Create Affiliate",async ({request}) => {
+test("Create Affiliate", async ({ request }) => {
   const integration = new IntegrationsPage(request);
   await integration.create_affiliate(subscriber_email);
 });
-
 
 test("Automation Create", async ({ request }) => {
   const automation = new AutomationPage(request);
@@ -233,4 +233,14 @@ test.skip("List Delete", async ({ request }) => {
 
   const list = new ListPage(request);
   await list.list_delete(lists);
+});
+
+test.only("Create Contact Form 7", async ({ request }) => {
+  const contact_form_7 = new IntegrationsPage(request);
+  contact_form_id = await contact_form_7.create_contact_form_7();
+});
+
+test.only("Contact Form 7 Integration", async ({ request }) => {
+  const contact_form_7 = new IntegrationsPage(request);
+  await contact_form_7.contact_form_7(contact_form_id, list_id);
 });
