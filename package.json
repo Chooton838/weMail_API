@@ -13,6 +13,7 @@
     "dotenv": "^16.0.3"
   },
   "dependencies": {
-    "allure-playwright": "^2.0.0-beta.26"
+    "allure-playwright": "^2.0.0-beta.26",
+    "axios": "^1.4.0"
   }
 }
