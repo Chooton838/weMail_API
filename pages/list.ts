@@ -67,6 +67,7 @@ export class ListPage {
       }
       if (flag == false) {
         console.log("Created List Not Found");
+        expect(lists_of_list.ok()).toBeFalsy();
       }
     } catch (err) {
       console.log(lists_of_list_response);

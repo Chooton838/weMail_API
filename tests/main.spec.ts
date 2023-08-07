@@ -1,13 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { test } from "@playwright/test";
 // import { AutomationPage } from "../pages/automation";
-// import { CampaignPage } from "../pages/campaign";
+import { CampaignPage } from "../pages/campaign";
 import { AdminPage } from "../pages/form_on_wp_site";
 import { FormPage } from "../pages/forms";
 // import { IntegrationsPage } from "../pages/integrations";
 import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
-// import { GatewayPage } from "../pages/sending_gateways";
+import { GatewayPage } from "../pages/sending_gateways";
 import { SubscriberPage } from "../pages/subscriber";
 import config from "../playwright.config";
 import { data } from "../utils/data";
@@ -34,8 +34,8 @@ test.beforeAll(async ({ request }) => {
   await login.login(login_data);
 });
 
-// /* ------------------------ CRUD Functionalities of List ------------------------ */
-test.describe("CRUD Functionalities of List", () => {
+// /* ------------------------ Functionalities of List ------------------------ */
+test.describe("List Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
 
@@ -49,7 +49,7 @@ test.describe("CRUD Functionalities of List", () => {
     // );
   });
 
-  test("Lists of List", async ({ request }) => {
+  test("Validate Created List", async ({ request }) => {
     const list = new ListPage(request);
     await list.lists_of_list(list_id);
   });
@@ -76,8 +76,8 @@ test.describe("CRUD Functionalities of List", () => {
   });
 });
 
-/* ------------------------ CRUD Functionalities of Subscribers ------------------------ */
-test.describe("CRUD Functionalities of Subscribers", () => {
+/* ------------------------ Functionalities of Subscribers ------------------------ */
+test.describe("Subscribers Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
   let subscribers_id: string[] = [];
@@ -87,6 +87,7 @@ test.describe("CRUD Functionalities of Subscribers", () => {
     const list = new ListPage(request);
     list_id = await list.list_create(list_name);
   });
+
   test("Subscriber Create", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
     subscribers_id.push(
@@ -119,36 +120,13 @@ test.describe("CRUD Functionalities of Subscribers", () => {
     let lists: Array<string> = [];
     lists.push(list_id);
 
-    // For multiple list delete, push list_id on lists array
-    // lists.push("3992afb1-68ba-4ba7-a3c2-ae5dedffb21a");
-
     const list = new ListPage(request);
     await list.list_delete(lists);
   });
 });
 
-// test("Affiliate Integration", async ({ request }) => {
-//   const integration = new IntegrationsPage(request);
-//   await integration.integrate_affiliatewp();
-// });
-
-// test("Create Affiliate", async ({ request }) => {
-//   const integration = new IntegrationsPage(request);
-//   await integration.create_affiliate(subscriber_email);
-// });
-
-// test("Automation Create", async ({ request }) => {
-//   const automation = new AutomationPage(request);
-//   automation_id = await automation.welcome_automation_create(list_id);
-// });
-
-// test("Automation Activation", async ({ request }) => {
-//   const automation = new AutomationPage(request);
-//   await automation.automation_activation(automation_id);
-// });
-
-/* ------------------------ CRUD Functionalities of Forms ------------------------ */
-test.describe.only("Form's Functionalities", () => {
+/* ------------------------ Functionalities of Forms ------------------------ */
+test.describe("Forms Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
   let subscribers_id: string[] = [];
@@ -189,7 +167,7 @@ test.describe.only("Form's Functionalities", () => {
     }
   });
 
-  test("Form Sync with Frontend", async ({ request }) => {
+  test("Form Sync with APP", async ({ request }) => {
     const form = new FormPage(request);
     await form.form_sync(forms_id[0]);
     await form.form_sync(forms_id[1]);
@@ -202,7 +180,6 @@ test.describe.only("Form's Functionalities", () => {
 
   test("Forms Added into Site Frontend", async ({ request }) => {
     const admin = new AdminPage();
-    console.log(forms_id);
     form_page_url = await admin.form_publish(request, forms_id[0]);
   });
 
@@ -239,52 +216,156 @@ test.describe.only("Form's Functionalities", () => {
     let lists: Array<string> = [];
     lists.push(list_id);
 
-    // For multiple list delete, push list_id on lists array
-    // lists.push("3992afb1-68ba-4ba7-a3c2-ae5dedffb21a");
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+});
+
+// /* ------------------------ Functionalities of Campaign ------------------------ */
+test.describe.only("Campaign Functionalities", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let subscribers_id: string[] = [];
+  let subscriber_email: string = faker.internet.email();
+  let unsubscribed_subscriber_email: string = faker.internet.email();
+  let campaign_id: string = "";
+  let email_id: string = "";
+  let campaign_sending_gateway: string = "smtp";
+
+  test("Sending Gateway Connect", async ({ request }) => {
+    const sending_gateways = new GatewayPage(request);
+    await sending_gateways.connect_gateway(
+      campaign_sending_gateway,
+      data.smtp_data
+    );
+  });
+  test("Set Default Sender", async ({ request }) => {
+    const sending_gateways = new GatewayPage(request);
+    await sending_gateways.set_default_Form_Reply(
+      campaign_sending_gateway,
+      data.defauld_sender_data
+    );
+  });
+
+  test.only("List Create for Campaign", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+    data.campaign_data.lists.push(list_id);
+  });
+
+  test.only("Subscriber Create for Campaign", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    subscribers_id.push(
+      await subscriber.subscriber_create(
+        subscriber_email.toLowerCase(),
+        list_id
+      ),
+      await subscriber.subscriber_create(
+        unsubscribed_subscriber_email.toLowerCase(),
+        list_id
+      )
+    );
+  });
+
+  test.only("Check Subscriber Status", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    console.log(
+      await subscriber.subscriber_status(
+        list_id,
+        unsubscribed_subscriber_email.toLowerCase(),
+        subscribers_id[1]
+      )
+    );
+  });
+
+  test("Campaign Create", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    campaign_id = await campaign.create_campaign(data.campaign_data);
+  });
+
+  test("Campaign Send", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    await campaign.send_campaign(campaign_id);
+  });
+
+  test("Duplicate a Campaign & Send", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    let duplicate_campaign_id: string = await campaign.duplicate_campaign(
+      campaign_id
+    );
+    await campaign.send_campaign(duplicate_campaign_id);
+  });
+
+  test("Check Campaign Activity", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    email_id = await campaign.campaign_activity(campaign_id);
+  });
+
+  test("Campaign Status", async ({ request, page }) => {
+    const campaign = new CampaignPage(request);
+
+    while (
+      (await campaign.campaign_status(
+        email_id,
+        unsubscribed_subscriber_email.toLowerCase()
+      )) != "sent"
+    ) {
+      await new Promise((r) => setTimeout(r, 40000));
+    }
+  });
+
+  // /* -------------------- Unsubscribe from the Campaign -------------------- */
+  // test("Unsubscribe Campaign & Subscriber Status Chechk", async ({
+  //   request,
+  // }) => {
+  //   const campaign = new CampaignPage(request);
+  //   await campaign.unsubscribe_campaign(campaign_id, subscriber_id, email_id);
+
+  //   const subscriber = new SubscriberPage(request);
+  //   let subscriber_status = await subscriber.subscriber_status(
+  //     list_id,
+  //     subscriber_email.toLowerCase()
+  //   );
+  //   expect(subscriber_status).toEqual("unsubscribed");
+  // });
+
+  test.skip("Campaign Delete", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    await campaign.delete_campaign(campaign_id);
+  });
+
+  test.skip("Subscriber Delete", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(subscribers_id);
+  });
+
+  test.skip("Delete Campaign Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
 
     const list = new ListPage(request);
     await list.list_delete(lists);
   });
 });
 
-// test("Sending Gateway Connect", async ({ request }) => {
-//   const sending_gateways = new GatewayPage(request);
-//   await sending_gateways.connect_gateway(
-//     campaign_sending_gateway,
-//     data.smtp_data
-//   );
+// test("Affiliate Integration", async ({ request }) => {
+//   const integration = new IntegrationsPage(request);
+//   await integration.integrate_affiliatewp();
 // });
 
-// test("Set Default Sender", async ({ request }) => {
-//   const sending_gateways = new GatewayPage(request);
-//   await sending_gateways.set_default_Form_Reply(
-//     campaign_sending_gateway,
-//     data.defauld_sender_data
-//   );
+// test("Create Affiliate", async ({ request }) => {
+//   const integration = new IntegrationsPage(request);
+//   await integration.create_affiliate(subscriber_email);
 // });
 
-// /* ------------------------ CRUD Functionalities of Campaign ------------------------ */
-// test("Campaign Create", async ({ request }) => {
-//   const campaign = new CampaignPage(request);
-//   campaign_id = await campaign.create_campaign(data.campaign_data);
+// test("Automation Create", async ({ request }) => {
+//   const automation = new AutomationPage(request);
+//   automation_id = await automation.welcome_automation_create(list_id);
 // });
 
-// test("Campaign Send", async ({ request }) => {
-//   const campaign = new CampaignPage(request);
-//   await campaign.send_campaign(campaign_id);
-// });
-
-// test("Duplicate a Campaign & Send", async ({ request }) => {
-//   const campaign = new CampaignPage(request);
-//   let duplicate_campaign_id: string = await campaign.duplicate_campaign(
-//     campaign_id
-//   );
-//   await campaign.send_campaign(duplicate_campaign_id);
-// });
-
-// test.skip("Campaign Delete", async ({ request }) => {
-//   const campaign = new CampaignPage(request);
-//   await campaign.delete_campaign(campaign_id);
+// test("Automation Activation", async ({ request }) => {
+//   const automation = new AutomationPage(request);
+//   await automation.automation_activation(automation_id);
 // });
 
 // test("Check Automation Activity", async ({ request }) => {

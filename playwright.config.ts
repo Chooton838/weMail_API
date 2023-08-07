@@ -9,8 +9,8 @@ const config: PlaywrightTestConfig = {
   expect: {
     timeout: 5000,
   },
-  // fullyParallel: false,
-  fullyParallel: true,
+  fullyParallel: false,
+  // fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -58,7 +58,7 @@ const config: PlaywrightTestConfig = {
   },
   projects: [
     {
-      name: "firefox",
+      name: "api_test",
       use: {
         ...devices["Desktop Firefox"],
       },

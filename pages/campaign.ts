@@ -86,6 +86,53 @@ export class CampaignPage {
     }
   }
 
+  async campaign_activity(campaign_id: string) {
+    const campaign_activity = await this.request.get(
+      `${config.use?.baseURL}/v1/campaigns/${campaign_id}`
+    );
+
+    let campaign_activity_response: {
+      data: { id: string; email: { id: string } };
+    };
+    let email_id: string = "";
+
+    const base = new BasePage(this.request);
+    campaign_activity_response = await base.response_checker(campaign_activity);
+
+    try {
+      expect(campaign_activity_response.data.id).toEqual(campaign_id);
+      email_id = campaign_activity_response.data.email.id;
+    } catch (err) {
+      console.log(campaign_activity_response);
+      expect(campaign_activity.ok()).toBeFalsy();
+    }
+
+    return email_id;
+  }
+
+  async campaign_status(email_id: string, subscriber_mail: string) {
+    const campaign_status = await this.request.get(
+      `${config.use?.baseURL}/v1/emails/${email_id}/subscribers/${subscriber_mail}/activities`
+    );
+
+    let campaign_status_response: { data: Array<{ type: string }> } = {
+      data: [{ type: "" }],
+    };
+    let sent_status: string = "";
+
+    const base = new BasePage(this.request);
+    campaign_status_response = await base.response_checker(campaign_status);
+
+    try {
+      console.log(campaign_status);
+      sent_status = campaign_status_response.data[0].type;
+    } catch (err) {
+      console.log(campaign_status_response);
+      expect(campaign_status.ok()).toBeFalsy();
+    }
+    return sent_status;
+  }
+
   async delete_campaign(campaign_id) {
     const delete_campaign = await this.request.delete(
       `${config.use?.baseURL}/v1/campaigns/${campaign_id}`,

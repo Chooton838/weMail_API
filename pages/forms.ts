@@ -75,6 +75,7 @@ export class FormPage {
 
       if (flag == false) {
         console.log("Created Form Not Found");
+        expect(form_sync.ok()).toBeFalsy();
       }
     } catch (err) {
       console.log(form_sync_response);

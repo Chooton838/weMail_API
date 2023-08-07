@@ -49,14 +49,16 @@ export class SubscriberPage {
       }
     );
 
-    let subscriber_update_response: { data: { id: string } } = {
-      data: { id: "" },
-    };
+    let subscriber_update_response: { data: { id: string; country: string } } =
+      {
+        data: { id: "", country: "" },
+      };
 
     const base = new BasePage(this.request);
     subscriber_update_response = await base.response_checker(subscriber_update);
 
     try {
+      expect(subscriber_update_response.data.country).toEqual("BD");
       expect(subscriber_update_response.data.id).toEqual(subscriber_id);
     } catch (err) {
       console.log(subscriber_update_response);
@@ -122,12 +124,40 @@ export class SubscriberPage {
         }
       }
       if (flag == false) {
+        console.log("Created Subscriber Not Found");
         expect(subscribers_list.ok()).toBeFalsy();
       }
     } catch {
-      console.log("Created Subscriber Not Found");
+      console.log(subscribers_list_response);
       expect(subscribers_list.ok()).toBeFalsy();
     }
     return subscriber_id;
+  }
+
+  async subscriber_status(
+    list_id: string,
+    subscriber_email: string,
+    subscriber_id: string
+  ) {
+    const subscriber_status = await this.request.get(
+      `${config.use?.baseURL}/v1/lists/${list_id}/subscribers?s=${subscriber_email}`
+    );
+
+    let subscriber_status_response: {
+      data: Array<{ id: string; status: string }>;
+    };
+    let status = "";
+
+    const base = new BasePage(this.request);
+    subscriber_status_response = await base.response_checker(subscriber_status);
+
+    try {
+      expect(subscriber_status_response.data[0].id).toEqual(subscriber_id);
+      status = subscriber_status_response.data[0].status;
+    } catch (err) {
+      console.log(subscriber_status_response);
+      expect(subscriber_status.ok()).toBeFalsy();
+    }
+    return status;
   }
 }

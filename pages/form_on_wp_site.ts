@@ -46,8 +46,6 @@ export class AdminPage {
     await page
       .locator('//textarea[@id="content"]')
       .fill(`[wemail_form id="${form_id}"]`);
-    await page.waitForTimeout(3000);
-    await page.waitForLoadState("networkidle");
 
     await page.locator('//input[@id="publish"]').click();
     await page.waitForLoadState("networkidle");
@@ -77,10 +75,9 @@ export class AdminPage {
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    // await page.goto(form_page_url, { waitUntil: "networkidle" });
     await page.goto(form_page_url);
-    // await page.waitForLoadState("domcontentloaded");
-    // await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForLoadState("networkidle");
 
     await page.locator("#wemail-form-field-3").fill("dummy user");
     await page.locator("#wemail-form-field-4").fill(subscriber_email);
