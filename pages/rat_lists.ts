@@ -11,6 +11,7 @@ export class Rat_ListsPage {
 
   //Create List
   async list_create(listName: string) {
+    
     const listCreate_Request = await this.request.post(`${config.use?.baseURL}/v1/lists`, {
       data: {
         name: `[Rat-QA] ${listName}`,

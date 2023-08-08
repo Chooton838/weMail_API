@@ -12,21 +12,12 @@ let data: {
     version: string;
   };
 
-  subscriber_data: {
-    subs_id: string;
-    subs_email: string;
-    subs_first_name: string;
-    subs_last_name: string;
-    subs_phone: string;
-    updated_subs_id: string;
-  };
-
   subscriber_updated_data: {
     first_name: string;
     last_name: string;
     date_of_birth: null;
     source: null;
-    phone: string;
+    phone: null;
     mobile: null;
     address1: null;
     address2: null;
@@ -36,6 +27,15 @@ let data: {
     zip: null;
     timezone: null;
     ip_address: null;
+  };
+
+  subscriber_data: {
+    subs_email: string;
+    subs_first_name: string;
+    subs_last_name: string;
+    subs_phone: string;
+    subs_id: string;
+    updated_subs_id: string;
   };
 
   smtp_data: {
@@ -71,6 +71,28 @@ let data: {
 
   wordpress_site_data: Array<string>;
 
+  integrations: {
+    forms_name: {
+      wemail: string;
+      contact_form_7: string;
+      contact_form_7_id: string;
+    };
+
+    contact_form_7: {
+      settings: [
+        {
+          id: string;
+          list_id: string;
+          overwrite: boolean;
+          map: {
+            "your-name": string;
+            "your-email": string;
+          };
+        }
+      ];
+    };
+  };
+
   automation_create_data: {
     template: string;
     name: string;
@@ -88,6 +110,17 @@ let data: {
     ];
     steps: {}[];
   };
+
+  affiliate_integration_data: {
+    key: string;
+    token: string;
+    list: string;
+    sync_existing_data: boolean;
+    rest_url: string;
+    is_affiliate_enabled: boolean;
+  };
+
+  rest_url: string;
 } = {
   campaign_data: {
     from_email: "sqa@wedevsqa.com",
@@ -100,21 +133,12 @@ let data: {
     version: "1.12.0",
   },
 
-  subscriber_data: {
-    subs_id: "",
-    subs_email: faker.internet.email(),
-    subs_first_name: faker.name.firstName(),
-    subs_last_name: faker.name.lastName(),
-    subs_phone: faker.phone.number(),
-    updated_subs_id: "",
-  },
-
   subscriber_updated_data: {
     first_name: faker.name.firstName(),
     last_name: faker.name.lastName(),
     date_of_birth: null,
     source: null,
-    phone: faker.phone.number(),
+    phone: null,
     mobile: null,
     address1: null,
     address2: null,
@@ -124,6 +148,15 @@ let data: {
     zip: null,
     timezone: null,
     ip_address: null,
+  },
+
+  subscriber_data: {
+    subs_email: faker.internet.email(),
+    subs_first_name: faker.name.firstName(),
+    subs_last_name: faker.name.lastName(),
+    subs_phone: faker.phone.number(),
+    subs_id: "",
+    updated_subs_id: "",
   },
 
   smtp_data: {
@@ -552,6 +585,43 @@ let data: {
       },
     ],
   },
+
+  affiliate_integration_data: {
+    key: "d499402b178628eae03507a27ad34fd7",
+    token: "596353328e3bed355ec468553a90a764",
+    list: "",
+    sync_existing_data: true,
+    rest_url: "",
+    is_affiliate_enabled: true,
+  },
+
+  integrations: {
+    forms_name: {
+      wemail: "wemail_form",
+
+      contact_form_7: "contact-form-7",
+      contact_form_7_id: "",
+    },
+    contact_form_7: {
+      settings: [
+        {
+          id: "",
+          list_id: "",
+          overwrite: true,
+          map: {
+            "your-name": "first_name",
+            "your-email": "email",
+          },
+        },
+      ],
+    },
+  },
+
+  rest_url: "",
 };
 
 export { data };
+
+data.rest_url =
+  data.wordpress_site_data[0].substring(0, data.wordpress_site_data[0].lastIndexOf("/wp-admin")) +
+  "/wp-json";
