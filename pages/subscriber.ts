@@ -66,9 +66,9 @@ export class SubscriberPage {
     }
   }
 
-  async subscriber_delete(subscriber_id: string[]) {
+  async subscriber_delete(subscriber_id: string) {
     const subscriber_delete = await this.request.delete(
-      `${config.use?.baseURL}/v1/subscribers/${subscriber_id[0]}`,
+      `${config.use?.baseURL}/v1/subscribers/${subscriber_id}`,
       {
         data: {
           permanent: true,

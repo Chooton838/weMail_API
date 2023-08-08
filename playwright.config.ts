@@ -31,6 +31,7 @@ const config: PlaywrightTestConfig = {
     actionTimeout: 0,
     headless: true,
     trace: "on-first-retry",
+    screenshot: "only-on-failure",
     video: "on",
 
     baseURL:

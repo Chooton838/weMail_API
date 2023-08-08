@@ -92,31 +92,46 @@ export class CampaignPage {
     );
 
     let campaign_activity_response: {
-      data: { id: string; email: { id: string } };
+      data: {
+        id: string;
+        status: string;
+        no_of_subscribers: number;
+        email: { id: string };
+      };
     };
-    let email_id: string = "";
+    let campaign_activity_stats: {
+      status: string;
+      no_of_subscribers: number;
+      email_id: string;
+    } = { status: "", no_of_subscribers: 0, email_id: "" };
 
     const base = new BasePage(this.request);
     campaign_activity_response = await base.response_checker(campaign_activity);
 
     try {
       expect(campaign_activity_response.data.id).toEqual(campaign_id);
-      email_id = campaign_activity_response.data.email.id;
+      campaign_activity_stats.email_id =
+        campaign_activity_response.data.email.id;
+      campaign_activity_stats.no_of_subscribers =
+        campaign_activity_response.data.no_of_subscribers;
+      campaign_activity_stats.status = campaign_activity_response.data.status;
     } catch (err) {
       console.log(campaign_activity_response);
       expect(campaign_activity.ok()).toBeFalsy();
     }
 
-    return email_id;
+    return campaign_activity_stats;
   }
 
-  async campaign_status(email_id: string, subscriber_mail: string) {
+  async subscriber_mail_activity(email_id: string, subscriber_mail: string) {
     const campaign_status = await this.request.get(
       `${config.use?.baseURL}/v1/emails/${email_id}/subscribers/${subscriber_mail}/activities`
     );
 
-    let campaign_status_response: { data: Array<{ type: string }> } = {
-      data: [{ type: "" }],
+    let campaign_status_response: {
+      data: Array<{ email: string; type: string }>;
+    } = {
+      data: [{ email: "", type: "" }],
     };
     let sent_status: string = "";
 
@@ -124,7 +139,7 @@ export class CampaignPage {
     campaign_status_response = await base.response_checker(campaign_status);
 
     try {
-      console.log(campaign_status);
+      expect(campaign_status_response.data[0].email).toEqual(subscriber_mail);
       sent_status = campaign_status_response.data[0].type;
     } catch (err) {
       console.log(campaign_status_response);
@@ -132,6 +147,49 @@ export class CampaignPage {
     }
     return sent_status;
   }
+
+  async unsubscribe_campaign(
+    campaign_id: string,
+    subscriber_id: string,
+    email_id: string
+  ) {
+    const unsubscribe_campaign = await this.request.post(
+      `${config.use?.baseURL}/v1/campaigns/${campaign_id}/subscribers/${subscriber_id}/unsubscribe`,
+      {
+        data: {
+          email_id: email_id,
+          _method: "PUT",
+        },
+      }
+    );
+
+    let unsubscribe_campaign_response: { message: string } = { message: "" };
+    let unsubscribed_flag: boolean = false;
+
+    const base = new BasePage(this.request);
+    unsubscribe_campaign_response = await base.response_checker(
+      unsubscribe_campaign
+    );
+
+    try {
+      expect(unsubscribe_campaign_response.message).toEqual(
+        "Subscriber Unsubscribe."
+      );
+      unsubscribed_flag = true;
+    } catch (err) {
+      console.log(unsubscribe_campaign_response);
+      expect(unsubscribe_campaign.ok()).toBeFalsy();
+    }
+
+    return unsubscribed_flag;
+  }
+
+  // async campaign_subscribers_count(campaign_id: string) {
+  //   const campaign_subscribers_count = await this.request.put(
+  //     `${config.use?.baseURL}/v1/campaigns/${campaign_id}`,
+  //     {}
+  //   );
+  // }
 
   async delete_campaign(campaign_id) {
     const delete_campaign = await this.request.delete(

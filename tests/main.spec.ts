@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 // import { AutomationPage } from "../pages/automation";
 import { CampaignPage } from "../pages/campaign";
 import { AdminPage } from "../pages/form_on_wp_site";
@@ -9,6 +9,7 @@ import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
 import { GatewayPage } from "../pages/sending_gateways";
 import { SubscriberPage } from "../pages/subscriber";
+import { SuppressionPage } from "../pages/suppression";
 import config from "../playwright.config";
 import { data } from "../utils/data";
 
@@ -113,7 +114,7 @@ test.describe("Subscribers Functionalities", () => {
 
   test("Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscribers_id);
+    await subscriber.subscriber_delete(subscribers_id[0]);
   });
 
   test("Delete Subscriber Test List", async ({ request }) => {
@@ -196,7 +197,7 @@ test.describe("Forms Functionalities", () => {
   });
 
   test("Form Delete", async ({ request }) => {
-    await new Promise((r) => setTimeout(r, 10000));
+    // await new Promise((r) => setTimeout(r, 10000));
     const form = new FormPage(request);
     if (forms_id.length >= 1) {
       for (let i: number = 1; i < forms_id.length; i++) {
@@ -209,7 +210,7 @@ test.describe("Forms Functionalities", () => {
 
   test("Forms Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscribers_id);
+    await subscriber.subscriber_delete(subscribers_id[0]);
   });
 
   test("Delete Forms Test List", async ({ request }) => {
@@ -222,15 +223,22 @@ test.describe("Forms Functionalities", () => {
 });
 
 // /* ------------------------ Functionalities of Campaign ------------------------ */
-test.describe.only("Campaign Functionalities", () => {
+test.describe("Campaign Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
   let subscribers_id: string[] = [];
   let subscriber_email: string = faker.internet.email();
   let unsubscribed_subscriber_email: string = faker.internet.email();
   let campaign_id: string = "";
-  let email_id: string = "";
+  let duplicate_campaign_id: string = "";
   let campaign_sending_gateway: string = "smtp";
+  let campaign_activity_stats: {
+    status: string;
+    no_of_subscribers: number;
+    email_id: string;
+  } = { status: "", no_of_subscribers: 0, email_id: "" };
+  let campaign_sent_flag: boolean = false;
+  let unsubscribed_flag: boolean = false;
 
   test("Sending Gateway Connect", async ({ request }) => {
     const sending_gateways = new GatewayPage(request);
@@ -247,13 +255,13 @@ test.describe.only("Campaign Functionalities", () => {
     );
   });
 
-  test.only("List Create for Campaign", async ({ request }) => {
+  test("List Create for Campaign", async ({ request }) => {
     const list = new ListPage(request);
     list_id = await list.list_create(list_name);
     data.campaign_data.lists.push(list_id);
   });
 
-  test.only("Subscriber Create for Campaign", async ({ request }) => {
+  test("Subscribers Create for Campaign", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
     subscribers_id.push(
       await subscriber.subscriber_create(
@@ -267,15 +275,15 @@ test.describe.only("Campaign Functionalities", () => {
     );
   });
 
-  test.only("Check Subscriber Status", async ({ request }) => {
+  test("Check Subscriber Status", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    console.log(
+    expect(
       await subscriber.subscriber_status(
         list_id,
         unsubscribed_subscriber_email.toLowerCase(),
         subscribers_id[1]
       )
-    );
+    ).toEqual("subscribed");
   });
 
   test("Campaign Create", async ({ request }) => {
@@ -288,58 +296,248 @@ test.describe.only("Campaign Functionalities", () => {
     await campaign.send_campaign(campaign_id);
   });
 
+  test("Check Campaign Activity", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    while (campaign_activity_stats.status != "completed") {
+      campaign_activity_stats = await campaign.campaign_activity(campaign_id);
+      await new Promise((r) => setTimeout(r, 20000));
+    }
+  });
+
+  test("Check Subscriber's Campaign Activity", async ({ request, page }) => {
+    const campaign = new CampaignPage(request);
+    if (
+      (await campaign.subscriber_mail_activity(
+        campaign_activity_stats.email_id,
+        unsubscribed_subscriber_email.toLowerCase()
+      )) == "sent"
+    ) {
+      campaign_sent_flag = true;
+    }
+  });
+
+  test("Unsubscribe From Campaign", async ({ request }) => {
+    if (campaign_sent_flag == true) {
+      const campaign = new CampaignPage(request);
+      unsubscribed_flag = await campaign.unsubscribe_campaign(
+        campaign_id,
+        subscribers_id[1],
+        campaign_activity_stats.email_id
+      );
+    }
+  });
+
+  test("Re-Check Subscriber Status", async ({ request }) => {
+    if (campaign_sent_flag == true && unsubscribed_flag == true) {
+      const subscriber = new SubscriberPage(request);
+      expect(
+        await subscriber.subscriber_status(
+          list_id,
+          unsubscribed_subscriber_email.toLowerCase(),
+          subscribers_id[1]
+        )
+      ).toEqual("unsubscribed");
+    }
+  });
+
   test("Duplicate a Campaign & Send", async ({ request }) => {
     const campaign = new CampaignPage(request);
-    let duplicate_campaign_id: string = await campaign.duplicate_campaign(
-      campaign_id
-    );
+    duplicate_campaign_id = await campaign.duplicate_campaign(campaign_id);
     await campaign.send_campaign(duplicate_campaign_id);
+  });
+
+  test("Check Duplicated Campaign's Activity", async ({ request }) => {
+    let duplicate_campaign_activity_stats: {
+      status: string;
+      no_of_subscribers: number;
+      email_id: string;
+    } = { status: "", no_of_subscribers: 0, email_id: "" };
+
+    const campaign = new CampaignPage(request);
+
+    while (duplicate_campaign_activity_stats.status != "completed") {
+      duplicate_campaign_activity_stats = await campaign.campaign_activity(
+        duplicate_campaign_id
+      );
+      await new Promise((r) => setTimeout(r, 20000));
+    }
+
+    if (campaign_sent_flag == true && unsubscribed_flag == true) {
+      expect(campaign_activity_stats.no_of_subscribers - 1).toEqual(
+        duplicate_campaign_activity_stats.no_of_subscribers
+      );
+    }
+  });
+
+  test("Campaign Delete", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    await campaign.delete_campaign(campaign_id);
+    await campaign.delete_campaign(duplicate_campaign_id);
+  });
+
+  test("Subscriber Delete", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(subscribers_id[0]);
+    await subscriber.subscriber_delete(subscribers_id[1]);
+  });
+
+  test("Delete Campaign Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+});
+
+/* ------------------------ Functionalities of Suppressions List ------------------------ */
+test.describe("Suppression List Functionalities", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let subscribers_id: string[] = [];
+  let subscriber_email: string = faker.internet.email();
+  let campaign_id: string = "";
+  let duplicate_campaign_id: string = "";
+  let reduplicate_campaign_id: string = "";
+  let campaign_sending_gateway: string = "smtp";
+  let campaign_activity_stats: {
+    status: string;
+    no_of_subscribers: number;
+    email_id: string;
+  } = { status: "", no_of_subscribers: 0, email_id: "" };
+  let duplicated_campaign_activity_stats: {
+    status: string;
+    no_of_subscribers: number;
+    email_id: string;
+  } = { status: "", no_of_subscribers: 0, email_id: "" };
+  let reduplicated_campaign_activity_stats: {
+    status: string;
+    no_of_subscribers: number;
+    email_id: string;
+  } = { status: "", no_of_subscribers: 0, email_id: "" };
+  let suppression_subscriber_id: string = "";
+
+  test("Sending Gateway Connect", async ({ request }) => {
+    const sending_gateways = new GatewayPage(request);
+    await sending_gateways.connect_gateway(
+      campaign_sending_gateway,
+      data.smtp_data
+    );
+  });
+
+  test("Set Default Sender", async ({ request }) => {
+    const sending_gateways = new GatewayPage(request);
+    await sending_gateways.set_default_Form_Reply(
+      campaign_sending_gateway,
+      data.defauld_sender_data
+    );
+  });
+
+  test("List Create for Suppression List", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+    data.campaign_data.lists.push(list_id);
+  });
+
+  test("Subscribers Create for Suppression List", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    subscribers_id.push(
+      await subscriber.subscriber_create(
+        subscriber_email.toLowerCase(),
+        list_id
+      )
+    );
+  });
+
+  test("Campaign Create for Suppression List", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    campaign_id = await campaign.create_campaign(data.campaign_data);
+  });
+
+  test("Campaign Send for Suppression List", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    await campaign.send_campaign(campaign_id);
   });
 
   test("Check Campaign Activity", async ({ request }) => {
     const campaign = new CampaignPage(request);
-    email_id = await campaign.campaign_activity(campaign_id);
-  });
-
-  test("Campaign Status", async ({ request, page }) => {
-    const campaign = new CampaignPage(request);
-
-    while (
-      (await campaign.campaign_status(
-        email_id,
-        unsubscribed_subscriber_email.toLowerCase()
-      )) != "sent"
-    ) {
-      await new Promise((r) => setTimeout(r, 40000));
+    while (campaign_activity_stats.status != "completed") {
+      campaign_activity_stats = await campaign.campaign_activity(campaign_id);
+      await new Promise((r) => setTimeout(r, 20000));
     }
   });
 
-  // /* -------------------- Unsubscribe from the Campaign -------------------- */
-  // test("Unsubscribe Campaign & Subscriber Status Chechk", async ({
-  //   request,
-  // }) => {
-  //   const campaign = new CampaignPage(request);
-  //   await campaign.unsubscribe_campaign(campaign_id, subscriber_id, email_id);
+  test("Subscriber Added into Suppression List", async ({ request }) => {
+    const suppression = new SuppressionPage(request);
+    await suppression.create_suppression_subscriber(
+      subscriber_email.toLowerCase()
+    );
+  });
 
-  //   const subscriber = new SubscriberPage(request);
-  //   let subscriber_status = await subscriber.subscriber_status(
-  //     list_id,
-  //     subscriber_email.toLowerCase()
-  //   );
-  //   expect(subscriber_status).toEqual("unsubscribed");
-  // });
+  test("Duplicate a Campaign & Send", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    duplicate_campaign_id = await campaign.duplicate_campaign(campaign_id);
+    await campaign.send_campaign(duplicate_campaign_id);
+  });
 
-  test.skip("Campaign Delete", async ({ request }) => {
+  test("Check Duplicated Campaign's Subscribers Count", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+
+    while (duplicated_campaign_activity_stats.status != "completed") {
+      duplicated_campaign_activity_stats = await campaign.campaign_activity(
+        duplicate_campaign_id
+      );
+      await new Promise((r) => setTimeout(r, 20000));
+    }
+    expect(duplicated_campaign_activity_stats.no_of_subscribers).toEqual(0);
+  });
+
+  test("Subscriber Search from Suppression List", async ({ request }) => {
+    const suppression = new SuppressionPage(request);
+    suppression_subscriber_id = await suppression.search_suppression_subscriber(
+      subscriber_email.toLowerCase()
+    );
+  });
+
+  test("Subscriber Deleted from Suppression List", async ({ request }) => {
+    const suppression = new SuppressionPage(request);
+    await suppression.delete_suppression_subscriber([
+      suppression_subscriber_id,
+    ]);
+  });
+
+  test("Re-Duplicate a Campaign & Send", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    reduplicate_campaign_id = await campaign.duplicate_campaign(campaign_id);
+    await campaign.send_campaign(reduplicate_campaign_id);
+  });
+
+  test("Check Re-Duplicated Campaign's Subscribers Count", async ({
+    request,
+  }) => {
+    const campaign = new CampaignPage(request);
+    while (reduplicated_campaign_activity_stats.status != "completed") {
+      reduplicated_campaign_activity_stats = await campaign.campaign_activity(
+        reduplicate_campaign_id
+      );
+      await new Promise((r) => setTimeout(r, 20000));
+    }
+    expect(reduplicated_campaign_activity_stats.no_of_subscribers).toEqual(1);
+  });
+
+  test("Suppression Test Campaigns Delete", async ({ request }) => {
     const campaign = new CampaignPage(request);
     await campaign.delete_campaign(campaign_id);
+    await campaign.delete_campaign(duplicate_campaign_id);
+    await campaign.delete_campaign(reduplicate_campaign_id);
   });
 
-  test.skip("Subscriber Delete", async ({ request }) => {
+  test("Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscribers_id);
+    await subscriber.subscriber_delete(subscribers_id[0]);
   });
 
-  test.skip("Delete Campaign Test List", async ({ request }) => {
+  test("Delete List", async ({ request }) => {
     let lists: Array<string> = [];
     lists.push(list_id);
 
