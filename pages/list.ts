@@ -148,4 +148,50 @@ export class ListPage {
       expect(list_delete.ok()).toBeFalsy();
     }
   }
+
+  async enable_double_opt_in(list_id: string) {
+    const enable_double_opt_in = await this.request.post(
+      `${config.use?.baseURL}/v1/lists/${list_id}/settings`,
+      {
+        data: {
+          double_opt_in: { enabled: true },
+          notification: {
+            digest_emails: "",
+            one_by_one: false,
+            subscribe_emails: "",
+            summery: false,
+            unsubscribe_emails: "",
+          },
+          sync: {
+            mailchimp: {
+              api_key: "",
+              enabled: false,
+              list_id: "",
+              map: [],
+              webhook_id: "",
+            },
+          },
+          fastspring: { enabled: false, tag_id: "" },
+          stripe: { enabled: false, tag_id: "" },
+          paypal: { enabled: false, tag_id: "" },
+        },
+      }
+    );
+
+    let enable_double_opt_in_response: { message: string } = { message: "" };
+
+    const base = new BasePage(this.request);
+    enable_double_opt_in_response = await base.response_checker(
+      enable_double_opt_in
+    );
+
+    try {
+      expect(enable_double_opt_in_response.message).toEqual(
+        "List settings updated"
+      );
+    } catch (err) {
+      console.log(enable_double_opt_in_response);
+      expect(enable_double_opt_in.ok()).toBeFalsy();
+    }
+  }
 }

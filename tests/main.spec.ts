@@ -182,6 +182,7 @@ test.describe("Forms Functionalities", () => {
   test("Forms Added into Site Frontend", async ({ request }) => {
     const admin = new AdminPage();
     form_page_url = await admin.form_publish(request, forms_id[0]);
+    console.log(form_page_url);
   });
 
   test("Form Submission from Frontend", async ({}) => {
@@ -538,6 +539,79 @@ test.describe("Suppression List Functionalities", () => {
   });
 
   test("Delete List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+});
+
+/* ------------------------ Functionalities of Double-Opt-in List ------------------------ */
+test.describe("Subscriber Verification for Double-Opt-in List", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let subscribers_id: string = "";
+  let subscriber_email: string = faker.internet.email();
+  let verification_url: string = "";
+
+  test("Double-Opt-in List Create", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+  });
+
+  test("Enable Double-Opt-in of the Create List", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.enable_double_opt_in(list_id);
+  });
+
+  test("Subscribe on the Created List", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    verification_url = await subscriber.subscribe_double_opt_in_list(
+      list_id,
+      subscriber_email
+    );
+
+    let start = "/v1/subscribers/";
+    let end = "/confirm-subscription";
+    let startIndex = verification_url.indexOf(start) + start.length;
+    let endIndex = verification_url.indexOf(end, startIndex);
+    subscribers_id = verification_url.slice(startIndex, endIndex);
+  });
+
+  test("Check Subscriber Status", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      await subscriber.subscriber_status(
+        list_id,
+        subscriber_email.toLowerCase(),
+        subscribers_id
+      )
+    ).toEqual("unconfirmed");
+  });
+
+  test("Verify the Subscriber", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.verify_subscriber(verification_url);
+  });
+
+  test("Re-Check Subscriber Status", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      await subscriber.subscriber_status(
+        list_id,
+        subscriber_email.toLowerCase(),
+        subscribers_id
+      )
+    ).toEqual("subscribed");
+  });
+
+  test("Subscriber Delete", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(subscribers_id);
+  });
+
+  test("Delete Test List", async ({ request }) => {
     let lists: Array<string> = [];
     lists.push(list_id);
 

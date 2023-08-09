@@ -160,4 +160,51 @@ export class SubscriberPage {
     }
     return status;
   }
+
+  async subscribe_double_opt_in_list(
+    list_id: string,
+    subscriber_email: string
+  ) {
+    const subscribe_double_opt_in_list = await this.request.post(
+      `${config.use?.baseURL}/v1/embed/subscribe/${list_id}`,
+      { data: { email: subscriber_email, purpose: "test" } }
+    );
+
+    let subscribe_double_opt_in_list_response: { url: string } = { url: "" };
+    let verification_url: string = "";
+
+    const base = new BasePage(this.request);
+    subscribe_double_opt_in_list_response = await base.response_checker(
+      subscribe_double_opt_in_list
+    );
+
+    try {
+      expect(typeof subscribe_double_opt_in_list_response.url).toBe("string");
+      verification_url = subscribe_double_opt_in_list_response.url;
+    } catch (err) {
+      console.log(subscribe_double_opt_in_list_response);
+      expect(subscribe_double_opt_in_list.ok()).toBeFalsy();
+    }
+    return verification_url;
+  }
+
+  async verify_subscriber(verification_url: string) {
+    const verify_subscriber = await this.request.get(
+      `${config.use?.baseURL}${verification_url}`
+    );
+
+    let verify_subscriber_response: { message: string } = { message: "" };
+
+    const base = new BasePage(this.request);
+    verify_subscriber_response = await base.response_checker(verify_subscriber);
+
+    try {
+      expect(verify_subscriber_response.message).toContain(
+        "Your subscription has been confirmed. You've been added to our list & will hear from us soon."
+      );
+    } catch (err) {
+      console.log(verify_subscriber_response);
+      expect(verify_subscriber.ok()).toBeFalsy();
+    }
+  }
 }
