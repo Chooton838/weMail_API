@@ -182,7 +182,6 @@ test.describe("Forms Functionalities", () => {
   test("Forms Added into Site Frontend", async ({ request }) => {
     const admin = new AdminPage();
     form_page_url = await admin.form_publish(request, forms_id[0]);
-    console.log(form_page_url);
   });
 
   test("Form Submission from Frontend", async ({}) => {
