@@ -53,7 +53,6 @@ export class Rat_ListsPage {
 
   //View List created
   async validate_list(list_created_id: string) {
-    console.log(`The ID sent is -->>> ${list_created_id}`);
     const getLists_Request = await this.request.get(`${config.use?.baseURL}/v1/lists`);
 
     let getListsAll_Response: {

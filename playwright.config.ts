@@ -5,9 +5,9 @@ require("dotenv").config();
 
 const config: PlaywrightTestConfig = {
   testDir: "./tests",
-  timeout: 50 * 1000,
+  timeout: 60 * 1000,
   expect: {
-    timeout: 5000,
+    timeout: 6000,
   },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

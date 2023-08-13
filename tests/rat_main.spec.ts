@@ -6,7 +6,8 @@ import { data } from "../utils/data";
 import { Rat_LoginPage } from "../pages/rat_login";
 import { Rat_ListsPage } from "../pages/rat_lists";
 import { Rat_SubscribersPage } from "../pages/rat_subscribers";
-import { Rat_IntegrationsPage } from "../pages/rat_intergrations_setup";
+import { Rat_IntegrationsSetupPage } from "../pages/rat_intergrations_setup";
+import { Rat_IntegrationsValidatePage } from "../pages/rat_integrations_validate";
 import { BasePage } from "../utils/base_functions";
 
 //Faker-data
@@ -14,11 +15,16 @@ import { BasePage } from "../utils/base_functions";
 const list_name = faker.lorem.words(2);
 //Contact-form-7-name
 const contact_form_7_name = faker.lorem.words(2);
+//Subscriber/Guest-name
+let submitted_subscriber_name: string = ""
 
 //Variables-declared
 //Contact-form-7
 let contact_form_7_page_url: string = "";
 
+
+//***Main-test***//
+//*Basic-tests*//
 test.describe.skip("Basic Tests", () => {
   /* ------------------------ Rat-Login ------------------------ */
   test("Test-1: Login", async ({ request }) => {
@@ -87,17 +93,13 @@ test.describe.skip("Basic Tests", () => {
   });
 });
 
+//*Integration-tests*//
 test.describe("Contact Form 7", () => {
   /**
    *
-   * !Integrations - Contact Forms
+   * @param Integrations_contact_forms
    *
    */
-
-  //   //Login to WP-site
-  //   await basePage.wordpress_site_login();
-  // });
-
   test("Test-11: Login", async ({ request }) => {
     const username = config.use?.httpCredentials?.username!;
     const password = config.use?.httpCredentials?.password!;
@@ -112,34 +114,47 @@ test.describe("Contact Form 7", () => {
   });
 
   test("Test-13: Create new form - Contact-form-7", async ({ request }) => {
-    const integrations = new Rat_IntegrationsPage(request);
+    const integrationsSetup = new Rat_IntegrationsSetupPage(request);
 
     //Create Form: Contact-form-7
-    const contact_form_7_id = await integrations.create_contact_forms_7(contact_form_7_name);
+    const contact_form_7_id = await integrationsSetup.create_contact_forms_7(contact_form_7_name);
     data.integrations.forms_name.contact_form_7_id = contact_form_7_id;
   });
 
   test("Test-14: Setup - Contact Form 7", async ({ request }) => {
-    const integrations = new Rat_IntegrationsPage(request);
+    const integrationsSetup = new Rat_IntegrationsSetupPage(request);
     //Save-data
     data.integrations.contact_form_7.settings[0].list_id = data.form_data.list_id;
     data.integrations.contact_form_7.settings[0].id = data.integrations.forms_name.contact_form_7_id;
 
     //Setup: Contact-form-7
-    await integrations.setup_contact_form_7(
+    await integrationsSetup.setup_contact_form_7(
       data.integrations.contact_form_7.settings[0].id,
       data.integrations.contact_form_7.settings[0].list_id
     );
   });
 
   test("Test-15: Create new Page - Contact-form-7", async ({ request }) => {
-    const integrations = new Rat_IntegrationsPage(request);
+    const integrationsSetup = new Rat_IntegrationsSetupPage(request);
 
     //Create Form: Contact-form-7
-    contact_form_7_page_url = await integrations.publish_form(
+    contact_form_7_page_url = await integrationsSetup.publish_form(
       data.integrations.forms_name.contact_form_7,
-      data.integrations.forms_name.contact_form_7_id,
+      data.integrations.forms_name.contact_form_7_id
     );
     console.log(`Page url is: ${contact_form_7_page_url}`);
   });
+
+  test("Test-16: Submit form - Contact-form-7: Guest/Subscriber", async ({ request }) => {
+    const integrationsValidate = new Rat_IntegrationsValidatePage(request);
+
+    submitted_subscriber_name = await integrationsValidate.submit_contact_forms_7();
+    data.integrations.forms_name.contact_form_7_user_email = submitted_subscriber_name;
+
+  });
+
+  test('Test-16: Validate subscriber added-to-list', async ({request}) => {
+    const integrationsValidate = new Rat_IntegrationsValidatePage(request);
+    await integrationsValidate.validate_subscriber_to_list(data.form_data.list_id, data.integrations.forms_name.contact_form_7_user_email);
+  })
 });

@@ -74,8 +74,10 @@ let data: {
   integrations: {
     forms_name: {
       wemail: string;
+      
       contact_form_7: string;
       contact_form_7_id: string;
+      contact_form_7_user_email: string;
     };
 
     contact_form_7: {
@@ -601,6 +603,8 @@ let data: {
 
       contact_form_7: "contact-form-7",
       contact_form_7_id: "",
+      contact_form_7_user_email: "",
+
     },
     contact_form_7: {
       settings: [

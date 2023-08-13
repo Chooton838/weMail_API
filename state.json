@@ -2,7 +2,7 @@
   "cookies": [
     {
       "name": "PHPSESSID",
-      "value": "60r2193ivsnopt8ptrjhdo2lgt",
+      "value": "bb0v1auv5pmvlv0se2f2281rbm",
       "domain": "eddtest.appsero.com",
       "path": "/",
       "expires": -1,
@@ -22,7 +22,7 @@
     },
     {
       "name": "wordpress_sec_3400c1ff388c2cd5ee555d09436966ef",
-      "value": "Ratul01047%7C1691667520%7CqId3YwfFoIQV8QKAH5vcdxpmFL7K6aIemU4W641oJJH%7Cc5b37dc273957a7b70e80e8586d4fef5487ce3ed1f00c0c7a4764bd5528ec7cc",
+      "value": "Ratul01047%7C1691927479%7CgJGbRgcnOQDQ8DvuRul8fqC9R3gZ7HJHmA6CMl30BXF%7C62776144b83e02d18681a4379077b1987b654bd87d7cce7994f63b154f1bb3de",
       "domain": "eddtest.appsero.com",
       "path": "/wp-content/plugins",
       "expires": -1,
@@ -32,7 +32,7 @@
     },
     {
       "name": "wordpress_sec_3400c1ff388c2cd5ee555d09436966ef",
-      "value": "Ratul01047%7C1691667520%7CqId3YwfFoIQV8QKAH5vcdxpmFL7K6aIemU4W641oJJH%7Cc5b37dc273957a7b70e80e8586d4fef5487ce3ed1f00c0c7a4764bd5528ec7cc",
+      "value": "Ratul01047%7C1691927479%7CgJGbRgcnOQDQ8DvuRul8fqC9R3gZ7HJHmA6CMl30BXF%7C62776144b83e02d18681a4379077b1987b654bd87d7cce7994f63b154f1bb3de",
       "domain": "eddtest.appsero.com",
       "path": "/wp-admin",
       "expires": -1,
@@ -42,7 +42,7 @@
     },
     {
       "name": "wordpress_logged_in_3400c1ff388c2cd5ee555d09436966ef",
-      "value": "Ratul01047%7C1691667520%7CqId3YwfFoIQV8QKAH5vcdxpmFL7K6aIemU4W641oJJH%7Cb2ad8e41dfed3be1dbc4165fa0638ddfd7e34ab939faae04251786fee3b748d4",
+      "value": "Ratul01047%7C1691927479%7CgJGbRgcnOQDQ8DvuRul8fqC9R3gZ7HJHmA6CMl30BXF%7Cf31e2fce0307c7bce693108af441270e69d473f664409cd2ee74adbf47a9cdee",
       "domain": "eddtest.appsero.com",
       "path": "/",
       "expires": -1,
@@ -55,17 +55,17 @@
       "value": "editor%3Dhtml",
       "domain": "eddtest.appsero.com",
       "path": "/",
-      "expires": 1723030723,
+      "expires": 1723290681,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "wp-settings-time-120",
-      "value": "1691494722",
+      "value": "1691754680",
       "domain": "eddtest.appsero.com",
       "path": "/",
-      "expires": 1723030723,
+      "expires": 1723290681,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"

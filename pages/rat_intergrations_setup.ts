@@ -3,7 +3,7 @@ import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
 
-export class Rat_IntegrationsPage {
+export class Rat_IntegrationsSetupPage {
   readonly request: APIRequestContext;
 
   constructor(request: APIRequestContext) {
@@ -58,7 +58,7 @@ export class Rat_IntegrationsPage {
 
     await expect(page.locator(".wp-heading-inline")).toHaveText("Add New Page");
 
-    await page.locator("#title").fill(`${form_name}`.toUpperCase());
+    await page.locator("#title").fill(`[Rat-QA] ${form_name}`.toUpperCase());
 
     await page.locator('//button[text()="Text"]').click();
     await page.locator('//textarea[@id="content"]').click();
