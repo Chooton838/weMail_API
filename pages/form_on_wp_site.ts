@@ -1,5 +1,4 @@
 import { APIRequestContext, expect, firefox } from "@playwright/test";
-import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
 
 export class AdminPage {
@@ -8,9 +7,15 @@ export class AdminPage {
    */
 
   async form_sync_with_frontend(request: APIRequestContext) {
-    const base = new BasePage(request);
-    let page = await base.wordpress_site_login();
+    const browser = await firefox.launch();
+    // const context = await browser.newContext({
+    //   userAgent:
+    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    // });
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
 
+    await page.goto(data.wordpress_site_data[0], { waitUntil: "networkidle" });
     await page
       .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
       .click();
@@ -26,17 +31,23 @@ export class AdminPage {
     await page.waitForLoadState("networkidle");
 
     await page.waitForSelector('//p[@class="iziToast-message slideIn"]');
-    await page.close();
+    await browser.close();
   }
 
   async form_publish(request: APIRequestContext, form_id: string) {
-    const base = new BasePage(request);
-    let page = await base.wordpress_site_login();
+    const browser = await firefox.launch();
+    // const context = await browser.newContext({
+    //   userAgent:
+    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    // });
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
 
+    // await page.goto(data.wordpress_site_data[0], { waitUntil: "networkidle" });
     await page.goto(
-      `${data.wordpress_site_data[0]}/post-new.php?post_type=page`
+      `${data.wordpress_site_data[0]}/post-new.php?post_type=page`,
+      { waitUntil: "networkidle" }
     );
-    await page.waitForLoadState("networkidle");
 
     await expect(page.locator(".wp-heading-inline")).toHaveText("Add New Page");
 
@@ -47,18 +58,21 @@ export class AdminPage {
       .locator('//textarea[@id="content"]')
       .fill(`[wemail_form id="${form_id}"]`);
 
+    await page.waitForTimeout(2000);
     await page.locator('//input[@id="publish"]').click();
-    await page.waitForLoadState("networkidle");
 
-    let page_url;
-    if (await page.locator('//*[@id="message"]/p/a').isVisible()) {
-      page_url = await page
-        .locator('//*[@id="message"]/p/a')
-        .getAttribute("href");
-    } else {
-      page_url = "";
-    }
-    await page.close();
+    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('//*[@id="message"]/p/a', {
+      state: "visible",
+      timeout: 3000,
+    });
+
+    let page_url: string | null;
+
+    page_url = await page
+      .locator('//*[@id="message"]/p/a')
+      .getAttribute("href");
+    await browser.close();
     return page_url;
   }
 
@@ -76,12 +90,11 @@ export class AdminPage {
     const page = await context.newPage();
 
     await page.goto(form_page_url);
-    await page.waitForLoadState("domcontentloaded");
     await page.waitForLoadState("networkidle");
 
     await page.locator("#wemail-form-field-3").fill("dummy user");
     await page.locator("#wemail-form-field-4").fill(subscriber_email);
-    // await page.waitForTimeout(5000);
+    await page.waitForTimeout(1000);
     await page
       .locator(
         '//button[@class="submit-button" and contains(text(), "Join Today")]'

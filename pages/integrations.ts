@@ -1,4 +1,4 @@
-import { APIRequestContext, expect } from "@playwright/test";
+import { APIRequestContext, expect, firefox } from "@playwright/test";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
@@ -11,11 +11,7 @@ export class IntegrationsPage {
   }
 
   async integrate_affiliatewp() {
-    data.affiliate_integration_data.rest_url =
-      data.wordpress_site_data[0].substring(
-        0,
-        data.wordpress_site_data[0].lastIndexOf("/wp-admin")
-      ) + "/wp-json/";
+    data.affiliate_integration_data.rest_url = data.rest_url;
 
     const integrate_affiliatewp = await this.request.post(
       `${config.use?.baseURL}/v1/affiliates/settings/affiliate-wp`,
@@ -40,8 +36,14 @@ export class IntegrationsPage {
   }
 
   async create_affiliate(affiliate_username: string) {
-    const base = new BasePage(this.request);
-    let page = await base.wordpress_site_login();
+    const browser = await firefox.launch();
+    // const context = await browser.newContext({
+    //   userAgent:
+    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    // });
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+    await page.goto(data.wordpress_site_data[0], { waitUntil: "networkidle" });
 
     await page
       .locator('//div[@class="wp-menu-name" and contains(text(),"Affiliates")]')
@@ -57,8 +59,15 @@ export class IntegrationsPage {
 
   async create_contact_form_7() {
     let contact_form_id: string = "";
-    const base = new BasePage(this.request);
-    let page = await base.wordpress_site_login();
+
+    const browser = await firefox.launch();
+    // const context = await browser.newContext({
+    //   userAgent:
+    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    // });
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+    await page.goto(data.wordpress_site_data[0], { waitUntil: "networkidle" });
 
     await page.goto("");
 
@@ -66,8 +75,9 @@ export class IntegrationsPage {
   }
 
   async contact_form_7(contact_form_id: string, list_id: string) {
+    let page_url: string = `${data.wordpress_site_data[0]}/admin.php?page=wemail#/integrations/contact-forms/contact-form-7`;
     const base = new BasePage(this.request);
-    let header = await base.wordpress_nonce_cookie();
+    let header = await base.wordpress_nonce_cookie(page_url);
 
     data.integrations.contact_form_7.settings[0].list_id = contact_form_id;
     data.integrations.contact_form_7.settings[0].list_id = list_id;

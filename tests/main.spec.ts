@@ -11,6 +11,7 @@ import { GatewayPage } from "../pages/sending_gateways";
 import { SubscriberPage } from "../pages/subscriber";
 import { SuppressionPage } from "../pages/suppression";
 import config from "../playwright.config";
+import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
 
 // let list_id: string = "";
@@ -33,6 +34,9 @@ test.beforeAll(async ({ request }) => {
 
   const login = new LoginPage(request);
   await login.login(login_data);
+
+  const base = new BasePage(request);
+  await base.wordpress_site_login();
 });
 
 // /* ------------------------ Functionalities of List ------------------------ */
@@ -130,10 +134,12 @@ test.describe("Subscribers Functionalities", () => {
 test.describe("Forms Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
-  let subscribers_id: string[] = [];
+  let subscriber_id: string = "";
   let form_subscriber_email: string = faker.internet.email();
   let forms_id: string[] = [];
-  let form_page_url: string = "";
+  let form_page_url: string | null;
+  let header: string[];
+  let flag: boolean = true;
 
   test("Forms - List Create", async ({ request }) => {
     const list = new ListPage(request);
@@ -143,16 +149,26 @@ test.describe("Forms Functionalities", () => {
 
   test("Inline Form Create", async ({ request }) => {
     const form = new FormPage(request);
+
     data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
     data.form_data.type = "inline";
-    forms_id.push(await form.form_create(data.form_data));
+
+    let reponse = await form.form_create(data.form_data);
+
+    forms_id.push(reponse.form_id);
+    header = reponse.header;
+
+    if (header[0] == "" || header[1] == "") {
+      flag = false;
+      console.log("Header Not Found");
+    }
   });
 
   test("Modal Form Create", async ({ request }) => {
     const form = new FormPage(request);
     data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
     data.form_data.type = "modal";
-    forms_id.push(await form.form_create(data.form_data));
+    forms_id.push((await form.form_create(data.form_data)).form_id);
   });
 
   test("Forms Update", async ({ request }) => {
@@ -165,52 +181,109 @@ test.describe("Forms Functionalities", () => {
       }
     } else {
       console.log("Created Forms Not Found");
+      test.fail();
     }
   });
 
   test("Form Sync with APP", async ({ request }) => {
     const form = new FormPage(request);
-    await form.form_sync(forms_id[0]);
-    await form.form_sync(forms_id[1]);
+    if (forms_id.length >= 1) {
+      for (let i: number = 0; i < forms_id.length; i++) {
+        await form.form_sync(forms_id[i]);
+      }
+    } else {
+      console.log("Created Forms Not Found");
+      test.fail();
+    }
   });
 
-  test("Forms Sync. with WP Site", async ({ request }) => {
+  // For test Form Submission from Frontend - remove .skip from next three test ( * - e2e) and put .skip on 4th & 5th test ( * - API)
+
+  test.skip("Forms Sync. with WP Site - e2e", async ({ request }) => {
     const admin = new AdminPage();
     await admin.form_sync_with_frontend(request);
   });
 
-  test("Forms Added into Site Frontend", async ({ request }) => {
+  test.skip("Forms Added into Site Frontend - e2e", async ({ request }) => {
     const admin = new AdminPage();
     form_page_url = await admin.form_publish(request, forms_id[0]);
   });
 
-  test("Form Submission from Frontend", async ({}) => {
-    const admin = new AdminPage();
-    await admin.form_submit(form_page_url, form_subscriber_email.toLowerCase());
+  test.skip("Form Submission from Frontend - e2e", async ({}) => {
+    if (form_page_url == null) {
+      console.log("Page Url Not Found");
+      test.fail();
+    } else {
+      const admin = new AdminPage();
+      await admin.form_submit(
+        form_page_url,
+        form_subscriber_email.toLowerCase()
+      );
+    }
+  });
+
+  test("Forms Sync. with WP Site - API", async ({ request }) => {
+    const forms = new FormPage(request);
+    await forms.form_sync_with_frontend();
+  });
+
+  test("From Submission - API", async ({ request }) => {
+    if (flag == true) {
+      const form = new FormPage(request);
+      await form.form_submit(
+        forms_id[0],
+        form_subscriber_email.toLowerCase(),
+        header
+      );
+    } else {
+      console.log("Test Aborted as Header Not Found");
+      test.fail();
+    }
   });
 
   test("Subscriber's info - Signed up through Form", async ({ request }) => {
-    const subscriber = new SubscriberPage(request);
-    subscribers_id.push(
-      await subscriber.subscribers_list(list_id, form_subscriber_email)
-    );
+    // Used below commented code when Subscriber Signed-UP through e2e form submission
+
+    // if (form_page_url == null) {
+    //   console.log("Subscriber Can't Signed-UP");
+    //   test.fail();
+    // } else {
+    //   const subscriber = new SubscriberPage(request);
+    //   subscribers_id = await subscriber.subscribers_list(
+    //   list_id,
+    //   form_subscriber_email
+    // );
+    // }
+
+    // Before use the above code, comment out the below portion
+
+    if (flag == true) {
+      const subscriber = new SubscriberPage(request);
+      subscriber_id = await subscriber.subscribers_list(
+        list_id,
+        form_subscriber_email
+      );
+    } else {
+      console.log("Test Aborted as Subsriber Can't Signed-UP");
+      test.fail();
+    }
   });
 
   test("Form Delete", async ({ request }) => {
-    // await new Promise((r) => setTimeout(r, 10000));
     const form = new FormPage(request);
     if (forms_id.length >= 1) {
-      for (let i: number = 1; i < forms_id.length; i++) {
+      for (let i: number = 0; i < forms_id.length; i++) {
         await form.form_delete(forms_id[i]);
       }
     } else {
       console.log("Forms Not Found");
+      test.fail();
     }
   });
 
   test("Forms Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscribers_id[0]);
+    await subscriber.subscriber_delete(subscriber_id);
   });
 
   test("Delete Forms Test List", async ({ request }) => {

@@ -1,6 +1,7 @@
 import { APIRequestContext, expect } from "@playwright/test";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
+import { data } from "../utils/data";
 
 export class FormPage {
   readonly request: APIRequestContext;
@@ -10,27 +11,32 @@ export class FormPage {
   }
 
   async form_create(form_data: {}) {
+    let page_url: string = `${data.wordpress_site_data[0]}/admin.php?page=wemail#/forms`;
+    let response: { form_id: string; header: string[] } = {
+      form_id: "",
+      header: [],
+    };
+    const base = new BasePage(this.request);
+    response.header = await base.wordpress_nonce_cookie(page_url);
+
     const form_create = await this.request.post(
       `${config.use?.baseURL}/v1/forms`,
       { data: form_data }
     );
 
     let form_create_response: { data: { id: string }; message: string };
-    let form_id: string = "";
-
-    const base = new BasePage(this.request);
     form_create_response = await base.response_checker(form_create);
 
     try {
       expect(form_create_response.message).toEqual(
         "Form created successfully."
       );
-      form_id = form_create_response.data.id;
+      response.form_id = form_create_response.data.id;
     } catch (err) {
       console.log(form_create_response);
       expect(form_create.ok()).toBeFalsy();
     }
-    return form_id;
+    return response;
   }
 
   async form_update(form_id: string, form_data: {}) {
@@ -99,6 +105,70 @@ export class FormPage {
     } catch (err) {
       console.log(form_delete_response);
       expect(form_delete.ok()).toBeFalsy();
+    }
+  }
+
+  async form_sync_with_frontend() {
+    let page_url: string = `${data.wordpress_site_data[0]}/admin.php?page=wemail#/forms`;
+    const base = new BasePage(this.request);
+    let header = await base.wordpress_nonce_cookie(page_url);
+
+    const form_sync_with_frontend = await this.request.put(
+      `${data.rest_url}wemail/v1/forms/sync`,
+      {
+        headers: { "X-WP-Nonce": header[0], Cookie: header[1] },
+      }
+    );
+
+    let form_sync_with_frontend_response: { success: boolean };
+    form_sync_with_frontend_response = await base.response_checker(
+      form_sync_with_frontend
+    );
+    try {
+      expect(form_sync_with_frontend_response.success).toEqual(true);
+    } catch (err) {
+      console.log(form_sync_with_frontend_response);
+      expect(form_sync_with_frontend.ok()).toBeFalsy();
+    }
+  }
+
+  async form_submit(
+    form_id: string,
+    subscriber_email: string,
+    header: string[]
+  ) {
+    const formData = new URLSearchParams();
+    // URLSearchParams() - Used to construct form data for requests that use the "application/x-www-form-urlencoded" as "Content-Type"
+
+    formData.append("0[name]", "wemail_form_field_3");
+    formData.append("0[value]", "test user");
+    formData.append("1[name]", "wemail_form_field_4");
+    formData.append("1[value]", subscriber_email);
+
+    const form_submit = await this.request.post(
+      `${data.rest_url}wemail/v1/forms/${form_id}`,
+      {
+        headers: {
+          "X-WP-Nonce": header[0],
+          Cookie: header[1],
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        },
+        data: formData.toString(),
+      }
+    );
+
+    let form_submit_response: { message: string } = { message: "" };
+
+    const base = new BasePage(this.request);
+    form_submit_response = await base.response_checker(form_submit);
+
+    try {
+      expect(form_submit_response.message).toEqual(
+        "Your subscription has been confirmed. You've been added to our list & will hear from us soon."
+      );
+    } catch (err) {
+      console.log(form_submit_response);
+      expect(form_submit.ok()).toBeFalsy();
     }
   }
 }

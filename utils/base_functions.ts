@@ -26,6 +26,8 @@ export class BasePage {
      * "userAgent" - Added on browser.newContext to send the request using custom userAgent
      */
 
+    fs.writeFile("state.json", '{"cookies":[],"origins": []}', function () {});
+
     const browser = await firefox.launch();
     // const context = await browser.newContext({
     //   userAgent:
@@ -45,53 +47,64 @@ export class BasePage {
     await page.locator('//*[@id="wp-submit"]').click();
     await page.waitForLoadState("networkidle");
 
-    fs.writeFile("state.json", '{"cookies":[],"origins": []}', function () {});
     await page.context().storageState({ path: "state.json" });
 
-    return page;
+    await browser.close();
   }
 
-  async wordpress_nonce_cookie() {
+  async wordpress_nonce_cookie(page_url: string) {
     let header: string[] = [];
-    let page = await this.wordpress_site_login();
+    const browser = await firefox.launch();
+    // const context = await browser.newContext({
+    //   userAgent:
+    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    // });
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
 
-    await page.goto(
-      `${data.wordpress_site_data[0]}/admin.php?page=wemail#/integrations/contact-forms/contact-form-7`,
-      {
-        waitUntil: "networkidle",
-      }
-    );
-
-    const weMailObject = await page.evaluate(() => {
-      const scriptElement = document.getElementById("wemail-vendor-js-extra");
-      if (scriptElement) {
-        const scriptContent = scriptElement.textContent;
-        const startPos = scriptContent!.indexOf("{");
-        const endPos = scriptContent!.lastIndexOf("}");
-        const weMailData = scriptContent!.slice(startPos, endPos + 1);
-        return JSON.parse(weMailData);
-      } else {
-        return null;
-      }
+    await page.goto(page_url, {
+      waitUntil: "networkidle",
     });
 
-    if (weMailObject) {
-      header.push(weMailObject.nonce);
-    } else {
-      console.log("Script element not found or object not present.");
+    let wemail_text = await page.locator("#wemail-vendor-js-extra").innerText();
+    let wemail_value = wemail_text.substring(
+      wemail_text.indexOf("{"),
+      wemail_text.lastIndexOf("}") + 1
+    );
+
+    try {
+      var parsed_value = JSON.parse(wemail_value);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
     }
 
-    let cookieData = fs.readFileSync("state.json", "utf8");
-    let parsedData = JSON.parse(cookieData);
-    let cookie: string = "";
+    if (parsed_value) {
+      header.push(parsed_value.nonce);
+    } else {
+      header.push("");
+      console.log("Nonce Not Found");
+    }
 
-    for (let i: number = 0; i < parsedData.cookies.length; i++) {
-      if (parsedData.cookies[i].name.includes("wordpress_logged_in")) {
-        cookie = `${parsedData.cookies[i].name}=${parsedData.cookies[i].value}`;
+    let cookie_data = fs.readFileSync("state.json", "utf8");
+    let parsed_data = JSON.parse(cookie_data);
+    let cookie: string = "";
+    let flag: boolean = false;
+
+    for (let i: number = 0; i < parsed_data.cookies.length; i++) {
+      if (parsed_data.cookies[i].name.includes("wordpress_logged_in")) {
+        cookie = `${parsed_data.cookies[i].name}=${parsed_data.cookies[i].value}`;
+        flag = true;
         break;
       }
     }
-    header.push(cookie);
+
+    if (flag == true) {
+      header.push(cookie);
+    } else {
+      header.push("");
+      console.log("Cookie Not Found");
+    }
+    await browser.close();
     return header;
   }
 }
