@@ -74,10 +74,6 @@ let data: {
   integrations: {
     forms_name: {
       wemail: string;
-      
-      contact_form_7: string;
-      contact_form_7_id: string;
-      contact_form_7_user_email: string;
     };
 
     contact_form_7: {
@@ -92,6 +88,10 @@ let data: {
           };
         }
       ];
+      form_name: string;
+      form_id: string;
+      form_user_email: string;
+      form_success_message: string;
     };
   };
 
@@ -600,12 +600,8 @@ let data: {
   integrations: {
     forms_name: {
       wemail: "wemail_form",
-
-      contact_form_7: "contact-form-7",
-      contact_form_7_id: "",
-      contact_form_7_user_email: "",
-
     },
+
     contact_form_7: {
       settings: [
         {
@@ -613,11 +609,16 @@ let data: {
           list_id: "",
           overwrite: true,
           map: {
-            "your-name": "first_name",
+            "your-name": "full_name",
             "your-email": "email",
           },
         },
       ],
+
+      form_name: "contact-form-7",
+      form_id: "",
+      form_user_email: "",
+      form_success_message: "Thank you for your message. It has been sent.",
     },
   },
 
@@ -628,4 +629,4 @@ export { data };
 
 data.rest_url =
   data.wordpress_site_data[0].substring(0, data.wordpress_site_data[0].lastIndexOf("/wp-admin")) +
-  "/wp-json";
+  "/wp-json/";

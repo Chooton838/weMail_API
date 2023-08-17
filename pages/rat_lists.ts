@@ -14,7 +14,7 @@ export class Rat_ListsPage {
     
     const listCreate_Request = await this.request.post(`${config.use?.baseURL}/v1/lists`, {
       data: {
-        name: `[Rat-QA] ${listName}`,
+        name: `${listName}`,
         description: `[Rat-QA] The created list is -  ${listName}`,
       },
     });

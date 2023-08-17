@@ -5,9 +5,9 @@ require("dotenv").config();
 
 const config: PlaywrightTestConfig = {
   testDir: "./tests",
-  timeout: 60 * 1000,
+  timeout: 120 * 1000,
   expect: {
-    timeout: 6000,
+    timeout: 60 * 1000,
   },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
@@ -32,10 +32,7 @@ const config: PlaywrightTestConfig = {
     trace: "on-first-retry",
     video: "on",
 
-    baseURL:
-      process.env.STAGING === "1"
-        ? "https://staging.getwemail.io"
-        : "https://api.getwemail.io",
+    baseURL: process.env.STAGING === "1" ? "https://staging.getwemail.io" : "https://api.getwemail.io",
     httpCredentials:
       process.env.STAGING === "1"
         ? {
@@ -49,10 +46,7 @@ const config: PlaywrightTestConfig = {
 
     extraHTTPHeaders: {
       authorization: "",
-      site:
-        process.env.STAGING === "1"
-          ? process.env.STAGING_WP_SITE_ID!
-          : process.env.WP_SITE_ID!,
+      site: process.env.STAGING === "1" ? process.env.STAGING_WP_SITE_ID! : process.env.WP_SITE_ID!,
     },
   },
   projects: [

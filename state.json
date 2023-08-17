@@ -1,16 +1,6 @@
 {
   "cookies": [
     {
-      "name": "PHPSESSID",
-      "value": "bb0v1auv5pmvlv0se2f2281rbm",
-      "domain": "eddtest.appsero.com",
-      "path": "/",
-      "expires": -1,
-      "httpOnly": false,
-      "secure": false,
-      "sameSite": "None"
-    },
-    {
       "name": "wordpress_test_cookie",
       "value": "WP+Cookie+check",
       "domain": "eddtest.appsero.com",
@@ -22,7 +12,7 @@
     },
     {
       "name": "wordpress_sec_3400c1ff388c2cd5ee555d09436966ef",
-      "value": "Ratul01047%7C1691927479%7CgJGbRgcnOQDQ8DvuRul8fqC9R3gZ7HJHmA6CMl30BXF%7C62776144b83e02d18681a4379077b1987b654bd87d7cce7994f63b154f1bb3de",
+      "value": "Ratul01047%7C1692440404%7CfrVW80G6WADkXyDEzmFMmNWLBPTTgSe8PFvHJ2ACRbd%7Cbdc0d96e7f66763ec82f3c490a0081c764c29b00559eac8c4fb4fa143f36e5ba",
       "domain": "eddtest.appsero.com",
       "path": "/wp-content/plugins",
       "expires": -1,
@@ -32,7 +22,7 @@
     },
     {
       "name": "wordpress_sec_3400c1ff388c2cd5ee555d09436966ef",
-      "value": "Ratul01047%7C1691927479%7CgJGbRgcnOQDQ8DvuRul8fqC9R3gZ7HJHmA6CMl30BXF%7C62776144b83e02d18681a4379077b1987b654bd87d7cce7994f63b154f1bb3de",
+      "value": "Ratul01047%7C1692440404%7CfrVW80G6WADkXyDEzmFMmNWLBPTTgSe8PFvHJ2ACRbd%7Cbdc0d96e7f66763ec82f3c490a0081c764c29b00559eac8c4fb4fa143f36e5ba",
       "domain": "eddtest.appsero.com",
       "path": "/wp-admin",
       "expires": -1,
@@ -42,7 +32,7 @@
     },
     {
       "name": "wordpress_logged_in_3400c1ff388c2cd5ee555d09436966ef",
-      "value": "Ratul01047%7C1691927479%7CgJGbRgcnOQDQ8DvuRul8fqC9R3gZ7HJHmA6CMl30BXF%7Cf31e2fce0307c7bce693108af441270e69d473f664409cd2ee74adbf47a9cdee",
+      "value": "Ratul01047%7C1692440404%7CfrVW80G6WADkXyDEzmFMmNWLBPTTgSe8PFvHJ2ACRbd%7Cfc164331ccac78111951742d03a5a70109490b93d1e5518bb44a15f9c4b4771f",
       "domain": "eddtest.appsero.com",
       "path": "/",
       "expires": -1,
@@ -55,17 +45,17 @@
       "value": "editor%3Dhtml",
       "domain": "eddtest.appsero.com",
       "path": "/",
-      "expires": 1723290681,
+      "expires": 1723803606,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "wp-settings-time-120",
-      "value": "1691754680",
+      "value": "1692267604",
       "domain": "eddtest.appsero.com",
       "path": "/",
-      "expires": 1723290681,
+      "expires": 1723803606,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
