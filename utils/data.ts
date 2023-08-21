@@ -63,19 +63,7 @@ let data: {
   wordpress_site_data: Array<string>;
 
   integrations: {
-    contact_form_7: {
-      settings: [
-        {
-          id: string;
-          list_id: string;
-          overwrite: boolean;
-          map: {
-            "your-name": string;
-            "your-email": string;
-          };
-        }
-      ];
-    };
+    submit_contact_form_7: {};
   };
 
   automation_create_data: {
@@ -576,19 +564,7 @@ let data: {
   },
 
   integrations: {
-    contact_form_7: {
-      settings: [
-        {
-          id: "",
-          list_id: "",
-          overwrite: true,
-          map: {
-            "your-name": "first_name",
-            "your-email": "email",
-          },
-        },
-      ],
-    },
+    submit_contact_form_7: {},
   },
 
   rest_url: "",

@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 import { CampaignPage } from "../pages/campaign";
 import { AdminPage } from "../pages/form_on_wp_site";
 import { FormPage } from "../pages/forms";
-// import { IntegrationsPage } from "../pages/integrations";
+import { IntegrationsPage } from "../pages/integrations";
 import { ListPage } from "../pages/list";
 import { LoginPage } from "../pages/login";
 import { GatewayPage } from "../pages/sending_gateways";
@@ -229,11 +229,23 @@ test.describe("Forms Functionalities", () => {
 
   test("From Submission - API", async ({ request }) => {
     if (flag == true) {
+      let api_endpoint: string = `${data.rest_url}wemail/v1/forms/${forms_id[0]}`;
+      let response_message: string =
+        "Your subscription has been confirmed. You've been added to our list & will hear from us soon.";
+
+      let form_data = new URLSearchParams();
+      // URLSearchParams() - Used to construct form data for requests that use the "application/x-www-form-urlencoded" as "Content-Type"
+      form_data.append("0[name]", "wemail_form_field_3");
+      form_data.append("0[value]", "test user");
+      form_data.append("1[name]", "wemail_form_field_4");
+      form_data.append("1[value]", form_subscriber_email.toLowerCase());
+
       const form = new FormPage(request);
       await form.form_submit(
-        forms_id[0],
-        form_subscriber_email.toLowerCase(),
-        header
+        api_endpoint,
+        form_data.toString(),
+        header,
+        response_message
       );
     } else {
       console.log("Test Aborted as Header Not Found");
@@ -721,3 +733,86 @@ test.describe("Subscriber Verification for Double-Opt-in List", () => {
 //   const automation = new AutomationPage(request);
 //   await automation.automation_delete(automation_id);
 // });
+
+test.describe.only("Functionalities of Contact Form 7 Integgration", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let contact_form_7_id: string = "";
+  let contact_form_7_name: string = faker.lorem.words(2);
+  let subscriber_id: string = "";
+  let form_subscriber_email: string = faker.internet.email();
+  let form_subscriber_name: string = faker.name.firstName();
+  let header: string[] = [];
+
+  test.only("Contact Form 7 - List Create", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+  });
+
+  test.only("Create Contact Form 7 - e2e", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    contact_form_7_id = await integrations.create_contact_forms_7(
+      contact_form_7_name
+    );
+    console.log(contact_form_7_id);
+  });
+
+  test.only("weMail List <-> Contact Form 7 - e2e", async ({ request }) => {
+    const admin = new AdminPage();
+
+    await admin.map_contact_form_7(list_name, contact_form_7_name);
+    // await admin.map_contact_form_7(
+    //   "necessitatibus nihil",
+    //   "contact_form_7_id",
+    //   "corporis adipisci"
+    // );
+  });
+
+  test.skip("weMail List <-> Contact Form 7 - API", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    header = await integrations.map_contact_form_7(list_id, contact_form_7_id);
+  });
+
+  test("Submit - Contact Form 7", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.submit_contact_form_7(
+      contact_form_7_id,
+      form_subscriber_email.toLowerCase(),
+      form_subscriber_name
+    );
+  });
+
+  test("Subscriber's info - Signed up through Contact Form 7", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    subscriber_id = await subscriber.subscribers_list(
+      list_id,
+      form_subscriber_email
+    );
+  });
+
+  // test.skip("Form Delete", async ({ request }) => {
+  //   const form = new FormPage(request);
+
+  //     for (let i: number = 0; i < forms_id.length; i++) {
+  //       await form.form_delete(forms_id[i]);
+  //     }
+  //   }
+  // });
+
+  test("Subscriber Delete - Signed up through Contact Form 7", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(subscriber_id);
+  });
+
+  test("Delete Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+});

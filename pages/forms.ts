@@ -133,39 +133,32 @@ export class FormPage {
   }
 
   async form_submit(
-    form_id: string,
-    subscriber_email: string,
-    header: string[]
+    api_endpoint: string,
+    form_data: string | {},
+    header: string[],
+    response_message: string
   ) {
-    const formData = new URLSearchParams();
-    // URLSearchParams() - Used to construct form data for requests that use the "application/x-www-form-urlencoded" as "Content-Type"
+    let content_type: string = "multipart/form-data";
+    if (typeof form_data == "string") {
+      content_type = "application/x-www-form-urlencoded; charset=UTF-8";
+    }
 
-    formData.append("0[name]", "wemail_form_field_3");
-    formData.append("0[value]", "test user");
-    formData.append("1[name]", "wemail_form_field_4");
-    formData.append("1[value]", subscriber_email);
+    const form_submit = await this.request.post(api_endpoint, {
+      headers: {
+        "X-WP-Nonce": header[0],
+        Cookie: header[1],
+        "Content-Type": content_type,
+      },
+      data: form_data,
+    });
 
-    const form_submit = await this.request.post(
-      `${data.rest_url}wemail/v1/forms/${form_id}`,
-      {
-        headers: {
-          "X-WP-Nonce": header[0],
-          Cookie: header[1],
-          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        },
-        data: formData.toString(),
-      }
-    );
-
-    let form_submit_response: { message: string } = { message: "" };
+    let form_submit_response: { message: string };
 
     const base = new BasePage(this.request);
     form_submit_response = await base.response_checker(form_submit);
 
     try {
-      expect(form_submit_response.message).toEqual(
-        "Your subscription has been confirmed. You've been added to our list & will hear from us soon."
-      );
+      expect(form_submit_response.message).toEqual(response_message);
     } catch (err) {
       console.log(form_submit_response);
       expect(form_submit.ok()).toBeFalsy();
