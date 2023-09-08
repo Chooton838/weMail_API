@@ -23,28 +23,24 @@ let contact_form_7_page_url: string = "";
 let header: string[] = [];
 
 //Faker-data
-// let subscriber_firstName = faker.name.firstName(); // Generates a random first name like "John"
-// let subscriber_lastName = faker.name.lastName(); // Generates a random last name like "Doe"
-// let subscriber_name = `${subscriber_firstName}.${subscriber_lastName}`; //Concats the name like "John.Doe"
-// let subscriber_email = `${subscriber_name}@gmail.com`; //@gmail used to avoid blockades from weMail
-// let subscriber_subject = faker.lorem.word(2);
-// let subscriber_messagebody = faker.lorem.sentence();
+let subscriber_firstName = faker.name.firstName(); // Generates a random first name like "John"
+let subscriber_lastName = faker.name.lastName(); // Generates a random last name like "Doe"
+let subscriber_name = `${subscriber_firstName}.${subscriber_lastName}`; //Concats the name like "John.Doe"
+let subscriber_email = `${subscriber_name}@gmail.com`; //@gmail used to avoid blockades from weMail
+let subscriber_subject = faker.lorem.word(2);
+let subscriber_messagebody = faker.lorem.sentence();
 
-let formData: {
-  "your-name": string;
-  "your-email": string;
-  "your-subject": string;
-  "your-message": string;
-} = {
-  // "your-name": faker.name.firstName(),
-  // "your-email": "hgfd@gmail.com",
-  // "your-subject": faker.lorem.word(4),
-  // "your-message": faker.lorem.sentence()
-  "your-name": "erfds",
-  "your-email": "hgfd@gmail.com",
-  "your-subject": "erds rfeds frwd",
-  "your-message": "red edgt reftgrfd",
-};
+// let formData: {
+//   "your-name": string;
+//   "your-email": string;
+//   "your-subject": string;
+//   "your-message": string;
+// } = {
+//   "your-name": faker.name.firstName(),
+//   "your-email": "hgfd@gmail.com",
+//   "your-subject": faker.lorem.word(4),
+//   "your-message": faker.lorem.sentence()
+// };
 /**
  *
  *
@@ -151,23 +147,28 @@ test.describe("Integration: Contact-form-7", () => {
     await integrationsSetup.remove_all_contact_form_7_forms();
   });
 
-  test("Test-14: Create new form - Contact-form-7 - e2e", async ({ request }) => {
+  test.only("Test-14: Create new form - Contact-form-7 - e2e", async ({ request }) => {
     const integrationsSetup = new Rat_IntegrationsSetupPage(request);
 
     //Create Form: Contact-form-7
     const contact_form_7_id = await integrationsSetup.create_contact_forms_7(contact_form_7_name);
     data.integrations.contact_form_7.form_id = contact_form_7_id;
-    console.log(contact_form_7_id);
   });
 
   test("Test-15: Map - Contact Form 7 - api", async ({ request }) => {
     const integrationsSetup = new Rat_IntegrationsSetupPage(request);
     //Map: Contact-form-7
-    header = await integrationsSetup.map_contact_form_7(
+    header = await integrationsSetup.map_contact_form_7_api(
       data.form_data.list_id,
       data.integrations.contact_form_7.form_id
     );
   });
+
+  // test("Test-15.0: Map - Contact Form 7 - e2e", async ({ request }) => {
+  //   const integrationsSetup = new Rat_IntegrationsSetupPage(request);
+  //   //Map: Contact-form-7
+  //   await integrationsSetup.map_contact_form_7_e2e();
+  // });
 
   test.skip("Test-16: Create new Page - Contact-form-7 - e2e", async ({ request }) => {
     const integrationsSetup = new Rat_IntegrationsSetupPage(request);
@@ -190,18 +191,10 @@ test.describe("Integration: Contact-form-7", () => {
   test("Test-17: Submit form - Contact-form-7: Guest/Subscriber ---> api", async ({ request }) => {
     const integrationsValidate = new Rat_IntegrationsValidatePage(request);
 
-    //Go-to-contact-form-7
-    const stagingWpSiteUrl: string = `${data.wordpress_site_data[0]}`;
-    const modifiedUrl: string = data.rest_url;
-    // let api_endpoint = `${modifiedUrl}/contact-form-7/v1/contact-forms/${data.integrations.contact_form_7.form_id}/feedback`;
-    let api_endpoint = `${modifiedUrl}/contact-form-7/v1/contact-forms/796785/feedback`;
+    let api_endpoint = `${data.rest_url}contact-form-7/v1/contact-forms/${data.integrations.contact_form_7.form_id}/feedback`;
+    // let api_endpoint = `${data.rest_url}contact-form-7/v1/contact-forms/799468/feedback`;
 
-    await integrationsValidate.form_submit(
-      api_endpoint,
-      formData,
-      header,
-      data.integrations.contact_form_7.form_success_message
-    );
+    await integrationsValidate.form_submit(api_endpoint, subscriber_email, subscriber_name);
 
     data.integrations.contact_form_7.form_user_email = submitted_subscriber_name;
   });

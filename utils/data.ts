@@ -77,17 +77,13 @@ let data: {
     };
 
     contact_form_7: {
-      settings: [
-        {
-          id: string;
-          list_id: string;
-          overwrite: boolean;
-          map: {
-            "your-name": string;
-            "your-email": string;
-          };
-        }
-      ];
+      submit_contact_form_7: {
+        header: { Cookie: string; "Content-Type": string };
+        data: string;
+        subscriber_mail: string;
+        subacriber_name: string;
+      };
+
       form_name: string;
       form_id: string;
       form_user_email: string;
@@ -603,17 +599,17 @@ let data: {
     },
 
     contact_form_7: {
-      settings: [
-        {
-          id: "",
-          list_id: "",
-          overwrite: true,
-          map: {
-            "your-name": "full_name",
-            "your-email": "email",
-          },
+      submit_contact_form_7: {
+        header: {
+          Cookie: "",
+          "Content-Type":
+            "multipart/form-data; boundary=----WebKitFormBoundary66t6AAYgRH37yFnA",
         },
-      ],
+        data: "",
+        subacriber_name: "",
+        subscriber_mail: "",
+      },
+  
 
       form_name: "contact-form-7",
       form_id: "",
@@ -630,3 +626,5 @@ export { data };
 data.rest_url =
   data.wordpress_site_data[0].substring(0, data.wordpress_site_data[0].lastIndexOf("/wp-admin")) +
   "/wp-json/";
+
+  data.integrations.contact_form_7.submit_contact_form_7.data = `------WebKitFormBoundary66t6AAYgRH37yFnAContent-Disposition: form-data; name="your-name"${data.integrations.contact_form_7.submit_contact_form_7.subacriber_name}------WebKitFormBoundary66t6AAYgRH37yFnAContent-Disposition: form-data; name="your-email"${data.integrations.contact_form_7.submit_contact_form_7.subscriber_mail}------WebKitFormBoundary66t6AAYgRH37yFnAContent-Disposition: form-data; name="your-subject"subject------WebKitFormBoundary66t6AAYgRH37yFnAContent-Disposition: form-data; name="your-message"message------WebKitFormBoundary66t6AAYgRH37yFnA--`;

@@ -18,24 +18,29 @@ export class Rat_IntegrationsSetupPage {
     let page = await base.wordpress_site_login();
 
     //Create-contact-form-7
-    await page.goto(`${data.wordpress_site_data[0]}/admin.php?page=wpcf7/`);
+    await page.goto(`${data.wordpress_site_data[0]}/admin.php?page=wpcf7/`, {
+      waitUntil: "networkidle",
+    });
 
+    //Add new
     await page.click('//a[@class="page-title-action" and contains(text(),"Add New")]');
+    await page.waitForLoadState("networkidle");
+    //Enter name
     await page.fill('//input[@id="title"]', `[Rat-QA] ${contact_form_7_name}`);
 
+    //Save
     await page.click('//p[@class="submit"]//input[@name="wpcf7-save"]');
 
     expect(page.isVisible('//input[@id="wpcf7-shortcode"]')).toBeTruthy();
 
+    //Store Shortcode
     let shortcode = await page.locator("#wpcf7-shortcode").getAttribute("value");
     console.log(`Shortcode is: ${shortcode}`);
 
     if (shortcode !== null) {
-      const idMatch = shortcode.match(/id="(\d+)"/);
+      const idMatch = shortcode.match(/id="([^"]+)"/);
       const id = idMatch ? idMatch[1] : null;
-
       contact_form_7_id = id as string;
-      console.log(`ID is: ${id}`);
     } else {
       console.log("Code attribute is null");
     }
@@ -79,7 +84,8 @@ export class Rat_IntegrationsSetupPage {
 
   //Integration
   //Setup-contact-form-7
-  async map_contact_form_7(list_id: string, contact_form_7_id: string) {
+  //api
+  async map_contact_form_7_api(list_id: string, contact_form_7_id: string) {
     let page_url: string = `${data.wordpress_site_data[0]}/admin.php?page=wemail#/integrations/contact-forms/contact-form-7`;
     const base = new BasePage(this.request);
     let header = await base.wordpress_nonce_cookie(page_url);
@@ -116,6 +122,9 @@ export class Rat_IntegrationsSetupPage {
 
     return header;
   }
+
+  //e2e
+  async map_contact_form_7_e2e() {}
 
   //Remove Contact-form-7-forms
   async remove_all_contact_form_7_forms() {

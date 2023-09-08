@@ -3,8 +3,6 @@ import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
 import { faker } from "@faker-js/faker";
-const FormData = require('form-data');
-
 
 export class Rat_IntegrationsValidatePage {
   readonly request: APIRequestContext;
@@ -51,31 +49,33 @@ export class Rat_IntegrationsValidatePage {
   //Submit-contact-form-7: api
   async form_submit(
     api_endpoint: string,
-    form_data: string | {},
-    header: string[],
-    response_message: string
+    subscriber_email:string,
+    subscriber_name:string
   ) {
-    let content_type: string = "multipart/form-data";
-    if (typeof form_data == "string") {
-      content_type = "application/x-www-form-urlencoded; charset=UTF-8";
-    }
 
-  const browser = await firefox.launch();
-  const page = await browser.newPage();
+    let payload: string = `------WebKitFormBoundary66t6AAYgRH37yFnA
+Content-Disposition: form-data; name="your-name"
 
-  const formData = new FormData();
-  formData.append('your-name', 'erfds');
-  formData.append('your-email', 'hgfd@gmail.com');
-  formData.append('your-subject', 'erds rfeds frwd');
-  formData.append('your-message', 'red edgt reftgrfd');
+${subscriber_name}
+------WebKitFormBoundary66t6AAYgRH37yFnA
+Content-Disposition: form-data; name="your-email"
 
-    const form_submit = await this.request.post("https://eddtest.appsero.com/wp-json/contact-form-7/v1/contact-forms/796785/feedback", {
+${subscriber_email}
+------WebKitFormBoundary66t6AAYgRH37yFnA
+Content-Disposition: form-data; name="your-subject"
+
+subject
+------WebKitFormBoundary66t6AAYgRH37yFnA
+Content-Disposition: form-data; name="your-message"
+
+message
+------WebKitFormBoundary66t6AAYgRH37yFnA--`;
+
+    const form_submit = await this.request.post(api_endpoint, {
       headers: {
-        "X-WP-Nonce": header[0],
-        Cookie: header[1],
-        "Content-Type": content_type,
+        "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundary66t6AAYgRH37yFnA",
       },
-      data: formData,
+      data: payload,
     });
 
     let form_submit_response: { message: string };
@@ -84,13 +84,13 @@ export class Rat_IntegrationsValidatePage {
     form_submit_response = await base.response_checker(form_submit);
 
     try {
-      expect(form_submit_response.message).toEqual(response_message);
+      expect(form_submit_response.message).toEqual("Thank you for your message. It has been sent.");
     } catch (err) {
       console.log(form_submit_response);
       expect(form_submit.ok()).toBeFalsy();
     }
   }
-  
+
   //Validate Subscriber-to-list
   async validate_subscriber_to_list(list_id: string, subscriber_email: string) {
     const base = new BasePage(this.request);
