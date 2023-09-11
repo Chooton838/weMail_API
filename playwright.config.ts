@@ -28,6 +28,7 @@ const config: PlaywrightTestConfig = {
       ],
   use: {
     actionTimeout: 0,
+    //navigationTimeout: //TODO: R
     headless: true,
     trace: "on-first-retry",
     video: "on",
