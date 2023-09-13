@@ -11,10 +11,17 @@ export class FormPage {
   }
 
   async form_create(form_data: {}) {
-    let page_url: string = `${data.wordpress_site_data[0]}/admin.php?page=wemail#/forms`;
-    let response: { form_id: string; header: string[] } = {
+    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/forms`;
+    let response: {
+      form_id: string;
+      header: { nonce: string; cookie: string; api_key: string };
+    } = {
       form_id: "",
-      header: [],
+      header: {
+        nonce: "",
+        cookie: "",
+        api_key: "",
+      },
     };
     const base = new BasePage(this.request);
     response.header = await base.wordpress_nonce_cookie(page_url);
@@ -109,14 +116,14 @@ export class FormPage {
   }
 
   async form_sync_with_frontend() {
-    let page_url: string = `${data.wordpress_site_data[0]}/admin.php?page=wemail#/forms`;
+    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/forms`;
     const base = new BasePage(this.request);
     let header = await base.wordpress_nonce_cookie(page_url);
 
     const form_sync_with_frontend = await this.request.put(
-      `${data.rest_url}wemail/v1/forms/sync`,
+      `${data.rest_url}/wemail/v1/forms/sync`,
       {
-        headers: { "X-WP-Nonce": header[0], Cookie: header[1] },
+        headers: { "X-WP-Nonce": header.nonce, Cookie: header.cookie },
       }
     );
 
@@ -135,7 +142,7 @@ export class FormPage {
   async form_submit(
     api_endpoint: string,
     form_data: string | {},
-    header: string[],
+    header: { nonce: string; cookie: string; api_key: string },
     response_message: string
   ) {
     let content_type: string = "multipart/form-data";
@@ -145,8 +152,8 @@ export class FormPage {
 
     const form_submit = await this.request.post(api_endpoint, {
       headers: {
-        "X-WP-Nonce": header[0],
-        Cookie: header[1],
+        "X-WP-Nonce": header.nonce,
+        Cookie: header.cookie,
         "Content-Type": content_type,
       },
       data: form_data,

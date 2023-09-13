@@ -15,7 +15,7 @@ export class AdminPage {
     const context = await browser.newContext({ storageState: "state.json" });
     const page = await context.newPage();
 
-    await page.goto(data.wordpress_site_data[0], { waitUntil: "networkidle" });
+    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
     await page
       .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
       .click();
@@ -43,9 +43,9 @@ export class AdminPage {
     const context = await browser.newContext({ storageState: "state.json" });
     const page = await context.newPage();
 
-    // await page.goto(data.wordpress_site_data[0], { waitUntil: "networkidle" });
+    // await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
     await page.goto(
-      `${data.wordpress_site_data[0]}/post-new.php?post_type=page`,
+      `${data.wordpress_site_data.url}/post-new.php?post_type=page`,
       { waitUntil: "networkidle" }
     );
 
@@ -108,74 +108,6 @@ export class AdminPage {
     await page
       .locator('//button[@class="swal-button swal-button--confirm"]')
       .click();
-    await browser.close();
-  }
-
-  async map_contact_form_7(list_name: string, contact_form_7_name: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
-
-    await page.goto(data.wordpress_site_data[0], { waitUntil: "networkidle" });
-    await page.goto(
-      `${data.wordpress_site_data[0]}/admin.php?page=wemail#/integrations/contact-forms/contact-form-7`,
-      { waitUntil: "networkidle" }
-    );
-
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]//input[@type="checkbox"]`
-      )
-      .click();
-
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//div[@class="multiselect__tags"]`
-      )
-      .click();
-
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`
-      )
-      .fill(list_name);
-
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`
-      )
-      .press("Enter");
-
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/../form//input[@type="checkbox"]`
-      )
-      .click();
-
-    await page
-      .locator(
-        `(//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//select)[1]`
-      )
-      .selectOption("first_name");
-
-    await page
-      .locator(
-        `(//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//select)[2]`
-      )
-      .selectOption("email");
-
-    await page.locator(`//button[contains(text(),"Save Settings")]`).click();
-
-    expect(
-      await page.locator(`//p[@class="iziToast-message slideIn"]`).innerText()
-    ).toEqual("Settings saved successfully");
-
-    await page.waitForTimeout(5000);
-
     await browser.close();
   }
 }

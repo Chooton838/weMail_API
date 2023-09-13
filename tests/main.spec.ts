@@ -47,8 +47,6 @@ test.describe("List Functionalities", () => {
   test("List Create", async ({ request }) => {
     const list = new ListPage(request);
     list_id = await list.list_create(list_name);
-    // data.campaign_data.lists.push(list_id);
-    // data.form_data.list_id = list_id;
     // data.affiliate_integration_data.list = await list.list_create(
     //   faker.lorem.words(2)
     // );
@@ -103,9 +101,11 @@ test.describe("Subscribers Functionalities", () => {
     );
   });
 
-  test("Subscribers List", async ({ request }) => {
+  test("Validate Created Subscriber", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscribers_list(list_id, subscriber_email);
+    expect(
+      await subscriber.subscribers_list(list_id, subscriber_email)
+    ).toEqual(subscribers_id[0]);
   });
 
   test("Subscriber Update", async ({ request }) => {
@@ -138,7 +138,11 @@ test.describe("Forms Functionalities", () => {
   let form_subscriber_email: string = faker.internet.email();
   let forms_id: string[] = [];
   let form_page_url: string | null;
-  let header: string[];
+  let header: { nonce: string; cookie: string; api_key: string } = {
+    nonce: "",
+    cookie: "",
+    api_key: "",
+  };
   let flag: boolean = true;
 
   test("Forms - List Create", async ({ request }) => {
@@ -158,7 +162,7 @@ test.describe("Forms Functionalities", () => {
     forms_id.push(reponse.form_id);
     header = reponse.header;
 
-    if (header[0] == "" || header[1] == "") {
+    if (header.nonce == "" || header.cookie == "") {
       flag = false;
       console.log("Header Not Found");
     }
@@ -229,7 +233,7 @@ test.describe("Forms Functionalities", () => {
 
   test("From Submission - API", async ({ request }) => {
     if (flag == true) {
-      let api_endpoint: string = `${data.rest_url}wemail/v1/forms/${forms_id[0]}`;
+      let api_endpoint: string = `${data.rest_url}/wemail/v1/forms/${forms_id[0]}`;
       let response_message: string =
         "Your subscription has been confirmed. You've been added to our list & will hear from us soon.";
 
@@ -734,7 +738,8 @@ test.describe("Subscriber Verification for Double-Opt-in List", () => {
 //   await automation.automation_delete(automation_id);
 // });
 
-test.describe.only("Functionalities of Contact Form 7 Integgration", () => {
+/* ------------------------ Functionalities of Contact Form 7 Integgration ------------------------ */
+test.describe("Functionalities of Contact Form 7 Integgration", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
   let contact_form_7_id: string = "";
@@ -742,35 +747,32 @@ test.describe.only("Functionalities of Contact Form 7 Integgration", () => {
   let subscriber_id: string = "";
   let form_subscriber_email: string = faker.internet.email();
   let form_subscriber_name: string = faker.name.firstName();
-  let header: string[] = [];
 
-  test.only("Contact Form 7 - List Create", async ({ request }) => {
+  test("Contact Form 7 - List Create", async ({ request }) => {
     const list = new ListPage(request);
     list_id = await list.list_create(list_name);
   });
 
-  test.only("Create Contact Form 7 - e2e", async ({ request }) => {
+  test("Create Contact Form 7 - e2e", async ({ request }) => {
     const integrations = new IntegrationsPage(request);
-    contact_form_7_id = await integrations.create_contact_forms_7(
-      contact_form_7_name
-    );
-    console.log(contact_form_7_id);
+    await integrations.create_contact_forms_7(contact_form_7_name);
   });
 
-  test.only("weMail List <-> Contact Form 7 - e2e", async ({ request }) => {
-    const admin = new AdminPage();
-
-    await admin.map_contact_form_7(list_name, contact_form_7_name);
-    // await admin.map_contact_form_7(
-    //   "necessitatibus nihil",
-    //   "contact_form_7_id",
-    //   "corporis adipisci"
-    // );
+  test("weMail List <-> Contact Form 7 - e2e", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.map_contact_form_7(list_name, contact_form_7_name);
   });
 
   test.skip("weMail List <-> Contact Form 7 - API", async ({ request }) => {
     const integrations = new IntegrationsPage(request);
-    header = await integrations.map_contact_form_7(list_id, contact_form_7_id);
+    await integrations.map_contact_form_7_API(list_id, contact_form_7_id);
+  });
+
+  test("Get Contact Form 7 ID", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    contact_form_7_id = (
+      await integrations.contact_form_7_post_id(contact_form_7_name)
+    ).toString();
   });
 
   test("Submit - Contact Form 7", async ({ request }) => {
@@ -792,14 +794,10 @@ test.describe.only("Functionalities of Contact Form 7 Integgration", () => {
     );
   });
 
-  // test.skip("Form Delete", async ({ request }) => {
-  //   const form = new FormPage(request);
-
-  //     for (let i: number = 0; i < forms_id.length; i++) {
-  //       await form.form_delete(forms_id[i]);
-  //     }
-  //   }
-  // });
+  test("Delete Contact Form 7 - e2e", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.delete_contact_form_7(contact_form_7_name);
+  });
 
   test("Subscriber Delete - Signed up through Contact Form 7", async ({
     request,
@@ -814,5 +812,82 @@ test.describe.only("Functionalities of Contact Form 7 Integgration", () => {
 
     const list = new ListPage(request);
     await list.list_delete(lists);
+  });
+});
+
+/* ------------------------ Functionalities of Contact Form 7 Integgration ------------------------ */
+test.describe.only("Functionalities of WooCommerce Integgration", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let woocom_product_id: number = 0;
+  let woocom_product_name: string = faker.lorem.words(2);
+  let woocom_order_id: number = 0;
+  let subscriber_id: string = "";
+  let woocom_customer_email: string = faker.internet.email();
+
+  test("List Create for woocom Int.", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+  });
+
+  test("weMail <-> WooCommerce - API", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.woocom_integrations(list_id);
+  });
+
+  test("Create woocom Product", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    woocom_product_id = await integrations.woocom_product_create(
+      woocom_product_name
+    );
+  });
+
+  test("Create woocom Order", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    data.woocom_order_data.line_items[0].product_id = woocom_product_id;
+    data.woocom_order_data.billing.email = woocom_customer_email.toLowerCase();
+    woocom_order_id = await integrations.woocom_order_create(
+      data.woocom_order_data
+    );
+  });
+
+  test("Complete woocom Order", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.woocom_order_complete(woocom_order_id);
+  });
+
+  test("Subscriber's info - Signed up through WooCommerce Integration", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    subscriber_id = await subscriber.subscribers_list(
+      list_id,
+      woocom_customer_email
+    );
+  });
+
+  test("Subscriber Delete - Signed up through WooCommerce Integration", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(subscriber_id);
+  });
+
+  test("Delete Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+
+  test("Delete woocom Order", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.woocom_order_delete(woocom_order_id);
+  });
+
+  test("Delete woocom Product", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.woocom_product_delete(woocom_product_id);
   });
 });

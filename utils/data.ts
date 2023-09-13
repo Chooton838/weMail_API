@@ -60,11 +60,7 @@ let data: {
     settings: {};
   };
 
-  wordpress_site_data: Array<string>;
-
-  integrations: {
-    submit_contact_form_7: {};
-  };
+  wordpress_site_data: { url: string; username: string; password: string };
 
   automation_create_data: {
     template: string;
@@ -94,6 +90,42 @@ let data: {
   };
 
   rest_url: string;
+
+  woocom_rest_api: { consumer_key: string; consumer_secret: string };
+
+  woocom_order_data: {
+    payment_method: string;
+    payment_method_title: string;
+    set_paid: boolean;
+    billing: {
+      first_name: string;
+      last_name: string;
+      address_1: string;
+      address_2: string;
+      city: string;
+      state: string;
+      postcode: string;
+      country: string;
+      email: string;
+      phone: string;
+    };
+    shipping: {
+      first_name: string;
+      last_name: string;
+      address_1: string;
+      address_2: string;
+      city: string;
+      state: string;
+      postcode: string;
+      country: string;
+    };
+    line_items: [
+      {
+        product_id: number;
+        quantity: number;
+      }
+    ];
+  };
 } = {
   campaign_data: {
     from_email: "sqa@wedevsqa.com",
@@ -504,16 +536,16 @@ let data: {
 
   wordpress_site_data:
     process.env.STAGING === "1"
-      ? [
-          process.env.STAGING_WP_SITE_URL!,
-          process.env.STAGING_WP_SITE_USER_NAME!,
-          process.env.STAGING_WP_SITE_USER_PASSWORD!,
-        ]
-      : [
-          process.env.WP_SITE_URL!,
-          process.env.WP_SITE_USER_NAME!,
-          process.env.WP_SITE_USER_PASSWORD!,
-        ],
+      ? {
+          url: process.env.STAGING_WP_SITE_URL!,
+          username: process.env.STAGING_WP_SITE_USER_NAME!,
+          password: process.env.STAGING_WP_SITE_USER_PASSWORD!,
+        }
+      : {
+          url: process.env.WP_SITE_URL!,
+          username: process.env.WP_SITE_USER_NAME!,
+          password: process.env.WP_SITE_USER_PASSWORD!,
+        },
 
   automation_create_data: {
     template: "welcome-message",
@@ -563,17 +595,58 @@ let data: {
     is_affiliate_enabled: true,
   },
 
-  integrations: {
-    submit_contact_form_7: {},
-  },
-
   rest_url: "",
+
+  woocom_rest_api:
+    process.env.STAGING === "1"
+      ? {
+          consumer_key: process.env.STAGING_wcom_Consumer_key!,
+          consumer_secret: process.env.STAGING_wcom_Consumer_secret!,
+        }
+      : {
+          consumer_key: process.env.wcom_Consumer_key!,
+          consumer_secret: process.env.wcom_Consumer_secret!,
+        },
+
+  woocom_order_data: {
+    payment_method: "cod",
+    payment_method_title: "Cash On Delivery",
+    set_paid: false,
+    billing: {
+      first_name: "John",
+      last_name: "Doe",
+      address_1: "969 Market",
+      address_2: "",
+      city: "San Francisco",
+      state: "CA",
+      postcode: "94103",
+      country: "US",
+      email: "",
+      phone: "(555) 555-5555",
+    },
+    shipping: {
+      first_name: "John",
+      last_name: "Doe",
+      address_1: "969 Market",
+      address_2: "",
+      city: "San Francisco",
+      state: "CA",
+      postcode: "94103",
+      country: "US",
+    },
+    line_items: [
+      {
+        product_id: 0,
+        quantity: 1,
+      },
+    ],
+  },
 };
 
 export { data };
 
 data.rest_url =
-  data.wordpress_site_data[0].substring(
+  data.wordpress_site_data.url.substring(
     0,
-    data.wordpress_site_data[0].lastIndexOf("/wp-admin")
-  ) + "/wp-json/";
+    data.wordpress_site_data.url.lastIndexOf("/wp-admin")
+  ) + "/wp-json";

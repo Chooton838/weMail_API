@@ -36,14 +36,14 @@ export class BasePage {
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    await page.goto(data.wordpress_site_data[0], { waitUntil: "networkidle" });
+    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
 
     await page
       .locator('//*[@id="user_login"]')
-      .fill(data.wordpress_site_data[1]);
+      .fill(data.wordpress_site_data.username);
     await page
       .locator('//*[@id="user_pass"]')
-      .fill(data.wordpress_site_data[2]);
+      .fill(data.wordpress_site_data.password);
     await page.locator('//*[@id="wp-submit"]').click();
     await page.waitForLoadState("networkidle");
 
@@ -52,8 +52,16 @@ export class BasePage {
     await browser.close();
   }
 
+  /**
+   * This below wordpress_nonce_cookie(page_url: string) function can be usable to get wp-nonce and login cookie for evry plugin.
+   * Only need to provide the page url (page contains the nonce) as parameter and change the script locator value
+   */
   async wordpress_nonce_cookie(page_url: string) {
-    let header: string[] = [];
+    let header: { nonce: string; cookie: string; api_key: string } = {
+      nonce: "",
+      cookie: "",
+      api_key: "",
+    };
     const browser = await firefox.launch();
     // const context = await browser.newContext({
     //   userAgent:
@@ -66,6 +74,7 @@ export class BasePage {
       waitUntil: "networkidle",
     });
 
+    // here change the locator value according to your script locator that contains nonce
     let wemail_text = await page.locator("#wemail-vendor-js-extra").innerText();
     let wemail_value = wemail_text.substring(
       wemail_text.indexOf("{"),
@@ -79,9 +88,8 @@ export class BasePage {
     }
 
     if (parsed_value) {
-      header.push(parsed_value.nonce);
+      header.nonce = parsed_value.nonce;
     } else {
-      header.push("");
       console.log("Nonce Not Found");
     }
 
@@ -99,11 +107,17 @@ export class BasePage {
     }
 
     if (flag == true) {
-      header.push(cookie);
+      header.cookie = cookie;
     } else {
-      header.push("");
       console.log("Cookie Not Found");
     }
+
+    if (parsed_value.api.api_key) {
+      header.api_key = parsed_value.api.api_key;
+    } else {
+      console.log("API Key Not Found");
+    }
+
     await browser.close();
     return header;
   }

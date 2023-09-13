@@ -166,7 +166,7 @@ export class SubscriberPage {
     subscriber_email: string
   ) {
     const subscribe_double_opt_in_list = await this.request.post(
-      `${config.use?.baseURL}/v1/embed/subscribe/${list_id}`,
+      `${config.use?.baseURL}/v1/embed/check-subscribe/${list_id}`,
       { data: { email: subscriber_email, purpose: "test" } }
     );
 
