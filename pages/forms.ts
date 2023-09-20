@@ -12,6 +12,7 @@ export class FormPage {
 
   async form_create(form_data: {}) {
     let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/forms`;
+    let locator: string = `#wemail-vendor-js-extra`;
     let response: {
       form_id: string;
       header: { nonce: string; cookie: string; api_key: string };
@@ -24,7 +25,12 @@ export class FormPage {
       },
     };
     const base = new BasePage(this.request);
-    response.header = await base.wordpress_nonce_cookie(page_url);
+    response.header = await base.wordpress_nonce_cookie(
+      page_url,
+      locator,
+      false,
+      ""
+    );
 
     const form_create = await this.request.post(
       `${config.use?.baseURL}/v1/forms`,
@@ -117,8 +123,14 @@ export class FormPage {
 
   async form_sync_with_frontend() {
     let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/forms`;
+    let locator: string = `#wemail-vendor-js-extra`;
     const base = new BasePage(this.request);
-    let header = await base.wordpress_nonce_cookie(page_url);
+    let header = await base.wordpress_nonce_cookie(
+      page_url,
+      locator,
+      false,
+      ""
+    );
 
     const form_sync_with_frontend = await this.request.put(
       `${data.rest_url}/wemail/v1/forms/sync`,

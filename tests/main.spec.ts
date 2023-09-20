@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { expect, test } from "@playwright/test";
-// import { AutomationPage } from "../pages/automation";
+import { AutomationPage } from "../pages/automation";
 import { CampaignPage } from "../pages/campaign";
 import { AdminPage } from "../pages/form_on_wp_site";
 import { FormPage } from "../pages/forms";
@@ -13,17 +13,6 @@ import { SuppressionPage } from "../pages/suppression";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
-
-// let list_id: string = "";
-// let list_name: string = faker.lorem.words(2);
-// let subscribers_id: string[] = [];
-// let subscriber_email: string = faker.internet.email();
-// let form_subscriber_email: string = faker.internet.email();
-// let forms_id: string[] = [];
-// let form_page_url: string = "";
-// let automation_id: string = "";
-// let campaign_id: string = "";
-// let campaign_sending_gateway: string = "smtp";
 
 // /* ------------------------ Login ------------------------ */
 test.beforeAll(async ({ request }) => {
@@ -47,9 +36,6 @@ test.describe("List Functionalities", () => {
   test("List Create", async ({ request }) => {
     const list = new ListPage(request);
     list_id = await list.list_create(list_name);
-    // data.affiliate_integration_data.list = await list.list_create(
-    //   faker.lorem.words(2)
-    // );
   });
 
   test("Validate Created List", async ({ request }) => {
@@ -83,7 +69,7 @@ test.describe("List Functionalities", () => {
 test.describe("Subscribers Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
-  let subscribers_id: string[] = [];
+  let subscriber_id: string = "";
   let subscriber_email: string = faker.internet.email();
 
   test("List Create for Subscriber", async ({ request }) => {
@@ -93,11 +79,9 @@ test.describe("Subscribers Functionalities", () => {
 
   test("Subscriber Create", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    subscribers_id.push(
-      await subscriber.subscriber_create(
-        subscriber_email.toLowerCase(),
-        list_id
-      )
+    subscriber_id = await subscriber.subscriber_create(
+      subscriber_email.toLowerCase(),
+      list_id
     );
   });
 
@@ -105,20 +89,20 @@ test.describe("Subscribers Functionalities", () => {
     const subscriber = new SubscriberPage(request);
     expect(
       await subscriber.subscribers_list(list_id, subscriber_email)
-    ).toEqual(subscribers_id[0]);
+    ).toEqual(subscriber_id);
   });
 
   test("Subscriber Update", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
     await subscriber.subscriber_update(
       data.subscriber_updated_data,
-      subscribers_id[0]
+      subscriber_id
     );
   });
 
   test("Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscribers_id[0]);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
   test("Delete Subscriber Test List", async ({ request }) => {
@@ -265,7 +249,7 @@ test.describe("Forms Functionalities", () => {
     //   test.fail();
     // } else {
     //   const subscriber = new SubscriberPage(request);
-    //   subscribers_id = await subscriber.subscribers_list(
+    //   subscriber_id = await subscriber.subscribers_list(
     //   list_id,
     //   form_subscriber_email
     // );
@@ -299,7 +283,7 @@ test.describe("Forms Functionalities", () => {
 
   test("Forms Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscriber_id);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
   test("Delete Forms Test List", async ({ request }) => {
@@ -336,6 +320,7 @@ test.describe("Campaign Functionalities", () => {
       data.smtp_data
     );
   });
+
   test("Set Default Sender", async ({ request }) => {
     const sending_gateways = new GatewayPage(request);
     await sending_gateways.set_default_Form_Reply(
@@ -387,6 +372,7 @@ test.describe("Campaign Functionalities", () => {
 
   test("Check Campaign Activity", async ({ request }) => {
     const campaign = new CampaignPage(request);
+
     while (campaign_activity_stats.status != "completed") {
       campaign_activity_stats = await campaign.campaign_activity(campaign_id);
       await new Promise((r) => setTimeout(r, 20000));
@@ -466,8 +452,8 @@ test.describe("Campaign Functionalities", () => {
 
   test("Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscribers_id[0]);
-    await subscriber.subscriber_delete(subscribers_id[1]);
+    await subscriber.subscriber_delete(list_id, subscribers_id[0]);
+    await subscriber.subscriber_delete(list_id, subscribers_id[1]);
   });
 
   test("Delete Campaign Test List", async ({ request }) => {
@@ -483,7 +469,7 @@ test.describe("Campaign Functionalities", () => {
 test.describe("Suppression List Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
-  let subscribers_id: string[] = [];
+  let subscriber_id: string = "";
   let subscriber_email: string = faker.internet.email();
   let campaign_id: string = "";
   let duplicate_campaign_id: string = "";
@@ -530,11 +516,9 @@ test.describe("Suppression List Functionalities", () => {
 
   test("Subscribers Create for Suppression List", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    subscribers_id.push(
-      await subscriber.subscriber_create(
-        subscriber_email.toLowerCase(),
-        list_id
-      )
+    subscriber_id = await subscriber.subscriber_create(
+      subscriber_email.toLowerCase(),
+      list_id
     );
   });
 
@@ -548,12 +532,14 @@ test.describe("Suppression List Functionalities", () => {
     await campaign.send_campaign(campaign_id);
   });
 
-  test("Check Campaign Activity", async ({ request }) => {
+  test("Check Campaign Activity & Subscriber Count", async ({ request }) => {
     const campaign = new CampaignPage(request);
     while (campaign_activity_stats.status != "completed") {
       campaign_activity_stats = await campaign.campaign_activity(campaign_id);
       await new Promise((r) => setTimeout(r, 20000));
     }
+
+    expect(campaign_activity_stats.no_of_subscribers).toEqual(1);
   });
 
   test("Subscriber Added into Suppression List", async ({ request }) => {
@@ -623,7 +609,7 @@ test.describe("Suppression List Functionalities", () => {
 
   test("Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscribers_id[0]);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
   test("Delete List", async ({ request }) => {
@@ -639,7 +625,7 @@ test.describe("Suppression List Functionalities", () => {
 test.describe("Subscriber Verification for Double-Opt-in List", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
-  let subscribers_id: string = "";
+  let subscriber_id: string = "";
   let subscriber_email: string = faker.internet.email();
   let verification_url: string = "";
 
@@ -664,7 +650,7 @@ test.describe("Subscriber Verification for Double-Opt-in List", () => {
     let end = "/confirm-subscription";
     let startIndex = verification_url.indexOf(start) + start.length;
     let endIndex = verification_url.indexOf(end, startIndex);
-    subscribers_id = verification_url.slice(startIndex, endIndex);
+    subscriber_id = verification_url.slice(startIndex, endIndex);
   });
 
   test("Check Subscriber Status", async ({ request }) => {
@@ -673,7 +659,7 @@ test.describe("Subscriber Verification for Double-Opt-in List", () => {
       await subscriber.subscriber_status(
         list_id,
         subscriber_email.toLowerCase(),
-        subscribers_id
+        subscriber_id
       )
     ).toEqual("unconfirmed");
   });
@@ -689,14 +675,14 @@ test.describe("Subscriber Verification for Double-Opt-in List", () => {
       await subscriber.subscriber_status(
         list_id,
         subscriber_email.toLowerCase(),
-        subscribers_id
+        subscriber_id
       )
     ).toEqual("subscribed");
   });
 
   test("Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscribers_id);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
   test("Delete Test List", async ({ request }) => {
@@ -708,38 +694,173 @@ test.describe("Subscriber Verification for Double-Opt-in List", () => {
   });
 });
 
-// test("Affiliate Integration", async ({ request }) => {
-//   const integration = new IntegrationsPage(request);
-//   await integration.integrate_affiliatewp();
-// });
+/* ------------------------ Functionalities of Affiliate WP Integration ------------------------ */
+test.describe("Functionalities of Affiliate WP Integration", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let subscriber_id: string = "";
+  let affiliate_username: string = faker.lorem.words(1);
+  let affiliate_user_email: string = faker.internet.email();
 
-// test("Create Affiliate", async ({ request }) => {
-//   const integration = new IntegrationsPage(request);
-//   await integration.create_affiliate(subscriber_email);
-// });
+  test("List Create for Affiliate WP Integration", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+  });
 
-// test("Automation Create", async ({ request }) => {
-//   const automation = new AutomationPage(request);
-//   automation_id = await automation.welcome_automation_create(list_id);
-// });
+  test("Affiliate Integration", async ({ request }) => {
+    const integration = new IntegrationsPage(request);
+    await integration.integrate_affiliatewp(list_id);
+  });
 
-// test("Automation Activation", async ({ request }) => {
-//   const automation = new AutomationPage(request);
-//   await automation.automation_activation(automation_id);
-// });
+  test("Create WP User - e2e", async ({ request }) => {
+    const integration = new IntegrationsPage(request);
+    await integration.create_wp_user(affiliate_username, affiliate_user_email);
+  });
 
-// test("Check Automation Activity", async ({ request }) => {
-//   const automatoin = new AutomationPage(request);
-//   await automatoin.automation_activity(automation_id, form_subscriber_email);
-// });
+  test("Create Affiliate -e2e", async ({ request }) => {
+    const integration = new IntegrationsPage(request);
+    await integration.create_affiliate(affiliate_username);
+  });
 
-// test("Automation Delete", async ({ request }) => {
-//   const automation = new AutomationPage(request);
-//   await automation.automation_delete(automation_id);
-// });
+  test("Check Subscriber's info - Signed up through Affiliate WP Integration", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      await subscriber.check_subscriber_on_list(list_id, affiliate_user_email)
+    ).toEqual(false);
+  });
 
-/* ------------------------ Functionalities of Contact Form 7 Integgration ------------------------ */
-test.describe("Functionalities of Contact Form 7 Integgration", () => {
+  test("Approve Affiliate User - e2e", async ({ request }) => {
+    const integration = new IntegrationsPage(request);
+    await integration.approve_affiliate(affiliate_username);
+  });
+
+  test("Validate Subscriber's info - Signed up through Affiliate WP Integration", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    subscriber_id = await subscriber.subscribers_list(
+      list_id,
+      affiliate_user_email
+    );
+  });
+
+  test("Subscriber Delete - Signed up through Affiliate WP Integration", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
+  });
+
+  test("Delete Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+
+  test("Delete Affiliates -e2e", async ({ request }) => {
+    const integration = new IntegrationsPage(request);
+    await integration.delete_affiliate(affiliate_username);
+  });
+
+  test("Delete WP User - e2e", async ({ request }) => {
+    const integration = new IntegrationsPage(request);
+    await integration.delete_wp_user(affiliate_username);
+  });
+});
+
+/* ------------------------ Functionalities of Automation Feature ------------------------ */
+test.describe("Functionalities of Automation Feature", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let automation_name: string = `Automation - ${faker.lorem.words(2)}`;
+  let automation_id: string = "";
+  let delay_id: string = "";
+  let subscriber_id: string = "";
+  let subscriber_email: string = faker.internet.email();
+
+  test("List Create", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+  });
+
+  test("Automation Create", async ({ request }) => {
+    const automation = new AutomationPage(request);
+    automation_id = await automation.welcome_automation_create(
+      list_id,
+      automation_name
+    );
+  });
+
+  test("Automation Details", async ({ request }) => {
+    const automation = new AutomationPage(request);
+    delay_id = await automation.get_automation_details(automation_id);
+  });
+
+  test("Delete Automation Delay", async ({ request }) => {
+    const automation = new AutomationPage(request);
+    await automation.delete_automation_delay(automation_id, delay_id);
+  });
+
+  test("Automation Activation", async ({ request }) => {
+    const automation = new AutomationPage(request);
+    await automation.automation_activation(automation_id, automation_name);
+  });
+
+  test("Subscriber Create With Fire Event", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    subscriber_id = await subscriber.subscriber_create_with_fire_event(
+      subscriber_email.toLowerCase(),
+      list_id
+    );
+  });
+
+  test("Check Automation Status", async ({ request }) => {
+    const automation = new AutomationPage(request);
+    expect(await automation.automation_status(automation_id)).toEqual("active");
+  });
+
+  test("Check Automation Activity", async ({ request }) => {
+    let automation_activity_response: { data: [{ id: string; email: string }] };
+    const automation = new AutomationPage(request);
+
+    for (let i: number = 0; i <= 15; i++) {
+      automation_activity_response = await automation.automation_activity(
+        automation_id
+      );
+      if (automation_activity_response.data.length > 0) {
+        expect(automation_activity_response.data[0].id).toEqual(subscriber_id);
+      } else {
+        i++;
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+    }
+  });
+
+  test("Automation Delete", async ({ request }) => {
+    const automation = new AutomationPage(request);
+    await automation.automation_delete(automation_id);
+  });
+
+  test("Subscriber Delete", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
+  });
+
+  test("Delete Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+});
+
+/* ------------------------ Functionalities of Contact Form 7 Integration ------------------------ */
+test.describe("Functionalities of Contact Form 7 Integration", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
   let contact_form_7_id: string = "";
@@ -803,7 +924,7 @@ test.describe("Functionalities of Contact Form 7 Integgration", () => {
     request,
   }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscriber_id);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
   test("Delete Test List", async ({ request }) => {
@@ -815,8 +936,8 @@ test.describe("Functionalities of Contact Form 7 Integgration", () => {
   });
 });
 
-/* ------------------------ Functionalities of Contact Form 7 Integgration ------------------------ */
-test.describe.only("Functionalities of WooCommerce Integgration", () => {
+/* ------------------------ Functionalities of WooCommerce Integration ------------------------ */
+test.describe("Functionalities of WooCommerce Integration", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
   let woocom_product_id: number = 0;
@@ -870,7 +991,7 @@ test.describe.only("Functionalities of WooCommerce Integgration", () => {
     request,
   }) => {
     const subscriber = new SubscriberPage(request);
-    await subscriber.subscriber_delete(subscriber_id);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
   test("Delete Test List", async ({ request }) => {
@@ -889,5 +1010,61 @@ test.describe.only("Functionalities of WooCommerce Integgration", () => {
   test("Delete woocom Product", async ({ request }) => {
     const integrations = new IntegrationsPage(request);
     await integrations.woocom_product_delete(woocom_product_id);
+  });
+});
+
+/* ------------------------ Functionalities of WP ERP Integration ------------------------ */
+test.describe("Functionalities of WP ERP Integration", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let subscriber_id: string = "";
+  let wperp_crm_customer_email: string = faker.internet.email();
+  let wperp_crm_customer_id: string = "";
+
+  test("List Create for WP ERP Integration", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+  });
+
+  test("weMail <-> WP ERP - API", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.wperp_integrations(list_id);
+  });
+
+  test("Create WP ERP CRM Contacts", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    wperp_crm_customer_id = await integrations.wperp_crm_contact_create(
+      wperp_crm_customer_email
+    );
+  });
+
+  test("Subscriber's info - Signed up through WP ERP Integration", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    subscriber_id = await subscriber.subscribers_list(
+      list_id,
+      wperp_crm_customer_email
+    );
+  });
+
+  test("Subscriber Delete - Signed up through WP ERP Integration", async ({
+    request,
+  }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(list_id, subscriber_id);
+  });
+
+  test("Delete Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+
+  test("Delete WP ERP CRM Contacts", async ({ request }) => {
+    const integrations = new IntegrationsPage(request);
+    await integrations.wperp_crm_contact_delete(wperp_crm_customer_id);
   });
 });

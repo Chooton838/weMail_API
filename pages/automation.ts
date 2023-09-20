@@ -10,8 +10,9 @@ export class AutomationPage {
     this.request = request;
   }
 
-  async welcome_automation_create(list_id: string) {
+  async welcome_automation_create(list_id: string, automation_name: string) {
     data.automation_create_data.triggers[0].payload.list_id = list_id;
+    data.automation_create_data.name = automation_name;
     const automation_create = await this.request.post(
       `${config.use?.baseURL}/v1/automations`,
       {
@@ -37,12 +38,64 @@ export class AutomationPage {
     return automation_id;
   }
 
-  async automation_activation(automation_id: string) {
+  async get_automation_details(automation_id: string) {
+    const get_automation_details = await this.request.get(
+      `${config.use?.baseURL}/v1/automations/${automation_id}?with=steps,triggers`
+    );
+
+    let automation_details_response: {
+      data: { id: string; steps: { id: string } };
+    };
+    let delay_id: string = "";
+
+    const base = new BasePage(this.request);
+    automation_details_response = await base.response_checker(
+      get_automation_details
+    );
+
+    try {
+      let response_data = automation_details_response.data;
+      expect(response_data.id).toEqual(automation_id);
+      let steps_value = response_data.steps;
+      delay_id = steps_value[0].id;
+    } catch (err) {
+      console.log(automation_details_response);
+      expect(get_automation_details.ok()).toBeFalsy();
+    }
+
+    return delay_id;
+  }
+
+  async delete_automation_delay(automation_id: string, delay_id: string) {
+    const delete_automatoin_delay = await this.request.delete(
+      `${config.use?.baseURL}/v1/automations/${automation_id}/steps/${delay_id}`
+    );
+
+    let delete_automatoin_delay_response: {
+      message: string;
+    };
+
+    const base = new BasePage(this.request);
+    delete_automatoin_delay_response = await base.response_checker(
+      delete_automatoin_delay
+    );
+
+    try {
+      expect(delete_automatoin_delay_response.message).toEqual(
+        "Step has deleted."
+      );
+    } catch (err) {
+      console.log(delete_automatoin_delay_response);
+      expect(delete_automatoin_delay.ok()).toBeFalsy();
+    }
+  }
+
+  async automation_activation(automation_id: string, automation_name:string) {
     const automation_activation = await this.request.post(
       `${config.use?.baseURL}/v1/automations/${automation_id}`,
       {
         data: {
-          name: "Automated - Welcome Message",
+          name: automation_name,
           status: "active",
           _method: "PATCH",
         },
@@ -66,7 +119,29 @@ export class AutomationPage {
     }
   }
 
-  async automation_activity(automation_id: string, subscriber_email: string) {
+  async automation_status(automation_id: string) {
+    const automation_status = await this.request.get(
+      `${config.use?.baseURL}/v1/automations/${automation_id}?with=emails`
+    );
+
+    let automation_status_response: { data: { id: string; status: string } } = {
+      data: { id: "", status: "" },
+    };
+
+    const base = new BasePage(this.request);
+    automation_status_response = await base.response_checker(automation_status);
+
+    try {
+      expect(automation_status_response.data.id).toEqual(automation_id);
+    } catch (err) {
+      console.log(automation_status_response);
+      expect(automation_status.ok()).toBeFalsy();
+    }
+
+    return automation_status_response.data.status;
+  }
+
+  async automation_activity(automation_id: string) {
     const automation_activity = await this.request.get(
       `${config.use?.baseURL}/v1/automations/${automation_id}/subscribers`
     );
@@ -78,17 +153,7 @@ export class AutomationPage {
       automation_activity
     );
 
-    try {
-      if (
-        subscriber_email.toLowerCase() !=
-        automation_activity_response.data[0].email
-      ) {
-        console.log("Automation Not Triggured");
-      }
-    } catch (err) {
-      console.log(automation_activity_response);
-      expect(automation_activity.ok()).toBeFalsy();
-    }
+    return automation_activity_response;
   }
 
   async automation_delete(automatoin_id: string) {

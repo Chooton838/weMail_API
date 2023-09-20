@@ -549,7 +549,7 @@ let data: {
 
   automation_create_data: {
     template: "welcome-message",
-    name: "Automated - Welcome Message",
+    name: "",
     triggers: [
       {
         name: "SubscriberJoin",
@@ -586,14 +586,24 @@ let data: {
     ],
   },
 
-  affiliate_integration_data: {
-    key: "d499402b178628eae03507a27ad34fd7",
-    token: "596353328e3bed355ec468553a90a764",
-    list: "",
-    sync_existing_data: true,
-    rest_url: "",
-    is_affiliate_enabled: true,
-  },
+  affiliate_integration_data:
+    process.env.STAGING === "1"
+      ? {
+          key: process.env.STAGING_affiliate_wp_public_key!,
+          token: process.env.STAGING_affiliate_wp_token!,
+          list: "",
+          sync_existing_data: true,
+          rest_url: "",
+          is_affiliate_enabled: true,
+        }
+      : {
+          key: process.env.affiliate_wp_public_key!,
+          token: process.env.affiliate_wp_token!,
+          list: "",
+          sync_existing_data: true,
+          rest_url: "",
+          is_affiliate_enabled: true,
+        },
 
   rest_url: "",
 

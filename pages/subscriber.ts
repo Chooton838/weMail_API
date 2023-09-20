@@ -41,6 +41,44 @@ export class SubscriberPage {
     return subscriber_id;
   }
 
+  async subscriber_create_with_fire_event(
+    subscriber_email: string,
+    list_id: string
+  ) {
+    const subscriber_create_with_fire_event = await this.request.post(
+      `${config.use?.baseURL}/v1/subscribers`,
+      {
+        data: {
+          email: subscriber_email,
+          first_name: "",
+          last_name: "",
+          phone: "",
+          lists: [list_id],
+          event: 1,
+        },
+      }
+    );
+
+    let subscriber_create_response: { data: { email: string; id: string } } = {
+      data: { email: "", id: "" },
+    };
+    let subscriber_id: string = "";
+
+    const base = new BasePage(this.request);
+    subscriber_create_response = await base.response_checker(
+      subscriber_create_with_fire_event
+    );
+
+    try {
+      expect(subscriber_create_response.data.email).toEqual(subscriber_email);
+      subscriber_id = subscriber_create_response.data.id;
+    } catch (err) {
+      console.log(subscriber_create_response);
+      expect(subscriber_create_with_fire_event.ok()).toBeFalsy();
+    }
+    return subscriber_id;
+  }
+
   async subscriber_update(subscriber_updated_data: {}, subscriber_id: string) {
     const subscriber_update = await this.request.put(
       `${config.use?.baseURL}/v1/subscribers/${subscriber_id}`,
@@ -66,23 +104,29 @@ export class SubscriberPage {
     }
   }
 
-  async subscriber_delete(subscriber_id: string) {
+  async subscriber_delete(list_id: string, subscriber_id: string) {
+    let form_data = new URLSearchParams();
+    form_data.append("ids[]", subscriber_id);
+
     const subscriber_delete = await this.request.delete(
-      `${config.use?.baseURL}/v1/subscribers/${subscriber_id}`,
+      `${config.use?.baseURL}/v1/lists/${list_id}/delete-subscribers`,
       {
-        data: {
-          permanent: true,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
+        data: form_data.toString(),
       }
     );
 
-    let subscriber_delete_response: { deleted: number } = { deleted: 0 };
+    let subscriber_delete_response: { message: string } = { message: "" };
 
     const base = new BasePage(this.request);
     subscriber_delete_response = await base.response_checker(subscriber_delete);
 
     try {
-      expect(subscriber_delete_response.deleted).toEqual(1);
+      expect(subscriber_delete_response.message).toEqual(
+        "Subscribers delete successfully"
+      );
     } catch (err) {
       console.log(subscriber_delete_response);
       expect(subscriber_delete.ok()).toBeFalsy();
@@ -124,7 +168,7 @@ export class SubscriberPage {
         }
       }
       if (flag == false) {
-        console.log("Created Subscriber Not Found");
+        console.log("Subscriber Not Found");
         expect(subscribers_list.ok()).toBeFalsy();
       }
     } catch {
@@ -206,5 +250,46 @@ export class SubscriberPage {
       console.log(verify_subscriber_response);
       expect(verify_subscriber.ok()).toBeFalsy();
     }
+  }
+
+  async check_subscriber_on_list(list_id: string, subscriber_email: string) {
+    const check_subscriber_on_list = await this.request.get(
+      `${config.use?.baseURL}/v1/lists/${list_id}/subscribers`,
+      {}
+    );
+
+    let check_subscriber_on_list_response: {
+      data: Array<{ email: string; id: string }>;
+    } = {
+      data: [],
+    };
+    let found_subscriber: boolean = false;
+
+    const base = new BasePage(this.request);
+    check_subscriber_on_list_response = await base.response_checker(
+      check_subscriber_on_list
+    );
+
+    try {
+      if (check_subscriber_on_list_response.data.length >= 1) {
+        for (
+          let i: number = 0;
+          i < check_subscriber_on_list_response.data.length;
+          i++
+        ) {
+          if (
+            subscriber_email.toLowerCase() ==
+            check_subscriber_on_list_response.data[i].email
+          ) {
+            found_subscriber = true;
+            break;
+          }
+        }
+      }
+    } catch {
+      console.log(check_subscriber_on_list_response);
+      expect(check_subscriber_on_list.ok()).toBeFalsy();
+    }
+    return found_subscriber;
   }
 }

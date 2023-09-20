@@ -184,13 +184,6 @@ export class CampaignPage {
     return unsubscribed_flag;
   }
 
-  // async campaign_subscribers_count(campaign_id: string) {
-  //   const campaign_subscribers_count = await this.request.put(
-  //     `${config.use?.baseURL}/v1/campaigns/${campaign_id}`,
-  //     {}
-  //   );
-  // }
-
   async delete_campaign(campaign_id) {
     const delete_campaign = await this.request.delete(
       `${config.use?.baseURL}/v1/campaigns/${campaign_id}`,
