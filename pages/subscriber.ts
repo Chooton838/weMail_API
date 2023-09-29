@@ -292,4 +292,116 @@ export class SubscriberPage {
     }
     return found_subscriber;
   }
+
+  async subscriber_tag_details(list_id: string, subscriber_id: string) {
+    const subscriber_details = await this.request.get(
+      `${config.use?.baseURL}/v1/subscribers/${subscriber_id}`
+    );
+
+    let subscriber_details_response: {
+      data: {
+        id: string;
+        lists: Array<{
+          id: string;
+          tags: Array<{ id: string }>;
+        }>;
+      };
+    };
+    let tag_count: number = 0;
+
+    const base = new BasePage(this.request);
+    subscriber_details_response = await base.response_checker(
+      subscriber_details
+    );
+
+    try {
+      expect(subscriber_details_response.data.id).toEqual(subscriber_id);
+      for (
+        let i: number = 0;
+        i < subscriber_details_response.data.lists.length;
+        i++
+      ) {
+        if (list_id == subscriber_details_response.data.lists[i].id) {
+          tag_count = subscriber_details_response.data.lists[i].tags.length;
+          break;
+        }
+      }
+    } catch {
+      console.log(subscriber_details_response);
+      expect(subscriber_details.ok()).toBeFalsy();
+    }
+
+    return tag_count;
+  }
+
+  async subscriber_custom_field_details(
+    list_id: string,
+    subscriber_id: string
+  ) {
+    const subscriber_custom_field_details = await this.request.get(
+      `${config.use?.baseURL}/v1/subscribers/${subscriber_id}`
+    );
+
+    let subscriber_custom_field_details_response: {
+      data: {
+        id: string;
+        lists: Array<{
+          id: string;
+          fields: {};
+        }>;
+      };
+    };
+
+    let subscriber_custom_field_stats: {
+      fields_count: number;
+      options_count: number;
+    } = { fields_count: 0, options_count: 0 };
+
+    const base = new BasePage(this.request);
+    subscriber_custom_field_details_response = await base.response_checker(
+      subscriber_custom_field_details
+    );
+
+    try {
+      expect(subscriber_custom_field_details_response.data.id).toEqual(
+        subscriber_id
+      );
+      for (
+        let i: number = 0;
+        i < subscriber_custom_field_details_response.data.lists.length;
+        i++
+      ) {
+        if (
+          subscriber_custom_field_details_response.data.lists[i].id == list_id
+        ) {
+          subscriber_custom_field_stats.fields_count = Object.keys(
+            subscriber_custom_field_details_response.data.lists[i].fields
+          ).length;
+
+          if (subscriber_custom_field_stats.fields_count > 0) {
+            for (let key in subscriber_custom_field_details_response.data.lists[
+              i
+            ].fields) {
+              if (
+                subscriber_custom_field_details_response.data.lists[
+                  i
+                ].fields.hasOwnProperty(key)
+              ) {
+                subscriber_custom_field_stats.options_count =
+                  subscriber_custom_field_details_response.data.lists[i].fields[
+                    key
+                  ].length;
+              }
+            }
+          }
+          break;
+        }
+      }
+    } catch {
+      console.log(subscriber_custom_field_details_response);
+      expect(subscriber_custom_field_details.ok()).toBeFalsy();
+    }
+
+    return subscriber_custom_field_stats;
+  }
 }

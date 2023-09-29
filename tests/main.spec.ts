@@ -28,10 +28,30 @@ test.beforeAll(async ({ request }) => {
   await base.wordpress_site_login();
 });
 
-// /* ------------------------ Functionalities of List ------------------------ */
-test.describe("List Functionalities", () => {
+// /* ------------------------ Functionalities of List (Tag, Segment, Custom Field) & Subscriber ------------------------ */
+test.describe("Functionalities of List (Tag, Segment, Custom Field) & Subscriber", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
+  let subscriber_id: string = "";
+  let subscriber_email: string = faker.internet.email();
+  let tag_id: string = "";
+  let tag_name: string = faker.lorem.words(1);
+  let segment_id: string = "";
+  let segment_name: string = faker.lorem.words(1);
+  let list_custom_fields_data: {
+    title: string;
+    slug: string;
+    type: string;
+    meta: { options: Array<string> };
+  } = {
+    title: faker.lorem.words(1),
+    slug: "",
+    type: "checkbox",
+    meta: {
+      options: [faker.lorem.words(1), faker.lorem.words(1)],
+    },
+  };
+  list_custom_fields_data.slug = list_custom_fields_data.title.toLowerCase();
 
   test("List Create", async ({ request }) => {
     const list = new ListPage(request);
@@ -53,28 +73,52 @@ test.describe("List Functionalities", () => {
     await list.list_details(list_id);
   });
 
-  test("List Delete", async ({ request }) => {
-    let lists: Array<string> = [];
-    lists.push(list_id);
-
-    // For multiple list delete, push list_id on lists array
-    // lists.push("3992afb1-68ba-4ba7-a3c2-ae5dedffb21a");
-
+  test("Create Custom Field", async ({ request }) => {
     const list = new ListPage(request);
-    await list.list_delete(lists);
+    await list.create_custom_field(list_id, list_custom_fields_data);
   });
-});
 
-/* ------------------------ Functionalities of Subscribers ------------------------ */
-test.describe("Subscribers Functionalities", () => {
-  let list_id: string = "";
-  let list_name: string = faker.lorem.words(2);
-  let subscriber_id: string = "";
-  let subscriber_email: string = faker.internet.email();
-
-  test("List Create for Subscriber", async ({ request }) => {
+  test("Update Custom Field", async ({ request }) => {
+    let custom_field_options_new_value: string = "random";
     const list = new ListPage(request);
-    list_id = await list.list_create(list_name);
+    await list.update_custom_field(
+      list_id,
+      list_custom_fields_data,
+      custom_field_options_new_value
+    );
+  });
+
+  test("Tag Create", async ({ request }) => {
+    const list = new ListPage(request);
+    tag_id = await list.tag_create(list_id, tag_name);
+  });
+
+  test("Tag Update", async ({ request }) => {
+    let tag_update_data: {
+      _method: string;
+      id: string;
+      site_id: string;
+      name: string;
+    } = {
+      _method: "put",
+      id: tag_id,
+      site_id: config.use?.extraHTTPHeaders?.site!,
+      name: `Updated_${tag_name}`,
+    };
+
+    const list = new ListPage(request);
+    await list.tag_update(list_id, tag_id, tag_update_data);
+  });
+
+  test("Segment Create (Contains Created Tag)", async ({ request }) => {
+    const list = new ListPage(request);
+    segment_id = await list.segment_create(list_id, tag_id, segment_name);
+  });
+
+  test("Segment Update", async ({ request }) => {
+    let updated_segment_name: string = `Updated_${segment_name}`;
+    const list = new ListPage(request);
+    await list.segment_update(list_id, segment_id, updated_segment_name);
   });
 
   test("Subscriber Create", async ({ request }) => {
@@ -100,14 +144,139 @@ test.describe("Subscribers Functionalities", () => {
     );
   });
 
+  test("Check Custom Field on Subscriber", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      (await subscriber.subscriber_custom_field_details(list_id, subscriber_id))
+        .fields_count
+    ).toEqual(0);
+  });
+
+  test("Add Custom Field Value on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.assign_custom_field(
+      list_id,
+      subscriber_id,
+      list_custom_fields_data.slug,
+      list_custom_fields_data.meta.options
+    );
+  });
+
+  test("Verify Custom Field on Subscriber", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      (await subscriber.subscriber_custom_field_details(list_id, subscriber_id))
+        .options_count
+    ).toEqual(3);
+  });
+
+  test("Remove Custom Field Value on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.unassign_custom_field(
+      list_id,
+      subscriber_id,
+      list_custom_fields_data.slug
+    );
+  });
+
+  test("Re-Check Custom Field on Subscriber", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      (await subscriber.subscriber_custom_field_details(list_id, subscriber_id))
+        .options_count
+    ).toEqual(0);
+  });
+
+  test("Delete Custom Field", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.delete_custom_field(list_id, list_custom_fields_data.slug);
+  });
+
+  test("Check Tag on Subscriber", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      await subscriber.subscriber_tag_details(list_id, subscriber_id)
+    ).toEqual(0);
+  });
+
+  test("Check Segment on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    expect(
+      await list.filter_segmented_subscribers(
+        list_id,
+        segment_id,
+        subscriber_id
+      )
+    ).toEqual(0);
+  });
+
+  test("Assign Tag on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.tag_assign(list_id, tag_id, subscriber_id);
+  });
+
+  test("Verify Tag on Subscriber", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      await subscriber.subscriber_tag_details(list_id, subscriber_id)
+    ).toEqual(1);
+  });
+
+  test("Verify Segment on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    expect(
+      await list.filter_segmented_subscribers(
+        list_id,
+        segment_id,
+        subscriber_id
+      )
+    ).toEqual(1);
+  });
+
+  test("Un-assign Tag on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.tag_assign(list_id, "", subscriber_id);
+  });
+
+  test("Re-Check Tag on Subscriber", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    expect(
+      await subscriber.subscriber_tag_details(list_id, subscriber_id)
+    ).toEqual(0);
+  });
+
+  test("Re-Check Segment on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    expect(
+      await list.filter_segmented_subscribers(
+        list_id,
+        segment_id,
+        subscriber_id
+      )
+    ).toEqual(0);
+  });
+
+  test("Tag Delete", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.tag_delete(list_id, tag_id);
+  });
+
+  test("Segment Delete", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.segment_delete(segment_id);
+  });
+
   test("Subscriber Delete", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
     await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
-  test("Delete Subscriber Test List", async ({ request }) => {
+  test("List Delete", async ({ request }) => {
     let lists: Array<string> = [];
     lists.push(list_id);
+
+    // For multiple list delete, push list_id on lists array
+    // lists.push("3992afb1-68ba-4ba7-a3c2-ae5dedffb21a");
 
     const list = new ListPage(request);
     await list.list_delete(lists);
