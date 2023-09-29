@@ -38,12 +38,8 @@ export class BasePage {
 
     await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
 
-    await page
-      .locator('//*[@id="user_login"]')
-      .fill(data.wordpress_site_data.username);
-    await page
-      .locator('//*[@id="user_pass"]')
-      .fill(data.wordpress_site_data.password);
+    await page.locator('//*[@id="user_login"]').fill(data.wordpress_site_data.username);
+    await page.locator('//*[@id="user_pass"]').fill(data.wordpress_site_data.password);
     await page.locator('//*[@id="wp-submit"]').click();
     await page.waitForLoadState("networkidle");
 
@@ -61,12 +57,7 @@ export class BasePage {
    *  popup: string = If wp-nonce exists on a pop-up of the given page, value is true else false
    *  popup_locator: string = Provide the locator for the pop-up to click and extract the wp-nonce value
    */
-  async wordpress_nonce_cookie(
-    page_url: string,
-    locator: string,
-    popup: boolean,
-    popup_locator: string
-  ) {
+  async wordpress_nonce_cookie(page_url: string, locator: string, popup: boolean, popup_locator: string) {
     let header: { nonce: string; cookie: string; api_key: string } = {
       nonce: "",
       cookie: "",
@@ -115,10 +106,7 @@ export class BasePage {
       }
     } else {
       let object_text = await page.locator(locator).innerText();
-      let object_value = object_text.substring(
-        object_text.indexOf("{"),
-        object_text.lastIndexOf("}") + 1
-      );
+      let object_value = object_text.substring(object_text.indexOf("{"), object_text.lastIndexOf("}") + 1);
 
       let parsed_value: Record<string, any> = {};
 
@@ -138,5 +126,57 @@ export class BasePage {
 
     await browser.close();
     return header;
+  }
+
+  //Activate_plugin
+  async activate_plugin(plugin_name: string) {
+    const browser = await firefox.launch();
+
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    const activationLinkSelector = `//a[@id="activate-${plugin_name}"]`;
+    //Go to Plugins page
+    await page.goto(`${data.wordpress_site_data.url}/plugins.php`);
+
+    const plugin_activate_showing = await page.isVisible(activationLinkSelector);
+
+    if (plugin_activate_showing === true) {
+      // Plugin needs to be activated
+      await page.click(activationLinkSelector);
+      await page.waitForLoadState('domcontentloaded');
+      // Validate plugin activated
+      expect(await page.isVisible(`//a[@id="deactivate-${plugin_name}"]`)).toBeTruthy();
+      console.log(`${plugin_name}: Activated plugin`);
+    } else {
+      expect(await page.isVisible(`//a[@id="deactivate-${plugin_name}"]`)).toBeTruthy();
+      console.log(`${plugin_name}: Plugin is already Activated`);
+    }
+  }
+
+  //Deactivate_plugin
+  async deactivate_plugin(plugin_name: string) {
+    const browser = await firefox.launch();
+
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    const activationLinkSelector = `//a[@id="deactivate-${plugin_name}"]`;
+    //Go to Plugins page
+    await page.goto(`${data.wordpress_site_data.url}/plugins.php`);
+
+    const plugin_activate_showing = await page.isVisible(activationLinkSelector);
+
+    if (plugin_activate_showing === true) {
+      // Plugin needs to be activated
+      await page.click(activationLinkSelector);
+      await page.waitForLoadState('domcontentloaded');
+      // Validate plugin activated
+      expect(await page.isVisible(`//a[@id="activate-${plugin_name}"]`)).toBeTruthy();
+      console.log(`${plugin_name}: Deactivated plugin`);
+    } else {
+      expect(await page.isVisible(`//a[@id="activate-${plugin_name}"]`)).toBeTruthy();
+      console.log(`${plugin_name}: Plugin is already Deactivated`);
+    }
   }
 }

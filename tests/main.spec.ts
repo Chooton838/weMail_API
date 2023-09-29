@@ -14,7 +14,7 @@ import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
 
-// /* ------------------------ Login ------------------------ */
+/* ------------------------ Login ------------------------ */
 test.beforeAll(async ({ request }) => {
   const login_data: Array<string> = [
     config.use?.httpCredentials?.username!,
@@ -28,7 +28,7 @@ test.beforeAll(async ({ request }) => {
   await base.wordpress_site_login();
 });
 
-// /* ------------------------ Functionalities of List ------------------------ */
+/* ------------------------ Functionalities of List ------------------------ */
 test.describe("List Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
@@ -295,7 +295,7 @@ test.describe("Forms Functionalities", () => {
   });
 });
 
-// /* ------------------------ Functionalities of Campaign ------------------------ */
+/* ------------------------ Functionalities of Campaign ------------------------ */
 test.describe("Campaign Functionalities", () => {
   let list_id: string = "";
   let list_name: string = faker.lorem.words(2);
