@@ -200,14 +200,13 @@ export class RatIntegrationsPage {
     const context = await browser.newContext({ storageState: "state.json" });
     const page = await context.newPage();
 
-    //Go to plugin_page
     await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
 
     await page.click('//a[@class="page-title-action wpforms-btn add-new-h2 wpforms-btn-orange"]');
     await page.waitForLoadState("domcontentloaded");
 
     //Give form name
-    await page.fill('//input[@id="wpforms-setup-name"]', wp_forms_name);
+    await page.fill('//input[@id="wpforms-setup-name"]', `[QA] ${wp_forms_name}`);
     //Select template
     await page.hover('//div[@id="wpforms-template-simple-contact-form-template"]');
     await page.click('//a[@data-slug="simple-contact-form-template"]');
@@ -314,9 +313,43 @@ export class RatIntegrationsPage {
       expect(wp_forms_post_id_request.ok()).toBeFalsy();
     }
     return id;
+    console.log(id);
   }
 
-  async create_wp_forms_page_frontend() {}
+  async get_wp_forms_shortcode() {
+    const browser = await firefox.launch();
+
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
+
+    await page.click('//a[@class="page-title-action wpforms-btn add-new-h2 wpforms-btn-orange"]');
+
+    expect(await page.locator('//td[@class="shortcode column-shortcode"]').isVisible()).toBeTruthy();
+
+    let store_wp_forms_shortcode: string = await page.locator('//td[@class="shortcode column-shortcode"]').innerText();
+
+    console.log(store_wp_forms_shortcode);
+    return store_wp_forms_shortcode;
+  }
+
+  async create_wp_forms_page(wp_form_page_name: string ,wp_forms_shortcode: string) {
+    const browser = await firefox.launch();
+
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    //Add new page
+    await page.goto(`${data.wordpress_site_data.url}/post-new.php?post_type=page`);
+
+    await page.locator('//input[@name="post_title"]').fill(wp_form_page_name);
+    await page.locator('//textarea[@id="content"]').fill(wp_forms_shortcode);
+
+    await page.locator('//input[@id="publish"]').click();
+
+    expect(await page.locator('//p[text()="Page published. "]').isVisible()).toBeTruthy();
+  }
 
   async submit_wp_forms(wp_forms_id: string, subscriber_email: string, subscriber_name: string) {
     const browser = await firefox.launch();
@@ -324,7 +357,7 @@ export class RatIntegrationsPage {
     const context = await browser.newContext({ storageState: "state.json" });
     const page = await context.newPage();
 
-    await page.goto(`${data.wordpress_site_data.url}/qa-wp-forms/`);
+    await page.goto(`${data.wordpress_site_data.url}/qa-wpforms/`);
 
     await page.fill('//input[@class="wpforms-field-name-first wpforms-field-required"]', subscriber_name);
     await page.fill('//input[@class="wpforms-field-name-last wpforms-field-required"]', "Man");
@@ -359,5 +392,23 @@ export class RatIntegrationsPage {
     expect(await page.locator('//p[text()="1 form was successfully moved to Trash."]').isVisible()).toBeTruthy();
   }
 
-  async delete_wp_forms_page_frontend() {}
+  async delete_wp_forms_page(wp_form_page_name: string) {
+    const browser = await firefox.launch();
+
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    //Add new page
+    await page.goto(`${data.wordpress_site_data.url}/edit.php?post_type=page`);
+
+    await page.locator('//input[@type="search"]').fill(wp_form_page_name);
+    await page.locator('//input[@id="search-submit"]').click();
+
+    await page.locator(`//a[text()="${wp_form_page_name}"]/../../..//input[@type="checkbox"]`).click();
+
+    await page.locator("#bulk-action-selector-top").selectOption("Move to Trash");
+    await page.locator("#doaction").click();
+    await page.waitForLoadState("networkidle");
+    expect(await page.locator('//p[text()="1 page moved to the Trash. "]').isVisible()).toBeTruthy();
+  }
 }

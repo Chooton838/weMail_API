@@ -106,6 +106,8 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
     let subscriber_id: string = "";
     let form_subscriber_email: string = faker.internet.email();
     let form_subscriber_name: string = faker.name.firstName();
+    let wp_forms_shortcode: string = "";
+    let wp_form_page_name: string = "";
   
     test("WP Forms - List Create", async ({ request }) => {
       const list = new ListPage(request);
@@ -131,8 +133,21 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
       const integrations = new RatIntegrationsPage(request);
       wp_forms_id = (await integrations.wp_forms_post_id(wp_forms_name)).toString();
     });
-  
-    test("Submit - WP Forms", async ({ request }) => {
+    
+    test("Get WP Forms Shortcode - e2e", async ({ request }) => {
+      const integrations = new RatIntegrationsPage(request);
+      wp_forms_shortcode = (await integrations.get_wp_forms_shortcode()).toString();
+      console.log(wp_forms_shortcode);
+    });
+
+    test("Create Page form, WP Forms - e2e", async ({ request }) => {
+      const integrations = new RatIntegrationsPage(request);
+      wp_form_page_name = "[QA] WPForms"
+      await integrations.create_wp_forms_page(wp_form_page_name, wp_forms_shortcode);
+    });
+    
+
+    test("Submit WP Forms - e2e", async ({ request }) => {
       const integrations = new RatIntegrationsPage(request);
       await integrations.submit_wp_forms(wp_forms_id, form_subscriber_email.toLowerCase(), form_subscriber_name);
     });
@@ -145,6 +160,11 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
     test("Delete WP Forms - e2e", async ({ request }) => {
       const integrations = new RatIntegrationsPage(request);
       await integrations.delete_wp_forms(wp_forms_name);
+    });
+
+    test("Delete WP Forms Page - e2e", async ({ request }) => {
+      const integrations = new RatIntegrationsPage(request);
+      await integrations.delete_wp_forms_page(wp_form_page_name);
     });
   
     test("Subscriber Delete - Signed up through WP Forms", async ({ request }) => {
