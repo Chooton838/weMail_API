@@ -302,7 +302,11 @@ export class ListPage {
     }
   }
 
-  async segment_create(list_id: string, tag_id: string, segment_name: string) {
+  async segment_create_with_tag_assign(
+    list_id: string,
+    tag_id: string,
+    segment_name: string
+  ) {
     let form_data = new URLSearchParams();
     // URLSearchParams() - Used to construct form data for requests that use the "application/x-www-form-urlencoded" as "Content-Type"
 
@@ -315,7 +319,7 @@ export class ListPage {
     form_data.append("segment[segments][0][selectedSegment]", "tags");
     form_data.append("segment[segments][0][value]", tag_id);
 
-    const segment_create = await this.request.post(
+    const segment_create_with_tag_assign = await this.request.post(
       `${config.use?.baseURL}/v1/lists/${list_id}/segments`,
       {
         headers: {
@@ -325,22 +329,71 @@ export class ListPage {
       }
     );
 
-    let segment_create_response: {
+    let segment_create_with_tag_assign_response: {
       data: { id: string; segment: { segments: Array<{ value: string }> } };
     };
     let segment_id: string = "";
 
     const base = new BasePage(this.request);
-    segment_create_response = await base.response_checker(segment_create);
+    segment_create_with_tag_assign_response = await base.response_checker(
+      segment_create_with_tag_assign
+    );
 
     try {
-      expect(segment_create_response.data.segment.segments[0].value).toEqual(
-        tag_id
-      );
-      segment_id = segment_create_response.data.id;
+      expect(
+        segment_create_with_tag_assign_response.data.segment.segments[0].value
+      ).toEqual(tag_id);
+      segment_id = segment_create_with_tag_assign_response.data.id;
     } catch {
-      console.log();
-      expect(segment_create.ok()).toBeFalsy();
+      console.log(segment_create_with_tag_assign_response);
+      expect(segment_create_with_tag_assign.ok()).toBeFalsy();
+    }
+
+    return segment_id;
+  }
+
+  async segment_create_with_email_equal(
+    list_id: string,
+    subscriber_email: string,
+    segment_name: string
+  ) {
+    let form_data = new URLSearchParams();
+    // URLSearchParams() - Used to construct form data for requests that use the "application/x-www-form-urlencoded" as "Content-Type"
+
+    form_data.append("name", segment_name);
+    form_data.append("segment[type]", "all");
+    form_data.append("segment[segments][0][selectedOperator]", "is");
+    form_data.append("segment[segments][0][selectedSegment]", "email");
+    form_data.append("segment[segments][0][value]", subscriber_email);
+
+    const segment_create_with_email_equal = await this.request.post(
+      `${config.use?.baseURL}/v1/lists/${list_id}/segments`,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        },
+        data: form_data.toString(),
+      }
+    );
+
+    let segment_create_with_email_equal_response: {
+      data: { id: string; segment: { segments: Array<{ value: string }> } };
+    };
+    let segment_id: string = "";
+
+    const base = new BasePage(this.request);
+    segment_create_with_email_equal_response = await base.response_checker(
+      segment_create_with_email_equal
+    );
+
+    try {
+      expect(
+        segment_create_with_email_equal_response.data.segment.segments[0].value
+      ).toEqual(subscriber_email);
+      segment_id = segment_create_with_email_equal_response.data.id;
+    } catch {
+      console.log(segment_create_with_email_equal_response);
+      expect(segment_create_with_email_equal.ok()).toBeFalsy();
     }
 
     return segment_id;

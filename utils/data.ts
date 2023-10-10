@@ -131,7 +131,7 @@ let data: {
     from_email: "sqa@wedevsqa.com",
     from_name: "sqa",
     lists: [],
-    name: "Automation Test Campaign",
+    name: "",
     segments: [],
     subject: "Subject for Automation Test Campaign",
     type: "standard",

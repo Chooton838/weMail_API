@@ -1,4 +1,4 @@
-import { APIRequestContext, expect } from "@playwright/test";
+import { APIRequestContext, expect, firefox } from "@playwright/test";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
@@ -184,7 +184,7 @@ export class CampaignPage {
     return unsubscribed_flag;
   }
 
-  async delete_campaign(campaign_id) {
+  async delete_campaign(campaign_id: string) {
     const delete_campaign = await this.request.delete(
       `${config.use?.baseURL}/v1/campaigns/${campaign_id}`,
       {}
@@ -201,5 +201,70 @@ export class CampaignPage {
       console.log(delete_campaign_response);
       expect(delete_campaign.ok()).toBeFalsy();
     }
+  }
+
+  async exclude_list_segment_tag_from_campaign(
+    campaign_name: string,
+    segment_name: string,
+    tag_name: string
+  ) {
+    const browser = await firefox.launch();
+    // const context = await browser.newContext({
+    //   userAgent:
+    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    // });
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
+    await page.goto(
+      `${data.wordpress_site_data.url}/admin.php?page=wemail#/campaigns/`,
+      { waitUntil: "networkidle" }
+    );
+
+    await page.locator(`//a[contains(text(),"${campaign_name}")]`).click();
+    await page
+      .locator('//div[@class="header"]//a[contains(text(),"Settings")]')
+      .click();
+    await page.waitForLoadState("networkidle");
+
+    await page.locator('//a[contains(text(),"Recipients")]').click();
+
+    // Exclude Tag
+    await page.locator('//span[contains(text(),"By Tag")]').click();
+    await page
+      .locator(
+        '//label[contains(text(),"Choose tag to exclude")]/..//span[@class="multiselect__placeholder"]'
+      )
+      .click();
+    await page.waitForTimeout(1000);
+    await page
+      .locator(
+        '//label[contains(text(),"Choose tag to exclude")]/..//input[@class="multiselect__input"]'
+      )
+      .fill(tag_name);
+    await page.keyboard.press("Enter");
+
+    // Exclude Segment
+    await page.locator('//span[contains(text(),"By Segment")]').click();
+    await page
+      .locator(
+        '//label[contains(text(),"Choose segment to exclude")]/..//span[@class="multiselect__placeholder"]'
+      )
+      .click();
+    await page.waitForTimeout(1000);
+    await page
+      .locator(
+        '//label[contains(text(),"Choose segment to exclude")]/..//input[@class="multiselect__input"]'
+      )
+      .fill(segment_name);
+    await page.keyboard.press("Enter");
+
+    await page.locator('//button[contains(text(),"Save as draft")]').click();
+    expect(
+      await page.locator('//p[@class="iziToast-message slideIn"]').innerText()
+    ).toEqual("Campaign has updated!");
+
+    await browser.close();
   }
 }

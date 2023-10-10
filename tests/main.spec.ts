@@ -112,7 +112,11 @@ test.describe("Functionalities of List (Tag, Segment, Custom Field) & Subscriber
 
   test("Segment Create (Contains Created Tag)", async ({ request }) => {
     const list = new ListPage(request);
-    segment_id = await list.segment_create(list_id, tag_id, segment_name);
+    segment_id = await list.segment_create_with_tag_assign(
+      list_id,
+      tag_id,
+      segment_name
+    );
   });
 
   test("Segment Update", async ({ request }) => {
@@ -472,6 +476,8 @@ test.describe("Campaign Functionalities", () => {
   let subscriber_email: string = faker.internet.email();
   let unsubscribed_subscriber_email: string = faker.internet.email();
   let campaign_id: string = "";
+  let campaign_name: string = faker.lorem.words(2);
+  data.campaign_data.name = campaign_name;
   let duplicate_campaign_id: string = "";
   let campaign_sending_gateway: string = "smtp";
   let campaign_activity_stats: {
@@ -641,6 +647,8 @@ test.describe("Suppression List Functionalities", () => {
   let subscriber_id: string = "";
   let subscriber_email: string = faker.internet.email();
   let campaign_id: string = "";
+  let campaign_name: string = faker.lorem.words(2);
+  data.campaign_data.name = campaign_name;
   let duplicate_campaign_id: string = "";
   let reduplicate_campaign_id: string = "";
   let campaign_sending_gateway: string = "smtp";
@@ -1235,5 +1243,180 @@ test.describe("Functionalities of WP ERP Integration", () => {
   test("Delete WP ERP CRM Contacts", async ({ request }) => {
     const integrations = new IntegrationsPage(request);
     await integrations.wperp_crm_contact_delete(wperp_crm_customer_id);
+  });
+});
+
+/* ------------------------ Functionalities of Exclude Feature on Campaign ------------------------ */
+test.describe("Functionalities of Exclude Feature on Campaign", () => {
+  let list_id: string = "";
+  let list_name: string = faker.lorem.words(2);
+  let tag_id: string = "";
+  let tag_name: string = `${faker.lorem.words(1)}${faker.random.numeric(1)}`;
+  let segment_name: string = `${faker.lorem.words(1)}${faker.random.numeric(
+    1
+  )}`;
+  let segment_id: string = "";
+  let subscribers_id: string[] = [];
+  let subscriber_email: string = faker.internet.email();
+  let segmented_subscriber_email: string = faker.internet.email();
+  let tagged_subscriber_email: string = faker.internet.email();
+  let campaign_id: string = "";
+  let campaign_name: string = faker.lorem.words(2);
+  let duplicate_campaign_id: string = "";
+  let campaign_sending_gateway: string = "smtp";
+  let campaign_activity_stats: {
+    status: string;
+    no_of_subscribers: number;
+    email_id: string;
+  } = { status: "", no_of_subscribers: 0, email_id: "" };
+  let deplicated_campaign_activity_stats: {
+    status: string;
+    no_of_subscribers: number;
+    email_id: string;
+  } = { status: "", no_of_subscribers: 0, email_id: "" };
+
+  test("Sending Gateway Connect", async ({ request }) => {
+    const sending_gateways = new GatewayPage(request);
+    await sending_gateways.connect_gateway(
+      campaign_sending_gateway,
+      data.smtp_data
+    );
+  });
+
+  test("Set Default Sender", async ({ request }) => {
+    const sending_gateways = new GatewayPage(request);
+    await sending_gateways.set_default_Form_Reply(
+      campaign_sending_gateway,
+      data.defauld_sender_data
+    );
+  });
+
+  test("List Create for Campaign", async ({ request }) => {
+    const list = new ListPage(request);
+    list_id = await list.list_create(list_name);
+    data.campaign_data.lists.push(list_id);
+  });
+
+  test("Subscribers Create for Campaign", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    subscribers_id.push(
+      await subscriber.subscriber_create(
+        subscriber_email.toLowerCase(),
+        list_id
+      ),
+      await subscriber.subscriber_create(
+        segmented_subscriber_email.toLowerCase(),
+        list_id
+      ),
+      await subscriber.subscriber_create(
+        tagged_subscriber_email.toLowerCase(),
+        list_id
+      )
+    );
+  });
+
+  test("Tag Create", async ({ request }) => {
+    const list = new ListPage(request);
+    tag_id = await list.tag_create(list_id, tag_name);
+  });
+
+  test("Assign Tag on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.tag_assign(list_id, tag_id, subscribers_id[2]);
+  });
+
+  test("Segment Create (Using Email Address)", async ({ request }) => {
+    const list = new ListPage(request);
+    segment_id = await list.segment_create_with_email_equal(
+      list_id,
+      segmented_subscriber_email,
+      segment_name
+    );
+  });
+
+  test("Campaign Create", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    data.campaign_data.name = campaign_name;
+    campaign_id = await campaign.create_campaign(data.campaign_data);
+  });
+
+  test("Exclude Segment & Tag from campaign - e2e", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    await campaign.exclude_list_segment_tag_from_campaign(
+      campaign_name,
+      segment_name,
+      tag_name
+    );
+  });
+
+  test("Campaign Send", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    await campaign.send_campaign(campaign_id);
+  });
+
+  test("Check Campaign Activity", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+
+    while (campaign_activity_stats.status != "completed") {
+      campaign_activity_stats = await campaign.campaign_activity(campaign_id);
+      await new Promise((r) => setTimeout(r, 20000));
+    }
+
+    expect(campaign_activity_stats.no_of_subscribers).toEqual(1);
+  });
+
+  test("Un-assign Tag on Subscriber", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.tag_assign(list_id, "", subscribers_id[2]);
+  });
+
+  test("Duplicate a Campaign & Send", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    duplicate_campaign_id = await campaign.duplicate_campaign(campaign_id);
+    await campaign.send_campaign(duplicate_campaign_id);
+  });
+
+  test("Re-check Campaign Activity", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+
+    while (deplicated_campaign_activity_stats.status != "completed") {
+      deplicated_campaign_activity_stats = await campaign.campaign_activity(
+        duplicate_campaign_id
+      );
+      await new Promise((r) => setTimeout(r, 20000));
+    }
+
+    expect(deplicated_campaign_activity_stats.no_of_subscribers).toEqual(2);
+  });
+
+  test("Campaign Delete", async ({ request }) => {
+    const campaign = new CampaignPage(request);
+    await campaign.delete_campaign(campaign_id);
+    await campaign.delete_campaign(duplicate_campaign_id);
+  });
+
+  test("Tag Delete", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.tag_delete(list_id, tag_id);
+  });
+
+  test("Segment Delete", async ({ request }) => {
+    const list = new ListPage(request);
+    await list.segment_delete(segment_id);
+  });
+
+  test("Subscriber Delete", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(list_id, subscribers_id[0]);
+    await subscriber.subscriber_delete(list_id, subscribers_id[1]);
+    await subscriber.subscriber_delete(list_id, subscribers_id[2]);
+  });
+
+  test("Delete Campaign Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
   });
 });
