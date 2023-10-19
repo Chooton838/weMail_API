@@ -15,22 +15,22 @@ import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
 
-// /* ------------------------ Login ------------------------ */
-// test.beforeAll(async ({ request }) => {
-//   const login_data: Array<string> = [config.use?.httpCredentials?.username!, config.use?.httpCredentials?.password!];
+/* ------------------------ Login ------------------------ */
+test.beforeAll(async ({ request }) => {
+  const login_data: Array<string> = [config.use?.httpCredentials?.username!, config.use?.httpCredentials?.password!];
 
-//   const login = new LoginPage(request);
-//   await login.login(login_data);
+  const login = new LoginPage(request);
+  await login.login(login_data);
 
-//   const base = new BasePage(request);
-//   await base.wordpress_site_login();
+  const base = new BasePage(request);
+  await base.wordpress_site_login();
 
-//   //Activate-plugin
-//   let plugins_name: string[] = ["contact-form-7", "wpforms-lite"];
-//   for (let i: number = 0; i < plugins_name.length; i++) {
-//     await base.activate_plugin(plugins_name[i]);
-//   }
-// });
+  //Activate-plugin
+  let plugins_name: string[] = ["contact-form-7", "wpforms-lite"];
+  for (let i: number = 0; i < plugins_name.length; i++) {
+    await base.activate_plugin(plugins_name[i]);
+  }
+});
 
 /* ------------------------ Functionalities of Contact Form 7 Integration ------------------------ */
 // test.describe.skip("Functionalities of Contact Form 7 Integration", () => {
@@ -100,9 +100,9 @@ import { data } from "../utils/data";
 /* ------------------------ Functionalities of WP Forms Integration ------------------------ */
 test.describe.only("Functionalities of WP Forms Integration", () => {
     let list_id: string = "";
-    let list_name: string = faker.lorem.words(2);
+    let list_name: string = `[QA] ${faker.lorem.words(2)}`;
     let wp_forms_id: string = "";
-    let wp_forms_name: string = faker.lorem.words(2);
+    let wp_forms_name: string = `[QA] ${faker.lorem.words(2)}`;
     let subscriber_id: string = "";
     let form_subscriber_email: string = faker.internet.email();
     let form_subscriber_name: string = faker.name.firstName();
@@ -119,12 +119,12 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
       await integrations.create_wp_forms(wp_forms_name);
     });
   
-    test("weMail List <-> WP Forms - e2e", async ({ request }) => {
+    test("weMail List <-Map-> WP Forms - e2e", async ({ request }) => {
       const integrations = new RatIntegrationsPage(request);
       await integrations.map_wp_forms(list_name, wp_forms_name);
     });
   
-    test.skip("weMail List <-> WP Forms - API", async ({ request }) => {
+    test.skip("weMail List <-Map-> WP Forms - API", async ({ request }) => {
       const integrations = new RatIntegrationsPage(request);
       await integrations.map_wp_forms(list_id, wp_forms_id);
     });
@@ -145,7 +145,6 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
       wp_form_page_name = "[QA] WPForms"
       await integrations.create_wp_forms_page(wp_form_page_name, wp_forms_shortcode);
     });
-    
 
     test("Submit WP Forms - e2e", async ({ request }) => {
       const integrations = new RatIntegrationsPage(request);

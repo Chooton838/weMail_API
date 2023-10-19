@@ -1068,3 +1068,4 @@ test.describe("Functionalities of WP ERP Integration", () => {
     await integrations.wperp_crm_contact_delete(wperp_crm_customer_id);
   });
 });
+

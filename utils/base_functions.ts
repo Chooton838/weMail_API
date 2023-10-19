@@ -14,9 +14,7 @@ export class BasePage {
       expect(request.ok()).toBeTruthy();
       return await request.json();
     } catch (err) {
-      console.log(
-        `Response status code is: ${request.status()}, & status text is: ${request.statusText()}, & text is: ${await request.text()}`
-      );
+      console.log(`Response status code is: ${request.status()}, & status text is: ${request.statusText()}, & text is: ${await request.text()}`);
       expect(request.ok()).toBeTruthy();
     }
   }
@@ -128,7 +126,8 @@ export class BasePage {
     return header;
   }
 
-  //Activate_plugin
+  //Activate_plugin 
+  //TODO: Change it to API
   async activate_plugin(plugin_name: string) {
     const browser = await firefox.launch();
 
@@ -144,13 +143,11 @@ export class BasePage {
     if (plugin_activate_showing === true) {
       // Plugin needs to be activated
       await page.click(activationLinkSelector);
-      await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState("domcontentloaded");
       // Validate plugin activated
       expect(await page.isVisible(`//a[@id="deactivate-${plugin_name}"]`)).toBeTruthy();
-      console.log(`${plugin_name}: Activated plugin`);
     } else {
       expect(await page.isVisible(`//a[@id="deactivate-${plugin_name}"]`)).toBeTruthy();
-      console.log(`${plugin_name}: Plugin is already Activated`);
     }
   }
 
@@ -170,13 +167,11 @@ export class BasePage {
     if (plugin_activate_showing === true) {
       // Plugin needs to be activated
       await page.click(activationLinkSelector);
-      await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState("domcontentloaded");
       // Validate plugin activated
       expect(await page.isVisible(`//a[@id="activate-${plugin_name}"]`)).toBeTruthy();
-      console.log(`${plugin_name}: Deactivated plugin`);
     } else {
       expect(await page.isVisible(`//a[@id="activate-${plugin_name}"]`)).toBeTruthy();
-      console.log(`${plugin_name}: Plugin is already Deactivated`);
     }
   }
 }
