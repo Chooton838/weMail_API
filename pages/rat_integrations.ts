@@ -216,7 +216,7 @@ export class RatIntegrationsPage {
     await page.click('//button[@id="wpforms-save"]');
     await page.waitForTimeout(3000);
     await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
-    // expect(await page.locator('//td[@class="shortcode column-shortcode"]').isVisible()).toBeTruthy(); //TODO: Fix later - Validate with Name
+    expect(await page.innerText('(//td[@data-colname="Name"]//strong)[1]')).toContain(wp_forms_name);
     await browser.close();
   }
 
@@ -298,15 +298,15 @@ export class RatIntegrationsPage {
 
     const base = new BasePage(this.request);
     wp_forms_post_id_response = await base.response_checker(wp_forms_post_id_request);
-    console.log(wp_forms_post_id_response)
-    console.log(wp_forms_name)
+    console.log(wp_forms_post_id_response);
+    console.log(wp_forms_name);
 
     let id: number = 0;
 
     if (wp_forms_post_id_response.data.length > 0) {
       for (let i: number = 0; i < wp_forms_post_id_response.data.length; i++) {
-        console.log(wp_forms_post_id_response.data[i].title)
-        console.log(wp_forms_name)
+        console.log(wp_forms_post_id_response.data[i].title);
+        console.log(wp_forms_name);
         if (wp_forms_post_id_response.data[i].title == wp_forms_name) {
           id = wp_forms_post_id_response.data[i].id;
           break;
@@ -318,7 +318,7 @@ export class RatIntegrationsPage {
       console.log("Created WP Forms Not Found");
       expect(wp_forms_post_id_request.ok()).toBeFalsy();
     }
-    
+
     return id;
   }
 
@@ -330,7 +330,7 @@ export class RatIntegrationsPage {
 
     await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
 
-    await page.click('//a[@class="page-title-action wpforms-btn add-new-h2 wpforms-btn-orange"]');
+    // await page.click('//a[@class="page-title-action wpforms-btn add-new-h2 wpforms-btn-orange"]');
 
     expect(await page.locator('//td[@class="shortcode column-shortcode"]').isVisible()).toBeTruthy();
 
@@ -340,7 +340,7 @@ export class RatIntegrationsPage {
     return store_wp_forms_shortcode;
   }
 
-  async create_wp_forms_page(wp_form_page_name: string ,wp_forms_shortcode: string) {
+  async create_wp_forms_page(wp_form_page_name: string, wp_forms_shortcode: string) {
     const browser = await firefox.launch();
 
     const context = await browser.newContext({ storageState: "state.json" });
