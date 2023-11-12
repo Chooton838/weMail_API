@@ -2,6 +2,7 @@ import { APIRequestContext, expect, firefox } from "@playwright/test";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
+import { selectors } from "../utils/selectors";
 
 export class RatIntegrationsPage {
   readonly request: APIRequestContext;
@@ -201,22 +202,20 @@ export class RatIntegrationsPage {
     const page = await context.newPage();
 
     await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
-
-    await page.click('//a[@class="page-title-action wpforms-btn add-new-h2 wpforms-btn-orange"]');
+    //Add new
+    await page.click(selectors.integrations.wp_forms.add_new);
     await page.waitForLoadState("domcontentloaded");
-
     //Give form name
-    await page.fill('//input[@id="wpforms-setup-name"]', wp_forms_name);
+    await page.fill(selectors.integrations.wp_forms.new_name, wp_forms_name);
     //Select template
-    await page.hover('//div[@id="wpforms-template-simple-contact-form-template"]');
-    await page.click('//a[@data-slug="simple-contact-form-template"]');
+    await page.hover(selectors.integrations.wp_forms.template_box);
+    await page.click(selectors.integrations.wp_forms.template_select_simple_contact_form);
     await page.waitForLoadState("domcontentloaded");
-
     //Save
-    await page.click('//button[@id="wpforms-save"]');
+    await page.click(selectors.integrations.wp_forms.click_save);
     await page.waitForTimeout(3000);
     await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
-    expect(await page.innerText('(//td[@data-colname="Name"]//strong)[1]')).toContain(wp_forms_name);
+    expect(await page.innerText(selectors.integrations.wp_forms.validate_new_form_created)).toContain(wp_forms_name);
     await browser.close();
   }
 
@@ -234,23 +233,24 @@ export class RatIntegrationsPage {
       waitUntil: "networkidle",
     });
 
-    await page.locator(`//h3[@class="title clearfix" and contains(text(), "${wp_forms_name}")]//input[@type="checkbox"]`).click();
-
-    await page.locator(`//h3[@class="title clearfix" and contains(text(), "${wp_forms_name}")]/..//div[@class="multiselect__tags"]`).click();
-
-    await page.locator(`//h3[@class="title clearfix" and contains(text(), "${wp_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`).fill(list_name);
-
-    await page.locator(`//h3[@class="title clearfix" and contains(text(), "${wp_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`).press("Enter");
-
-    await page.locator(`//h3[@class="title clearfix" and contains(text(), "${wp_forms_name}")]/../form//input[@type="checkbox"]`).click();
-
-    await page.locator(`(//h3[@class="title clearfix" and contains(text(), "${wp_forms_name}")]/..//select)[1]`).selectOption("first_name");
-
-    await page.locator(`(//h3[@class="title clearfix" and contains(text(), "${wp_forms_name}")]/..//select)[2]`).selectOption("email");
-
-    await page.locator(`//button[contains(text(),"Save Settings")]`).click();
-
-    expect(await page.locator(`//p[@class="iziToast-message slideIn"]`).innerText()).toEqual("Settings saved successfully");
+    //Checkbox
+    await page.locator(selectors.integrations.wp_forms.select_checkbox).click();
+    //Click list dropdown
+    await page.locator(selectors.integrations.wp_forms.click_dropdown_selection).click();
+    //Type list name
+    await page.locator(selectors.integrations.wp_forms.type_list_name).fill(list_name);
+    //Select list
+    await page.locator(selectors.integrations.wp_forms.select_list).press("Enter");
+    //Overwrite checkbox
+    await page.locator(selectors.integrations.wp_forms.overwrite_checkbox).click();
+    //Select first_name
+    await page.locator(selectors.integrations.wp_forms.select_first_name).selectOption("first_name");
+    //Select email
+    await page.locator(selectors.integrations.wp_forms.select_email).selectOption("email");
+    //Save map settings
+    await page.locator(selectors.integrations.wp_forms.save_map_settings).click();
+    //Validate saved success message
+    expect(await page.locator(selectors.integrations.wp_forms.validate_saved_success).innerText()).toEqual("Settings saved successfully");
 
     await browser.close();
   }
@@ -329,14 +329,13 @@ export class RatIntegrationsPage {
     const page = await context.newPage();
 
     await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
-
     // await page.click('//a[@class="page-title-action wpforms-btn add-new-h2 wpforms-btn-orange"]');
-
-    expect(await page.locator('//td[@class="shortcode column-shortcode"]').isVisible()).toBeTruthy();
-
-    let store_wp_forms_shortcode: string = await page.locator('//td[@class="shortcode column-shortcode"]').innerText();
-
-    console.log(store_wp_forms_shortcode);
+    //Validate shortcode list
+    expect(await page.locator(selectors.integrations.wp_forms.shortcode_item1).isVisible()).toBeTruthy();
+    //Store shortocde
+    let store_wp_forms_shortcode: string = await page.locator(selectors.integrations.wp_forms.shortcode_item1).innerText();
+    //Print shortcode
+    // console.log(store_wp_forms_shortcode);
     return store_wp_forms_shortcode;
   }
 
@@ -348,13 +347,16 @@ export class RatIntegrationsPage {
 
     //Add new page
     await page.goto(`${data.wordpress_site_data.url}/post-new.php?post_type=page`);
-
-    await page.locator('//input[@name="post_title"]').fill(wp_form_page_name);
-    await page.locator('//textarea[@id="content"]').fill(wp_forms_shortcode);
-
-    await page.locator('//input[@id="publish"]').click();
-
-    expect(await page.locator('//p[text()="Page published. "]').isVisible()).toBeTruthy();
+    //Give page name
+    await page.locator(selectors.integrations.wp_forms.fill_page_name).fill(wp_form_page_name);
+    //Fill shortcode
+    await page.locator(selectors.integrations.wp_forms.fill_shortcode).fill(wp_forms_shortcode);
+    //Click Publish
+    await page.locator(selectors.integrations.wp_forms.click_page_publish).click();
+    //Confirm Publish
+    await page.locator(selectors.integrations.wp_forms.confirm_page_publish).click();
+    //Validate page published success
+    expect(await page.locator(selectors.integrations.wp_forms.validate_page_published).isVisible()).toBeTruthy();
   }
 
   async submit_wp_forms(wp_forms_id: string, subscriber_email: string, subscriber_name: string) {
@@ -364,14 +366,18 @@ export class RatIntegrationsPage {
     const page = await context.newPage();
 
     await page.goto(`${data.wordpress_site_data.url}/qa-wpforms/`);
-
-    await page.fill('//input[@class="wpforms-field-name-first wpforms-field-required"]', subscriber_name);
-    await page.fill('//input[@class="wpforms-field-name-last wpforms-field-required"]', "Man");
-    await page.fill('//input[@type="email"]', subscriber_email);
-    await page.fill('//textarea[@class="wpforms-field-medium"]', "QA in testing...!!!");
-
-    await page.click('//button[@type="submit"]');
-    expect(await page.locator('//p[text()="Thanks for contacting us! We will be in touch with you shortly."]').isVisible()).toBeTruthy();
+    //Subscriber first name
+    await page.fill(selectors.integrations.wp_forms.subscriber_fname, subscriber_name);
+    //Subscriber last name
+    await page.fill(selectors.integrations.wp_forms.subscriber_lname, "Man");
+    //Subscriber email
+    await page.fill(selectors.integrations.wp_forms.subscriber_email, subscriber_email);
+    //Subscriber message box
+    await page.fill(selectors.integrations.wp_forms.subscriber_message_box, "QA in testing...!!!");
+    //Subscriber submit
+    await page.click(selectors.integrations.wp_forms.subscriber_submit_button);
+    //Validate subscriber success
+    expect(await page.locator(selectors.integrations.wp_forms.validate_subscriber_submit).isVisible()).toBeTruthy();
     //Thanks for contacting us! We will be in touch with you shortly.
   }
 

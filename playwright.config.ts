@@ -16,21 +16,21 @@ const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI
     ? [
-        ["html", { open: "never", outputFolder: "playwright-report" }],
-        ["list", { printSteps: true }],
-        ["junit", { outputFile: "playwright-report/results.xml" }],
-        ["allure-playwright"],
-      ]
+      ["html", { open: "never", outputFolder: "playwright-report" }],
+      ["list", { printSteps: true }],
+      ["junit", { outputFile: "playwright-report/results.xml" }],
+      ["allure-playwright"],
+    ]
     : [
-        ["html", { open: "never", outputFolder: "playwright-report" }],
-        ["list", { printSteps: true }],
-        ["junit", { outputFile: "playwright-report/results.xml" }],
-        ["allure-playwright"],
-      ],
+      ["html", { open: "never", outputFolder: "playwright-report" }],
+      ["list", { printSteps: true }],
+      ["junit", { outputFile: "playwright-report/results.xml" }],
+      ["allure-playwright"],
+    ],
   use: {
     actionTimeout: 0,
     headless: true,
-    trace: "on-first-retry",
+    trace: "on",
     screenshot: "only-on-failure",
     video: "on",
 
@@ -41,13 +41,13 @@ const config: PlaywrightTestConfig = {
     httpCredentials:
       process.env.STAGING === "1"
         ? {
-            username: process.env.STAGING_USER_NAME!,
-            password: process.env.STAGING_PASSWORD!,
-          }
+          username: process.env.STAGING_USER_NAME!,
+          password: process.env.STAGING_PASSWORD!,
+        }
         : {
-            username: process.env.USER_NAME!,
-            password: process.env.PASSWORD!,
-          },
+          username: process.env.USER_NAME!,
+          password: process.env.PASSWORD!,
+        },
 
     extraHTTPHeaders: {
       authorization: "",
