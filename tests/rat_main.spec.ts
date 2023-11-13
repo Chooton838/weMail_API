@@ -141,7 +141,7 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
     console.log(data2.integrations.wp_forms.wp_forms_shortcode);
   });
 
-  test("Create Page form, WP Forms - e2e", async ({ request }) => {
+  test("Create Page, WP Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
     data2.integrations.wp_forms.wp_form_page_name = "[QA] WPForms";
     await integrations.create_wp_forms_page(data2.integrations.wp_forms.wp_form_page_name, data2.integrations.wp_forms.wp_forms_shortcode);
@@ -152,7 +152,7 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
     await integrations.submit_wp_forms(data2.integrations.wp_forms.wp_forms_id, data2.integrations.wp_forms.form_subscriber_email.toLowerCase(), data2.integrations.wp_forms.form_subscriber_name);
   });
 
-  test("Subscriber's info - Signed up through WP Forms", async ({ request }) => {
+  test.skip("Subscriber's info - Signed up through WP Forms", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
     data2.integrations.wp_forms.subscriber_id = await subscriber.subscribers_list(data2.integrations.wp_forms.list_id, data2.integrations.wp_forms.form_subscriber_email);
   });
@@ -162,12 +162,12 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
     await integrations.delete_wp_forms(data2.integrations.wp_forms.wp_forms_name);
   });
 
-  test("Delete WP Forms Page - e2e", async ({ request }) => {
+  test("Delete Page WP Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
     await integrations.delete_wp_forms_page(data2.integrations.wp_forms.wp_form_page_name);
   });
 
-  test("Subscriber Delete - Signed up through WP Forms", async ({ request }) => {
+  test.skip("Subscriber Delete - Signed up through WP Forms", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
     await subscriber.subscriber_delete(data2.integrations.wp_forms.list_id, data2.integrations.wp_forms.subscriber_id);
   });

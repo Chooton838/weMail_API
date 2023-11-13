@@ -344,18 +344,23 @@ export class RatIntegrationsPage {
 
     const context = await browser.newContext({ storageState: "state.json" });
     const page = await context.newPage();
-
     //Add new page
     await page.goto(`${data.wordpress_site_data.url}/post-new.php?post_type=page`);
+    console.log(wp_form_page_name);
+    console.log(wp_forms_shortcode);
     //Give page name
-    await page.locator(selectors.integrations.wp_forms.fill_page_name).fill(wp_form_page_name);
+    await page.locator(selectors.integrations.wp_forms.add_page_title).fill(wp_form_page_name);
     //Fill shortcode
+    // await page.locator(selectors.integrations.wp_forms.add_page_paragraph).click();
+    await page.keyboard.press('Tab');
     await page.locator(selectors.integrations.wp_forms.fill_shortcode).fill(wp_forms_shortcode);
     //Click Publish
     await page.locator(selectors.integrations.wp_forms.click_page_publish).click();
     //Confirm Publish
     await page.locator(selectors.integrations.wp_forms.confirm_page_publish).click();
+    await page.waitForLoadState('domcontentloaded');
     //Validate page published success
+    console.log(await page.locator(selectors.integrations.wp_forms.validate_page_published).innerText());
     expect(await page.locator(selectors.integrations.wp_forms.validate_page_published).isVisible()).toBeTruthy();
   }
 

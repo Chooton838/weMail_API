@@ -46,15 +46,16 @@ export const selectors = {
 
       /*--------------------Create page for wp_forms--------------------*/
       //Give page name
-      fill_page_name: '//h1[@aria-label="Add title"]',
+      add_page_title: '//h1[@aria-label="Add title"]',
       //Fill shortcode
-      fill_shortcode: '//p[@data-title="Paragraph"]',
+      add_page_paragraph: '//p[@data-title="Paragraph"]',
+      fill_shortcode: '//span[@data-rich-text-placeholder="Type / to choose a block"]',
       //Click Publish
       click_page_publish: '//button[text()="Publish"]',
       //Confirm Publish
       confirm_page_publish: '//button[contains(@class,"components-button editor-post-publish-button")]',
       //Validate page published success
-      validate_page_published: '//a[contains(text(),"View Page")]',
+      validate_page_published: '//div[text()="is now live."]',
 
       /*--------------------Frontend.Subscriber-end--------------------*/
       /*--------------------Submit wp_forms by Subscriber--------------------*/
