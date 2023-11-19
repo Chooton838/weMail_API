@@ -1,4 +1,4 @@
-import { APIRequestContext, expect, firefox } from "@playwright/test";
+import { APIRequestContext, chromium, expect, firefox } from "@playwright/test";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import { data } from "../utils/data";
@@ -364,13 +364,26 @@ export class RatIntegrationsPage {
     expect(await page.locator(selectors.integrations.wp_forms.validate_page_published).isVisible()).toBeTruthy();
   }
 
-  async submit_wp_forms(wp_forms_id: string, subscriber_email: string, subscriber_name: string) {
-    const browser = await firefox.launch();
+  async submit_wp_forms(wp_form_page_name: string, wp_forms_id: string, subscriber_email: string, subscriber_name: string) {
+    const browser = await chromium.launch();
 
     const context = await browser.newContext({ storageState: "state.json" });
     const page = await context.newPage();
 
-    await page.goto(`${data.wordpress_site_data.url}/qa-wpforms/`);
+    //Convert to page_url_path
+    const new_page_name = wp_form_page_name;
+    const formatted_page_name = new_page_name.replace(/\[|\]/g, "") // Remove square brackets
+      .replace(" ", "-") // Replace space with hyphen
+      .toLowerCase(); // Convert to lowercase
+    console.log(formatted_page_name);
+    //Update url
+    const original_url = data.wordpress_site_data.url;
+    const new_url = original_url.replace('/wp-admin', '');
+    console.log(new_url);
+
+    //Go to updated page url
+    console.log(`${new_url}/${formatted_page_name}/`);
+    await page.goto(`${new_url}/${formatted_page_name}/`);
     //Subscriber first name
     await page.fill(selectors.integrations.wp_forms.subscriber_fname, subscriber_name);
     //Subscriber last name
@@ -382,7 +395,8 @@ export class RatIntegrationsPage {
     //Subscriber submit
     await page.click(selectors.integrations.wp_forms.subscriber_submit_button);
     //Validate subscriber success
-    expect(await page.locator(selectors.integrations.wp_forms.validate_subscriber_submit).isVisible()).toBeTruthy();
+    await page.waitForLoadState('domcontentloaded');
+    expect(await page.locator(selectors.integrations.wp_forms.validate_subscriber_submit).innerText()).toContain("Thanks for contacting us! We will be in touch with you shortly.");
     //Thanks for contacting us! We will be in touch with you shortly.
   }
 
@@ -401,8 +415,8 @@ export class RatIntegrationsPage {
       waitUntil: "networkidle",
     });
 
-    await page.locator(`//a[text()="${wp_forms_name}"]/../../..//input[@type="checkbox"]`).click();
-
+    //await page.locator(`//a[text()="${wp_forms_name}"]/../../..//input[@type="checkbox"]`).click();
+    await page.locator('//input[@id="cb-select-all-1"]').click();
     await page.locator("#bulk-action-selector-top").selectOption("Trash");
     await page.locator("#doaction").click();
     await page.waitForLoadState("networkidle");

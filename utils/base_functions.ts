@@ -1,4 +1,4 @@
-import { APIRequestContext, expect, firefox } from "@playwright/test";
+import { APIRequestContext, expect, firefox, chromium } from "@playwright/test";
 import * as fs from "fs";
 import { data } from "./data";
 
@@ -26,7 +26,7 @@ export class BasePage {
 
     fs.writeFile("state.json", '{"cookies":[],"origins": []}', function () {});
 
-    const browser = await firefox.launch();
+    const browser = await chromium.launch();
     // const context = await browser.newContext({
     //   userAgent:
     //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",

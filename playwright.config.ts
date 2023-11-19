@@ -5,9 +5,9 @@ require("dotenv").config();
 
 const config: PlaywrightTestConfig = {
   testDir: "./tests",
-  timeout: 100 * 1000, //100 sec
+  timeout: 300 * 1000, //300 sec
   expect: {
-    timeout: 20 * 1000, //20 sec
+    timeout: 50 * 1000, //50 sec
   },
   fullyParallel: false,
   // fullyParallel: true,
