@@ -442,4 +442,68 @@ export class RatIntegrationsPage {
     await page.waitForLoadState("networkidle");
     expect(await page.locator('//p[text()="1 page moved to the Trash. "]').isVisible()).toBeTruthy();
   }
+
+
+  /* ------------------------ Integration: WPForms Lite ------------------------ */
+  async create_ninja_forms(wp_forms_name: string) {
+    const browser = await firefox.launch();
+
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    await page.goto(`${data.wordpress_site_data.url}/admin.php?page=ninja-forms`);
+    //Add new
+    await page.click(selectors.integrations.wp_forms.add_new);
+    await page.waitForLoadState("domcontentloaded");
+    //Give form name
+    await page.fill(selectors.integrations.wp_forms.new_name, wp_forms_name);
+    //Select template
+    await page.hover(selectors.integrations.wp_forms.template_box);
+    await page.click(selectors.integrations.wp_forms.template_select_simple_contact_form);
+    await page.waitForLoadState("domcontentloaded");
+    //Save
+    await page.click(selectors.integrations.wp_forms.click_save);
+    await page.waitForTimeout(3000);
+    await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
+    expect(await page.innerText(selectors.integrations.wp_forms.validate_new_form_created)).toContain(wp_forms_name);
+    await browser.close();
+  }
+
+  async map_ninja_forms(list_name: string, wp_forms_name: string) {
+    const browser = await firefox.launch();
+    // const context = await browser.newContext({
+    //   userAgent:
+    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
+    // });
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
+    await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wemail#/integrations/contact-forms/ninja-forms`, {
+      waitUntil: "networkidle",
+    });
+
+    //Checkbox
+    await page.locator(selectors.integrations.wp_forms.select_checkbox).click();
+    //Click list dropdown
+    await page.locator(selectors.integrations.wp_forms.click_dropdown_selection).click();
+    //Type list name
+    await page.locator(selectors.integrations.wp_forms.type_list_name).fill(list_name);
+    //Select list
+    await page.locator(selectors.integrations.wp_forms.select_list).press("Enter");
+    //Overwrite checkbox
+    await page.locator(selectors.integrations.wp_forms.overwrite_checkbox).click();
+    //Select first_name
+    await page.locator(selectors.integrations.wp_forms.select_first_name).selectOption("first_name");
+    //Select email
+    await page.locator(selectors.integrations.wp_forms.select_email).selectOption("email");
+    //Save map settings
+    await page.locator(selectors.integrations.wp_forms.save_map_settings).click();
+    //Validate saved success message
+    expect(await page.locator(selectors.integrations.wp_forms.validate_saved_success).innerText()).toEqual("Settings saved successfully");
+
+    await browser.close();
+  }
+
+
 }
