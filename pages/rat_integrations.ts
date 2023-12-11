@@ -452,20 +452,24 @@ export class RatIntegrationsPage {
     const page = await context.newPage();
 
     await page.goto(`${data.wordpress_site_data.url}/admin.php?page=ninja-forms`);
-    //Add new
-    await page.click(selectors.integrations.wp_forms.add_new);
-    await page.waitForLoadState("domcontentloaded");
-    //Give form name
-    await page.fill(selectors.integrations.wp_forms.new_name, wp_forms_name);
-    //Select template
-    await page.hover(selectors.integrations.wp_forms.template_box);
-    await page.click(selectors.integrations.wp_forms.template_select_simple_contact_form);
-    await page.waitForLoadState("domcontentloaded");
-    //Save
-    await page.click(selectors.integrations.wp_forms.click_save);
-    await page.waitForTimeout(3000);
-    await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpforms-overview`);
-    expect(await page.innerText(selectors.integrations.wp_forms.validate_new_form_created)).toContain(wp_forms_name);
+    //Validate form existing
+    const check_existing_ninja_form = await page.locator('//a[contains(text(),"Contact Me")]').isVisible();
+    if (check_existing_ninja_form === true) {
+      console.log('Form already created');
+    } else {
+      //Add new
+      await page.click('//button[text()="Add New"]');
+      //Select Contact me
+      await page.click('//strong[text()="Contact Us"]');
+      //Validate creation
+      expect(page.locator('//div[@class="nf-progress-bar"]')).toBeTruthy();
+      await page.reload();
+      //Go to Ninja forms menu
+      await page.click('//li[text()="Ninja Forms"]//..//li[@class="wp-first-item current"]');
+      //Validate form created
+      expect(page.locator('//a[contains(text(),"Contact Me")]')).toBeTruthy();
+    }
+
     await browser.close();
   }
 
@@ -505,5 +509,79 @@ export class RatIntegrationsPage {
     await browser.close();
   }
 
+  async ninja_forms_post_id(wp_forms_name: string) {
+    const wp_forms_post_id_request = await this.request.get(`${config.use?.baseURL}/v1/forms/integrations/ninja-forms/forms`);
+
+    let wp_forms_post_id_response: {
+      data: Array<{ id: number; title: string }>;
+    };
+
+    const base = new BasePage(this.request);
+    wp_forms_post_id_response = await base.response_checker(wp_forms_post_id_request);
+    console.log(wp_forms_post_id_response);
+    console.log(wp_forms_name);
+
+    let id: number = 0;
+
+    if (wp_forms_post_id_response.data.length > 0) {
+      for (let i: number = 0; i < wp_forms_post_id_response.data.length; i++) {
+        console.log(wp_forms_post_id_response.data[i].title);
+        console.log(wp_forms_name);
+        if (wp_forms_post_id_response.data[i].title == wp_forms_name) {
+          id = wp_forms_post_id_response.data[i].id;
+          break;
+        }
+      }
+    }
+
+    if (id == 0) {
+      console.log("Created WP Forms Not Found");
+      expect(wp_forms_post_id_request.ok()).toBeFalsy();
+    }
+
+    return id;
+  }
+
+  async get_ninja_forms_shortcode() {
+    const browser = await firefox.launch();
+
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+
+    await page.goto(`${data.wordpress_site_data.url}/admin.php?page=ninja-forms`);
+    // await page.click('//a[@class="page-title-action wpforms-btn add-new-h2 wpforms-btn-orange"]');
+    //Validate shortcode list
+    expect(await page.locator(selectors.integrations.wp_forms.shortcode_item1).isVisible()).toBeTruthy();
+    //Store shortocde
+    let store_wp_forms_shortcode: string = await page.locator(selectors.integrations.wp_forms.shortcode_item1).innerText();
+    //Print shortcode
+    // console.log(store_wp_forms_shortcode);
+    return store_wp_forms_shortcode;
+  }
+
+  async create_ninja_forms_page(ninja_form_page_name: string, ninja_forms_shortcode: string) {
+    const browser = await firefox.launch();
+
+    const context = await browser.newContext({ storageState: "state.json" });
+    const page = await context.newPage();
+    //Add new page
+    await page.goto(`${data.wordpress_site_data.url}/post-new.php?post_type=page`);
+    console.log(ninja_form_page_name);
+    console.log(ninja_forms_shortcode);
+    //Give page name
+    await page.locator(selectors.integrations.wp_forms.add_page_title).fill(ninja_form_page_name);
+    //Fill shortcode
+    // await page.locator(selectors.integrations.wp_forms.add_page_paragraph).click();
+    await page.keyboard.press('Tab');
+    await page.locator(selectors.integrations.wp_forms.fill_shortcode).fill(ninja_forms_shortcode);
+    //Click Publish
+    await page.locator(selectors.integrations.wp_forms.click_page_publish).click();
+    //Confirm Publish
+    await page.locator(selectors.integrations.wp_forms.confirm_page_publish).click();
+    await page.waitForLoadState('domcontentloaded');
+    //Validate page published success
+    console.log(await page.locator(selectors.integrations.wp_forms.validate_page_published).innerText());
+    expect(await page.locator(selectors.integrations.wp_forms.validate_page_published).isVisible()).toBeTruthy();
+  }
 
 }
