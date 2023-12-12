@@ -180,6 +180,89 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
   });
 });
 
+/* ------------------------ Functionalities of WP Forms Integration ------------------------ */
+test.describe.only("Functionalities of Ninja Forms Integration", () => {
+  data2.integrations.wp_forms.list_id = "";
+  data2.integrations.wp_forms.list_name = `[QA] ${faker.lorem.words(2)}`;
+  data2.integrations.wp_forms.wp_forms_id = "";
+  data2.integrations.wp_forms.wp_forms_name = `[QA]${faker.lorem.words(2)}`;
+  data2.integrations.wp_forms.subscriber_id = "";
+  data2.integrations.wp_forms.form_subscriber_name = faker.name.firstName();
+  data2.integrations.wp_forms.form_subscriber_email = `${data2.integrations.wp_forms.form_subscriber_name}man@gmail.com`;
+  data2.integrations.wp_forms.wp_forms_shortcode = "";
+  data2.integrations.wp_forms.wp_form_page_name = "[QA] WPForms";
+
+  test("WP Forms - List Create", async ({ request }) => {
+    const list = new ListPage(request);
+    data2.integrations.wp_forms.list_id = await list.list_create(data2.integrations.wp_forms.list_name);
+  });
+
+  test("Create WP Forms - e2e", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    await integrations.create_wp_forms(data2.integrations.wp_forms.wp_forms_name);
+  });
+
+  test("weMail List <-Map-> WP Forms - e2e", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    await integrations.map_wp_forms(data2.integrations.wp_forms.list_name, data2.integrations.wp_forms.wp_forms_name);
+  });
+
+  test.skip("weMail List <-Map-> WP Forms - API", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    await integrations.map_wp_forms(data2.integrations.wp_forms.list_id, data2.integrations.wp_forms.wp_forms_id);
+  });
+
+  test("Get WP Forms ID", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    data2.integrations.wp_forms.wp_forms_id = (await integrations.wp_forms_post_id(data2.integrations.wp_forms.wp_forms_name)).toString();
+  });
+
+  test("Get WP Forms Shortcode - e2e", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    data2.integrations.wp_forms.wp_forms_shortcode = (await integrations.get_wp_forms_shortcode()).toString();
+    console.log(data2.integrations.wp_forms.wp_forms_shortcode);
+  });
+
+  test("Create Page, WP Forms - e2e", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    await integrations.create_wp_forms_page(data2.integrations.wp_forms.wp_form_page_name, data2.integrations.wp_forms.wp_forms_shortcode);
+  });
+
+  test("Submit WP Forms - e2e", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    await integrations.submit_wp_forms(data2.integrations.wp_forms.wp_form_page_name, data2.integrations.wp_forms.wp_forms_id, data2.integrations.wp_forms.form_subscriber_email.toLowerCase(), data2.integrations.wp_forms.form_subscriber_name);
+  });
+
+  test("Subscriber's info - Signed up through WP Forms", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    data2.integrations.wp_forms.subscriber_id = await subscriber.subscribers_list(data2.integrations.wp_forms.list_id, data2.integrations.wp_forms.form_subscriber_email);
+  });
+
+  test("Delete WP Forms - e2e", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    await integrations.delete_wp_forms(data2.integrations.wp_forms.wp_forms_name);
+  });
+
+  test("Delete Page WP Forms - e2e", async ({ request }) => {
+    const integrations = new RatIntegrationsPage(request);
+    await integrations.delete_wp_forms_page(data2.integrations.wp_forms.wp_form_page_name);
+  });
+
+  test("Subscriber Delete - Signed up through WP Forms", async ({ request }) => {
+    const subscriber = new SubscriberPage(request);
+    await subscriber.subscriber_delete(data2.integrations.wp_forms.list_id, data2.integrations.wp_forms.subscriber_id);
+  });
+
+  test("Delete Test List", async ({ request }) => {
+    let lists: Array<string> = [];
+    lists.push(data2.integrations.wp_forms.list_id);
+
+    const list = new ListPage(request);
+    await list.list_delete(lists);
+  });
+});
+
+
 // /* ------------------------ Deactivate plugins ------------------------ */
 // test.afterAll(async ({ request }) => {
 //   const base = new BasePage(request);
