@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Thu Dec 21 13:56:28 GMT 2023","Thu Dec 21 13:56:56 GMT 2023","27570","api_test_suite","main.spec.ts","Forms Functionalities","","","Forms Sync. with WP Site - API",""
