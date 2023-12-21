@@ -17,7 +17,7 @@ export class SuppressionPage {
 
     let suppression_create_response: { message: string };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     suppression_create_response = await base.response_checker(
       suppression_create
     );
@@ -42,7 +42,7 @@ export class SuppressionPage {
       data: Array<{ id: string; email: string; event: string }>;
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     search_suppression_subscriber_response = await base.response_checker(
       search_suppression_subscriber
     );
@@ -88,7 +88,7 @@ export class SuppressionPage {
       message: "",
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     delete_suppression_subscriber_response = await base.response_checker(
       delete_suppression_subscriber
     );

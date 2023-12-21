@@ -1,18 +1,22 @@
-import { APIRequestContext, expect } from "@playwright/test";
+import { APIRequestContext, expect, Page } from "@playwright/test";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
-import { data } from "../utils/data";
+import * as data from "../utils/data";
+import * as selector from "../utils/selectors";
+import { WPSitePage } from "../utils/wp_site";
 
 export class FormPage {
   readonly request: APIRequestContext;
+  readonly page: Page;
 
-  constructor(request: APIRequestContext) {
+  constructor(request: APIRequestContext, page: Page) {
     this.request = request;
+    this.page = page;
   }
 
   async form_create(form_data: {}) {
-    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/forms`;
-    let locator: string = `#wemail-vendor-js-extra`;
+    let page_url: string = selector.wemail_forms_selectors.forms_page_url;
+    let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
     let response: {
       form_id: string;
       header: { nonce: string; cookie: string; api_key: string };
@@ -24,8 +28,9 @@ export class FormPage {
         api_key: "",
       },
     };
-    const base = new BasePage(this.request);
-    response.header = await base.wordpress_nonce_cookie(
+
+    const wpsite = new WPSitePage(this.page);
+    response.header = await wpsite.wordpress_nonce_cookie(
       page_url,
       locator,
       false,
@@ -38,6 +43,8 @@ export class FormPage {
     );
 
     let form_create_response: { data: { id: string }; message: string };
+
+    const base = new BasePage();
     form_create_response = await base.response_checker(form_create);
 
     try {
@@ -60,7 +67,7 @@ export class FormPage {
 
     let form_update_response: { data: { id: string }; message: string };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     form_update_response = await base.response_checker(form_update);
 
     try {
@@ -73,22 +80,24 @@ export class FormPage {
     }
   }
 
-  async form_sync(form_id: string) {
+  async form_sync(forms_id: string[]) {
     const form_sync = await this.request.get(
       `${config.use?.baseURL}/v1/overview/forms?refresh=true`
     );
 
     let form_sync_response: { forms: Array<{ id: string }> };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     form_sync_response = await base.response_checker(form_sync);
 
     try {
       let flag: boolean = false;
       for (let i: number = 0; i < form_sync_response.forms.length; i++) {
-        if (form_id == form_sync_response.forms[i].id) {
-          flag = true;
-          break;
+        for (let j: number = 0; j < forms_id.length; j++) {
+          if (form_sync_response.forms[i].id == forms_id[j]) {
+            flag = true;
+            break;
+          }
         }
       }
 
@@ -110,7 +119,7 @@ export class FormPage {
 
     let form_delete_response: { deleted: boolean };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     form_delete_response = await base.response_checker(form_delete);
 
     try {
@@ -122,10 +131,11 @@ export class FormPage {
   }
 
   async form_sync_with_frontend() {
-    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/forms`;
-    let locator: string = `#wemail-vendor-js-extra`;
-    const base = new BasePage(this.request);
-    let header = await base.wordpress_nonce_cookie(
+    let page_url: string = selector.wemail_forms_selectors.forms_page_url;
+    let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
+
+    const wpsite = new WPSitePage(this.page);
+    let header = await wpsite.wordpress_nonce_cookie(
       page_url,
       locator,
       false,
@@ -140,9 +150,12 @@ export class FormPage {
     );
 
     let form_sync_with_frontend_response: { success: boolean };
+
+    const base = new BasePage();
     form_sync_with_frontend_response = await base.response_checker(
       form_sync_with_frontend
     );
+
     try {
       expect(form_sync_with_frontend_response.success).toEqual(true);
     } catch (err) {
@@ -173,7 +186,7 @@ export class FormPage {
 
     let form_submit_response: { message: string };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     form_submit_response = await base.response_checker(form_submit);
 
     try {

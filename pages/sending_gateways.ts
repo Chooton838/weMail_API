@@ -71,7 +71,7 @@ export class GatewayPage {
 
     let connect_gateway_response: { message: string } = { message: "" };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     connect_gateway_response = await base.response_checker(connect_gateway);
 
     try {
@@ -108,7 +108,7 @@ export class GatewayPage {
 
     let set_default_Form_Reply_response: { message: string } = { message: "" };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     set_default_Form_Reply_response = await base.response_checker(
       set_default_Form_Reply
     );

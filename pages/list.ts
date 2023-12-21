@@ -26,7 +26,7 @@ export class ListPage {
     };
     let list_id: string = "";
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     list_create_response = await base.response_checker(list_create);
 
     try {
@@ -53,11 +53,11 @@ export class ListPage {
     };
     let flag: boolean = false;
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     lists_of_list_response = await base.response_checker(lists_of_list);
 
     try {
-      if (lists_of_list_response.data.length > 1) {
+      if (lists_of_list_response.data.length > 0) {
         for (let i: number = 0; i < lists_of_list_response.data.length; i++) {
           if (lists_of_list_response.data[i].id == list_id) {
             flag = true;
@@ -67,6 +67,7 @@ export class ListPage {
       }
       if (flag == false) {
         console.log("Created List Not Found");
+        console.log(lists_of_list_response);
         expect(lists_of_list.ok()).toBeFalsy();
       }
     } catch (err) {
@@ -86,7 +87,7 @@ export class ListPage {
       data: { id: "" },
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     list_details_response = await base.response_checker(list_details);
 
     try {
@@ -110,7 +111,7 @@ export class ListPage {
 
     let list_update_response: { message: string } = { message: "" };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     list_update_response = await base.response_checker(list_update);
 
     try {
@@ -136,7 +137,7 @@ export class ListPage {
 
     let list_delete_response: { message: string } = { message: "" };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     list_delete_response = await base.response_checker(list_delete);
 
     try {
@@ -180,7 +181,7 @@ export class ListPage {
 
     let enable_double_opt_in_response: { message: string } = { message: "" };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     enable_double_opt_in_response = await base.response_checker(
       enable_double_opt_in
     );
@@ -206,7 +207,7 @@ export class ListPage {
     };
     let tag_id: string = "";
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     tag_create_response = await base.response_checker(tag_create);
 
     try {
@@ -234,7 +235,7 @@ export class ListPage {
       message: "",
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     tag_update_response = await base.response_checker(tag_update);
 
     try {
@@ -269,7 +270,7 @@ export class ListPage {
       };
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     tag_assign_response = await base.response_checker(tag_assign);
 
     try {
@@ -291,7 +292,7 @@ export class ListPage {
 
     let tag_delete_response: { message: string } = { message: "" };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     tag_delete_response = await base.response_checker(tag_delete);
 
     try {
@@ -334,7 +335,7 @@ export class ListPage {
     };
     let segment_id: string = "";
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     segment_create_with_tag_assign_response = await base.response_checker(
       segment_create_with_tag_assign
     );
@@ -381,7 +382,7 @@ export class ListPage {
     };
     let segment_id: string = "";
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     segment_create_with_email_equal_response = await base.response_checker(
       segment_create_with_email_equal
     );
@@ -411,7 +412,7 @@ export class ListPage {
 
     let segment_update_response: { message: string; segment: { id: string } };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     segment_update_response = await base.response_checker(segment_update);
 
     try {
@@ -434,7 +435,7 @@ export class ListPage {
 
     let filter_segmented_subscribers_response: { data: Array<{ id: string }> };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     filter_segmented_subscribers_response = await base.response_checker(
       filter_segmented_subscribers
     );
@@ -449,7 +450,7 @@ export class ListPage {
           i++
         ) {
           if (
-            filter_segmented_subscribers_response.data[0].id == subscriber_id
+            filter_segmented_subscribers_response.data[i].id == subscriber_id
           ) {
             counter = 1;
             break;
@@ -471,7 +472,7 @@ export class ListPage {
 
     let segment_delete_response: { message: string };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     segment_delete_response = await base.response_checker(segment_delete);
 
     try {
@@ -502,7 +503,7 @@ export class ListPage {
       data: { list_id: string; title: string; slug: string };
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     create_custom_field_response = await base.response_checker(
       create_custom_field
     );
@@ -548,7 +549,7 @@ export class ListPage {
       data: { list_id: string; meta: { options: Array<string> } };
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     update_custom_field_response = await base.response_checker(
       update_custom_field
     );
@@ -584,7 +585,7 @@ export class ListPage {
       data: { id: string; fields: { [key: string]: [string[]] } };
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     assign_custom_field_response = await base.response_checker(
       assign_custom_field
     );
@@ -623,7 +624,7 @@ export class ListPage {
       data: { id: string; fields: { [key: string]: [string[]] } };
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     unassign_custom_field_response = await base.response_checker(
       unassign_custom_field
     );
@@ -652,7 +653,7 @@ export class ListPage {
       data: { list_id: string };
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     delete_custom_field_response = await base.response_checker(
       delete_custom_field
     );

@@ -9,13 +9,13 @@ export class LoginPage {
     this.request = request;
   }
 
-  async login(login_data: string[]) {
+  async login(login_data: { username: string; password: string }) {
     const login = await this.request.post(
       `${config.use?.baseURL}/v1/onboarding/login`,
       {
         data: {
-          email: login_data[0],
-          password: login_data[1],
+          email: login_data.username,
+          password: login_data.password,
         },
       }
     );
@@ -28,11 +28,11 @@ export class LoginPage {
       meta: { token: "" },
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     login_response = await base.response_checker(login);
 
     try {
-      expect(login_response.data.user.email).toEqual(login_data[0]);
+      expect(login_response.data.user.email).toEqual(login_data.username);
       config.use!.extraHTTPHeaders!.authorization = `Bearer ${login_response.meta.token}`;
     } catch (err) {
       console.log("User authentication is failed");

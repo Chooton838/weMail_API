@@ -1,113 +1,144 @@
-import { APIRequestContext, expect, firefox } from "@playwright/test";
-import { data } from "../utils/data";
+import { expect, Page } from "@playwright/test";
+import * as data from "../utils/data";
+import * as selector from "../utils/selectors";
 
 export class AdminPage {
-  /**
-   * "userAgent" - Added on browser.newContext to open the  using this userAgent (needed for e2e)
-   */
+  readonly page: Page;
 
-  async form_sync_with_frontend(request: APIRequestContext) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
+  constructor(page: Page) {
+    this.page = page;
+  }
+  async form_sync_with_frontend() {
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
 
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page
-      .locator('//div[@class="wp-menu-name" and contains(text(),"weMail")]')
-      .click();
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForLoadState("networkidle");
+    await this.page.goto(selector.wemail_forms_selectors.forms_page_url, {
+      waitUntil: "networkidle",
+    });
 
-    await page.locator('//a[text()="Forms"]').click();
-    await page.waitForLoadState("networkidle");
+    await this.page.locator(selector.wemail_forms_selectors.forms_sync).click();
+    await this.page.waitForLoadState("networkidle");
 
-    await page
-      .locator('//button[@title="Sync forms with your website."]')
-      .click();
-    await page.waitForLoadState("networkidle");
-
-    await page.waitForSelector('//p[@class="iziToast-message slideIn"]');
-    await browser.close();
+    await this.page.waitForSelector(
+      selector.wemail_forms_selectors.form_update_toast
+    );
   }
 
-  async form_publish(request: APIRequestContext, form_id: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
+  async form_publish(form_id: string) {
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(selector.create_post.create_post_page_url, {
+      waitUntil: "networkidle",
+    });
 
-    // await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(
-      `${data.wordpress_site_data.url}/post-new.php?post_type=page`,
-      { waitUntil: "networkidle" }
-    );
+    await expect(
+      this.page.locator(selector.create_post.add_new_page)
+    ).toHaveText("Add New Page");
 
-    await expect(page.locator(".wp-heading-inline")).toHaveText("Add New Page");
-
-    await page.locator("#title").fill(`Automated Forms`);
-    await page.locator('//button[text()="Text"]').click();
-    await page.locator('//textarea[@id="content"]').click();
-    await page
-      .locator('//textarea[@id="content"]')
+    await this.page.locator(selector.create_post.title).fill(`Automated Forms`);
+    await this.page.locator(selector.create_post.text_type).click();
+    await this.page.locator(selector.create_post.textarea_content).click();
+    await this.page
+      .locator(selector.create_post.textarea_content)
       .fill(`[wemail_form id="${form_id}"]`);
 
-    await page.waitForTimeout(2000);
-    await page.locator('//input[@id="publish"]').click();
+    await this.page.waitForTimeout(2000);
+    await this.page.locator(selector.create_post.publish_button).click();
 
-    await page.waitForLoadState("networkidle");
-    await page.waitForSelector('//*[@id="message"]/p/a', {
+    await this.page.waitForLoadState("networkidle");
+    await this.page.waitForSelector(selector.create_post.published_toast, {
       state: "visible",
       timeout: 3000,
     });
 
     let page_url: string | null;
 
-    page_url = await page
-      .locator('//*[@id="message"]/p/a')
+    page_url = await this.page
+      .locator(selector.create_post.published_toast)
       .getAttribute("href");
-    await browser.close();
+
     return page_url;
   }
 
   async form_submit(form_page_url: string, subscriber_email: string) {
-    /**
-     * "userAgent" - Added on browser.newContext to send the request using custom userAgent
-     */
+    await this.page.goto(form_page_url);
+    await this.page.waitForLoadState("networkidle");
 
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext();
-    const page = await context.newPage();
+    await this.page
+      .locator(selector.form_submit.form_username)
+      .fill("dummy user");
+    await this.page
+      .locator(selector.form_submit.form_subscriber_email)
+      .fill(subscriber_email);
+    await this.page.waitForTimeout(1000);
+    await this.page.locator(selector.form_submit.subscribe).click();
 
-    await page.goto(form_page_url);
-    await page.waitForLoadState("networkidle");
+    await this.page.waitForTimeout(5000);
+    await expect(
+      this.page.locator(selector.form_submit.success_popup)
+    ).toContainText("Success!");
+    await this.page.locator(selector.form_submit.confirm).click();
+  }
 
-    await page.locator("#wemail-form-field-3").fill("dummy user");
-    await page.locator("#wemail-form-field-4").fill(subscriber_email);
-    await page.waitForTimeout(1000);
-    await page
-      .locator(
-        '//button[@class="submit-button" and contains(text(), "Join Today")]'
-      )
+  async exclude_segment_tag_from_campaign(
+    campaign_name: string,
+    segment_name: string,
+    tag_name: string
+  ) {
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(selector.campaign_selectors.campaign_page_url, {
+      waitUntil: "networkidle",
+    });
+
+    await this.page
+      .locator(selector.campaign_selectors.select_campaign(campaign_name))
       .click();
-    // await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(5000);
-    await expect(page.locator('//div[@class="swal-title"]')).toContainText(
-      "Success!"
-    );
-    await page
-      .locator('//button[@class="swal-button swal-button--confirm"]')
+    await this.page
+      .locator(selector.campaign_selectors.campaign_settings)
       .click();
-    await browser.close();
+    await this.page.waitForLoadState("networkidle");
+
+    await this.page
+      .locator(selector.campaign_selectors.campaign_recipients)
+      .click();
+
+    // Exclude Tag
+    await this.page
+      .locator(selector.campaign_selectors.exclude_tag_select)
+      .click();
+    await this.page
+      .locator(selector.campaign_selectors.exclude_tag_placeholder)
+      .click();
+    await this.page.waitForTimeout(1000);
+    await this.page
+      .locator(selector.campaign_selectors.exclude_tag_input)
+      .fill(tag_name);
+    await this.page.keyboard.press("Enter");
+
+    // Exclude Segment
+    await this.page
+      .locator(selector.campaign_selectors.exclude_segment_select)
+      .click();
+    await this.page
+      .locator(selector.campaign_selectors.exclude_segment_placeholder)
+      .click();
+    await this.page.waitForTimeout(1000);
+    await this.page
+      .locator(selector.campaign_selectors.exclude_segment_input)
+      .fill(segment_name);
+    await this.page.keyboard.press("Enter");
+
+    await this.page
+      .locator(selector.campaign_selectors.campaign_draft_save)
+      .click();
+    expect(
+      await this.page
+        .locator(selector.campaign_selectors.campaign_update_toast)
+        .innerText()
+    ).toEqual("Campaign has updated!");
   }
 }

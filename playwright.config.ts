@@ -5,12 +5,11 @@ require("dotenv").config();
 
 const config: PlaywrightTestConfig = {
   testDir: "./tests",
-  timeout: 300 * 1000,
+  timeout: 120 * 1000,
   expect: {
     timeout: 5000,
   },
   fullyParallel: false,
-  // fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
@@ -38,6 +37,7 @@ const config: PlaywrightTestConfig = {
       process.env.STAGING === "1"
         ? "https://staging.getwemail.io"
         : "https://api.getwemail.io",
+
     httpCredentials:
       process.env.STAGING === "1"
         ? {
@@ -57,11 +57,13 @@ const config: PlaywrightTestConfig = {
           : process.env.WP_SITE_ID!,
     },
   },
+
   projects: [
     {
-      name: "api_test",
+      name: "api_test_suite",
       use: {
         ...devices["Desktop Firefox"],
+        storageState: "state.json",
       },
     },
   ],

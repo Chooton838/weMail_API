@@ -1,7 +1,7 @@
-import { APIRequestContext, expect, firefox } from "@playwright/test";
+import { APIRequestContext, expect } from "@playwright/test";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
-import { data } from "../utils/data";
+import * as data from "../utils/data";
 
 export class CampaignPage {
   readonly request: APIRequestContext;
@@ -11,19 +11,16 @@ export class CampaignPage {
   }
 
   async create_campaign(campaign_data) {
-    const create_campaign = await this.request.post(
-      `${config.use?.baseURL}/v1/campaigns`,
-      {
-        data: campaign_data,
-      }
-    );
+    const create_campaign = await this.request.post(`${config.use?.baseURL}/v1/campaigns`, {
+      data: campaign_data,
+    });
 
     let create_campaign_response: { data: { name: string; id: string } } = {
       data: { name: "", id: "" },
     };
     let campaign_id: string = "";
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     create_campaign_response = await base.response_checker(create_campaign);
 
     try {
@@ -38,25 +35,18 @@ export class CampaignPage {
   }
 
   async duplicate_campaign(main_campaign_id: string) {
-    const duplicate_campaign = await this.request.post(
-      `${config.use?.baseURL}/v1/campaigns/${main_campaign_id}/duplicate`,
-      {}
-    );
+    const duplicate_campaign = await this.request.post(`${config.use?.baseURL}/v1/campaigns/${main_campaign_id}/duplicate`, {});
 
     let duplicate_campaign_response: { data: { name: string; id: string } } = {
       data: { name: "", id: "" },
     };
     let duplicated_campaign_id: string = "";
 
-    const base = new BasePage(this.request);
-    duplicate_campaign_response = await base.response_checker(
-      duplicate_campaign
-    );
+    const base = new BasePage();
+    duplicate_campaign_response = await base.response_checker(duplicate_campaign);
 
     try {
-      expect(duplicate_campaign_response.data.name).toEqual(
-        `Duplicate: ${data.campaign_data.name}`
-      );
+      expect(duplicate_campaign_response.data.name).toEqual(`Duplicate: ${data.campaign_data.name}`);
       duplicated_campaign_id = duplicate_campaign_response.data.id;
     } catch (err) {
       console.log(duplicate_campaign_response);
@@ -66,16 +56,13 @@ export class CampaignPage {
   }
 
   async send_campaign(campaign_id: string) {
-    const send_campaign = await this.request.post(
-      `${config.use?.baseURL}/v1/campaigns/${campaign_id}/send`,
-      {}
-    );
+    const send_campaign = await this.request.post(`${config.use?.baseURL}/v1/campaigns/${campaign_id}/send`, {});
 
     let send_campaign_response: { data: { status: string } } = {
       data: { status: "" },
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     send_campaign_response = await base.response_checker(send_campaign);
 
     try {
@@ -87,9 +74,7 @@ export class CampaignPage {
   }
 
   async campaign_activity(campaign_id: string) {
-    const campaign_activity = await this.request.get(
-      `${config.use?.baseURL}/v1/campaigns/${campaign_id}`
-    );
+    const campaign_activity = await this.request.get(`${config.use?.baseURL}/v1/campaigns/${campaign_id}`);
 
     let campaign_activity_response: {
       data: {
@@ -105,15 +90,13 @@ export class CampaignPage {
       email_id: string;
     } = { status: "", no_of_subscribers: 0, email_id: "" };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     campaign_activity_response = await base.response_checker(campaign_activity);
 
     try {
       expect(campaign_activity_response.data.id).toEqual(campaign_id);
-      campaign_activity_stats.email_id =
-        campaign_activity_response.data.email.id;
-      campaign_activity_stats.no_of_subscribers =
-        campaign_activity_response.data.no_of_subscribers;
+      campaign_activity_stats.email_id = campaign_activity_response.data.email.id;
+      campaign_activity_stats.no_of_subscribers = campaign_activity_response.data.no_of_subscribers;
       campaign_activity_stats.status = campaign_activity_response.data.status;
     } catch (err) {
       console.log(campaign_activity_response);
@@ -124,9 +107,7 @@ export class CampaignPage {
   }
 
   async subscriber_mail_activity(email_id: string, subscriber_mail: string) {
-    const campaign_status = await this.request.get(
-      `${config.use?.baseURL}/v1/emails/${email_id}/subscribers/${subscriber_mail}/activities`
-    );
+    const campaign_status = await this.request.get(`${config.use?.baseURL}/v1/emails/${email_id}/subscribers/${subscriber_mail}/activities`);
 
     let campaign_status_response: {
       data: Array<{ email: string; type: string }>;
@@ -135,7 +116,7 @@ export class CampaignPage {
     };
     let sent_status: string = "";
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     campaign_status_response = await base.response_checker(campaign_status);
 
     try {
@@ -148,33 +129,22 @@ export class CampaignPage {
     return sent_status;
   }
 
-  async unsubscribe_campaign(
-    campaign_id: string,
-    subscriber_id: string,
-    email_id: string
-  ) {
-    const unsubscribe_campaign = await this.request.post(
-      `${config.use?.baseURL}/v1/campaigns/${campaign_id}/subscribers/${subscriber_id}/unsubscribe`,
-      {
-        data: {
-          email_id: email_id,
-          _method: "PUT",
-        },
-      }
-    );
+  async unsubscribe_campaign(campaign_id: string, subscriber_id: string, email_id: string) {
+    const unsubscribe_campaign = await this.request.post(`${config.use?.baseURL}/v1/campaigns/${campaign_id}/subscribers/${subscriber_id}/unsubscribe`, {
+      data: {
+        email_id: email_id,
+        _method: "PUT",
+      },
+    });
 
     let unsubscribe_campaign_response: { message: string } = { message: "" };
     let unsubscribed_flag: boolean = false;
 
-    const base = new BasePage(this.request);
-    unsubscribe_campaign_response = await base.response_checker(
-      unsubscribe_campaign
-    );
+    const base = new BasePage();
+    unsubscribe_campaign_response = await base.response_checker(unsubscribe_campaign);
 
     try {
-      expect(unsubscribe_campaign_response.message).toEqual(
-        "Subscriber Unsubscribe."
-      );
+      expect(unsubscribe_campaign_response.message).toEqual("Subscriber Unsubscribe.");
       unsubscribed_flag = true;
     } catch (err) {
       console.log(unsubscribe_campaign_response);
@@ -185,14 +155,11 @@ export class CampaignPage {
   }
 
   async delete_campaign(campaign_id: string) {
-    const delete_campaign = await this.request.delete(
-      `${config.use?.baseURL}/v1/campaigns/${campaign_id}`,
-      {}
-    );
+    const delete_campaign = await this.request.delete(`${config.use?.baseURL}/v1/campaigns/${campaign_id}`, {});
 
     let delete_campaign_response: { message: string } = { message: "" };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     delete_campaign_response = await base.response_checker(delete_campaign);
 
     try {
@@ -203,68 +170,30 @@ export class CampaignPage {
     }
   }
 
-  async exclude_list_segment_tag_from_campaign(
-    campaign_name: string,
-    segment_name: string,
-    tag_name: string
-  ) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
+  async filter_active_standard_campaign() {
+    const filter_active_standard_campaign = await this.request.get(`${config.use?.baseURL}/v1/campaigns?statuses%5B%5D=active`);
 
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(
-      `${data.wordpress_site_data.url}/admin.php?page=wemail#/campaigns/`,
-      { waitUntil: "networkidle" }
-    );
+    let filter_active_standard_campaign_response: {
+      data: Array<{ id: string; status: string; type: string }>;
+    } = { data: [] };
 
-    await page.locator(`//a[contains(text(),"${campaign_name}")]`).click();
-    await page
-      .locator('//div[@class="header"]//a[contains(text(),"Settings")]')
-      .click();
-    await page.waitForLoadState("networkidle");
+    let campaigns_id: Array<string> = [];
 
-    await page.locator('//a[contains(text(),"Recipients")]').click();
+    const base = new BasePage();
+    filter_active_standard_campaign_response = await base.response_checker(filter_active_standard_campaign);
 
-    // Exclude Tag
-    await page.locator('//span[contains(text(),"By Tag")]').click();
-    await page
-      .locator(
-        '//label[contains(text(),"Choose tag to exclude")]/..//span[@class="multiselect__placeholder"]'
-      )
-      .click();
-    await page.waitForTimeout(1000);
-    await page
-      .locator(
-        '//label[contains(text(),"Choose tag to exclude")]/..//input[@class="multiselect__input"]'
-      )
-      .fill(tag_name);
-    await page.keyboard.press("Enter");
+    try {
+      for (let i: number = 0; i < filter_active_standard_campaign_response.data.length; i++) {
+        expect(filter_active_standard_campaign_response.data[i].status).toEqual("active");
+        if (filter_active_standard_campaign_response.data[i].type == "standard") {
+          campaigns_id.push(filter_active_standard_campaign_response.data[i].id);
+        }
+      }
+    } catch (err) {
+      console.log(filter_active_standard_campaign_response);
+      expect(filter_active_standard_campaign.ok()).toBeFalsy();
+    }
 
-    // Exclude Segment
-    await page.locator('//span[contains(text(),"By Segment")]').click();
-    await page
-      .locator(
-        '//label[contains(text(),"Choose segment to exclude")]/..//span[@class="multiselect__placeholder"]'
-      )
-      .click();
-    await page.waitForTimeout(1000);
-    await page
-      .locator(
-        '//label[contains(text(),"Choose segment to exclude")]/..//input[@class="multiselect__input"]'
-      )
-      .fill(segment_name);
-    await page.keyboard.press("Enter");
-
-    await page.locator('//button[contains(text(),"Save as draft")]').click();
-    expect(
-      await page.locator('//p[@class="iziToast-message slideIn"]').innerText()
-    ).toEqual("Campaign has updated!");
-
-    await browser.close();
+    return campaigns_id;
   }
 }

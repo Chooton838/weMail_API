@@ -1,15 +1,9 @@
-import { APIRequestContext, expect, firefox } from "@playwright/test";
+import { APIResponse, expect, firefox } from "@playwright/test";
 import * as fs from "fs";
-import { data } from "./data";
+import * as selector from "../utils/selectors";
 
 export class BasePage {
-  readonly request: APIRequestContext;
-
-  constructor(request: APIRequestContext) {
-    this.request = request;
-  }
-
-  async response_checker(request) {
+  async response_checker(request: APIResponse) {
     try {
       expect(request.ok()).toBeTruthy();
       return await request.json();
@@ -21,7 +15,11 @@ export class BasePage {
     }
   }
 
-  async wordpress_site_login() {
+  async wordpress_site_login(login_data: {
+    login_page_url: string;
+    username: string;
+    password: string;
+  }) {
     /**
      * "userAgent" - Added on browser.newContext to send the request using custom userAgent
      */
@@ -36,107 +34,17 @@ export class BasePage {
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
+    await page.goto(login_data.login_page_url, {
+      waitUntil: "networkidle",
+    });
 
-    await page
-      .locator('//*[@id="user_login"]')
-      .fill(data.wordpress_site_data.username);
-    await page
-      .locator('//*[@id="user_pass"]')
-      .fill(data.wordpress_site_data.password);
-    await page.locator('//*[@id="wp-submit"]').click();
+    await page.locator(selector.wp_admin.username).fill(login_data.username);
+    await page.locator(selector.wp_admin.password).fill(login_data.password);
+    await page.locator(selector.wp_admin.submit).click();
     await page.waitForLoadState("networkidle");
 
     await page.context().storageState({ path: "state.json" });
 
     await browser.close();
-  }
-
-  /**
-   * This below wordpress_nonce_cookie(page_url: string, locator: string, popup: boolean, popup_locator: string) function can be usable
-   * to get wp-nonce value, login cookie and WooCommerce API Key for WordPress site.
-   * Parameters:
-   *  page_url: string = Provide the webpage url containing the wp-nonce
-   *  locator: string = Provide the script id locator that contains the wp-nonce value
-   *  popup: string = If wp-nonce exists on a pop-up of the given page, value is true else false
-   *  popup_locator: string = Provide the locator for the pop-up to click and extract the wp-nonce value
-   */
-  async wordpress_nonce_cookie(
-    page_url: string,
-    locator: string,
-    popup: boolean,
-    popup_locator: string
-  ) {
-    let header: { nonce: string; cookie: string; api_key: string } = {
-      nonce: "",
-      cookie: "",
-      api_key: "",
-    };
-
-    // Get Cookie value
-    let cookie_data = fs.readFileSync("state.json", "utf8");
-    let parsed_data = JSON.parse(cookie_data);
-    let cookie: string = "";
-    let flag: boolean = false;
-
-    for (let i: number = 0; i < parsed_data.cookies.length; i++) {
-      if (parsed_data.cookies[i].name.includes("wordpress_logged_in")) {
-        cookie = `${parsed_data.cookies[i].name}=${parsed_data.cookies[i].value}`;
-        flag = true;
-        break;
-      }
-    }
-
-    if (flag == true) {
-      header.cookie = cookie;
-    } else {
-      console.log("Cookie Not Found");
-    }
-
-    // Get Nonce & API Key
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
-
-    await page.goto(page_url, {
-      waitUntil: "networkidle",
-    });
-
-    if (popup == true) {
-      let nonce_value: string | null;
-      await page.locator(popup_locator).click();
-      nonce_value = await page.locator(locator).getAttribute("value");
-      if (typeof nonce_value == "string") {
-        header.nonce = nonce_value;
-      }
-    } else {
-      let object_text = await page.locator(locator).innerText();
-      let object_value = object_text.substring(
-        object_text.indexOf("{"),
-        object_text.lastIndexOf("}") + 1
-      );
-
-      let parsed_value: Record<string, any> = {};
-
-      try {
-        parsed_value = JSON.parse(object_value);
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-      }
-
-      if (parsed_value.hasOwnProperty("nonce")) {
-        header.nonce = parsed_value.nonce;
-      }
-      if (parsed_value.hasOwnProperty("api")) {
-        header.api_key = parsed_value.api.api_key;
-      }
-    }
-
-    await browser.close();
-    return header;
   }
 }

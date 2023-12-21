@@ -1,29 +1,30 @@
-import { APIRequestContext, expect, firefox } from "@playwright/test";
+import { APIRequestContext, expect, Page } from "@playwright/test";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
-import { data } from "../utils/data";
+import * as data from "../utils/data";
+import * as selector from "../utils/selectors";
+import { WPSitePage } from "../utils/wp_site";
 
 export class IntegrationsPage {
   readonly request: APIRequestContext;
+  readonly page: Page;
 
-  constructor(request: APIRequestContext) {
+  constructor(request: APIRequestContext, page: Page) {
     this.request = request;
+    this.page = page;
   }
 
-  async integrate_affiliatewp(list_id: string) {
-    data.affiliate_integration_data.rest_url = `${data.rest_url}/`;
-    data.affiliate_integration_data.list = list_id;
-
+  async integrate_affiliatewp(affiliate_integration_data: {}) {
     const integrate_affiliatewp = await this.request.post(
       `${config.use?.baseURL}/v1/affiliates/settings/affiliate-wp`,
       {
-        data: data.affiliate_integration_data,
+        data: affiliate_integration_data,
       }
     );
 
     let integrate_affiliatewp_response: { success: boolean };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     integrate_affiliatewp_response = await base.response_checker(
       integrate_affiliatewp
     );
@@ -37,218 +38,169 @@ export class IntegrationsPage {
   }
 
   async create_affiliate(affiliate_username: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(
-      `${data.wordpress_site_data.url}/admin.php?page=affiliate-wp-affiliates&action=add_affiliate`,
-      { waitUntil: "networkidle" }
-    );
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(selector.integration_create_affiliate.page_url, {
+      waitUntil: "networkidle",
+    });
 
-    // await page
-    //   .locator('//div[@class="wp-menu-name" and contains(text(),"Affiliates")]')
-    //   .click();
-    // await page.waitForLoadState("domcontentloaded");
-    // await page.waitForLoadState("networkidle");
+    await this.page
+      .locator(selector.integration_create_affiliate.username)
+      .fill(affiliate_username);
+    await this.page.waitForTimeout(2000);
 
-    // await page.locator('//a[contains(text(),"Affiliates")]').click();
-    // await page.waitForLoadState("networkidle");
-
-    // // await page.waitForTimeout(5000);
-
-    // await page
-    //   .locator(
-    //     '//a[@class="page-title-action" and contains(text(), "Add New")]'
-    //   )
-    //   .click();
-
-    await page.locator("#user_name").type(affiliate_username);
-    await page.waitForTimeout(2000);
-
-    await page
+    await this.page
       .locator(
-        `//div[@class="ui-menu-item-wrapper" and contains(text(), ${affiliate_username})]`
+        selector.integration_create_affiliate.select_affiliate(
+          affiliate_username
+        )
       )
       .click();
 
-    await page.locator("#status").selectOption("Pending");
-    await page.locator("#rate_type_percentage").click();
-    await page.locator("#rate").fill("5");
-    await page.locator("#submit").click();
+    await this.page
+      .locator(selector.integration_create_affiliate.affiliate_status)
+      .selectOption("Pending");
+    await this.page
+      .locator(selector.integration_create_affiliate.affiliate_rate_type)
+      .click();
+    await this.page
+      .locator(selector.integration_create_affiliate.affiliate_rate)
+      .fill("5");
+    await this.page
+      .locator(selector.integration_create_affiliate.affiliate_submit)
+      .click();
 
-    await page.waitForLoadState("networkidle");
-
-    await browser.close();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async approve_affiliate(affiliate_username: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(
-      `${data.wordpress_site_data.url}/admin.php?page=affiliate-wp-affiliates`,
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(
+      selector.integration_affiliate_actions.affiliates_list_page_url,
       { waitUntil: "networkidle" }
     );
 
-    // await page
-    //   .locator(`//a[text()="${affiliate_username}"]/..//a[text()="Accept"]`)
-    //   .click();
-
-    await page
+    await this.page
       .locator(
-        `//a[text()="${affiliate_username}"]/../..//input[@type="checkbox"]`
+        selector.integration_affiliate_actions.select_affiliate(
+          affiliate_username
+        )
       )
       .click();
 
-    await page.locator("#bulk-action-selector-top").selectOption("Accept");
-    await page.locator("#doaction").click();
+    await this.page
+      .locator(selector.integration_affiliate_actions.select_bulk_action)
+      .selectOption("Accept");
+    await this.page
+      .locator(selector.integration_affiliate_actions.do_action)
+      .click();
 
-    await page.waitForLoadState("networkidle");
-
-    await browser.close();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async delete_affiliate(affiliate_username: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(
-      `${data.wordpress_site_data.url}/admin.php?page=affiliate-wp-affiliates`,
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(
+      selector.integration_affiliate_actions.affiliates_list_page_url,
       { waitUntil: "networkidle" }
     );
 
-    await page
+    await this.page
       .locator(
-        `//a[text()="${affiliate_username}"]/../..//input[@type="checkbox"]`
+        selector.integration_affiliate_actions.select_affiliate(
+          affiliate_username
+        )
       )
       .click();
 
-    await page.locator("#bulk-action-selector-top").selectOption("Delete");
-    await page.locator("#doaction").click();
+    await this.page
+      .locator(selector.integration_affiliate_actions.select_bulk_action)
+      .selectOption("Delete");
+    await this.page
+      .locator(selector.integration_affiliate_actions.do_action)
+      .click();
+    await this.page.waitForLoadState("networkidle");
 
-    await page.waitForLoadState("networkidle");
-
-    await page.locator("#submit").click();
-    await page.waitForLoadState("networkidle");
-
-    await browser.close();
+    await this.page
+      .locator(selector.integration_create_affiliate.affiliate_submit)
+      .click();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async create_contact_forms_7(contact_form_7_name: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
+    await this.page.goto(selector.integration_create_cf7.page_url);
 
-    // await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpcf7`, {
-    //   waitUntil: "networkidle",
-    // });
+    await this.page.locator(selector.integration_create_cf7.add_new).click();
+    await this.page.waitForLoadState("domcontentloaded");
 
-    await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpcf7`);
-
-    await page.click(
-      '//a[@class="page-title-action" and contains(text(),"Add New")]'
-    );
-    await page.waitForLoadState("domcontentloaded");
-
-    await page.fill('//input[@id="title"]', contact_form_7_name);
-    await page.click('//p[@class="submit"]//input[@name="wpcf7-save"]');
-    await page.waitForTimeout(3000);
+    await this.page
+      .locator(selector.integration_create_cf7.title)
+      .fill(contact_form_7_name);
+    await this.page.locator(selector.integration_create_cf7.save).click();
+    await this.page.waitForTimeout(3000);
     expect(
-      await page.locator('//input[@id="wpcf7-shortcode"]').isVisible()
+      await this.page
+        .locator(selector.integration_create_cf7.shortcode)
+        .isVisible()
     ).toBeTruthy();
-    await browser.close();
   }
 
   async map_contact_form_7(list_name: string, contact_form_7_name: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(selector.integration_map_cf7.page_url, {
+      waitUntil: "networkidle",
+    });
 
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(
-      `${data.wordpress_site_data.url}/admin.php?page=wemail#/integrations/contact-forms/contact-form-7`,
-      { waitUntil: "networkidle" }
-    );
-
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]//input[@type="checkbox"]`
-      )
+    await this.page
+      .locator(selector.integration_map_cf7.check_cf7(contact_form_7_name))
       .click();
 
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//div[@class="multiselect__tags"]`
-      )
+    await this.page
+      .locator(selector.integration_map_cf7.select_cf7(contact_form_7_name))
       .click();
 
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`
-      )
+    await this.page
+      .locator(selector.integration_map_cf7.select_list(contact_form_7_name))
       .fill(list_name);
 
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`
-      )
+    await this.page
+      .locator(selector.integration_map_cf7.select_list(contact_form_7_name))
       .press("Enter");
 
-    await page
-      .locator(
-        `//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/../form//input[@type="checkbox"]`
-      )
+    await this.page
+      .locator(selector.integration_map_cf7.override(contact_form_7_name))
       .click();
 
-    await page
-      .locator(
-        `(//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//select)[1]`
-      )
+    await this.page
+      .locator(selector.integration_map_cf7.select_name(contact_form_7_name))
       .selectOption("first_name");
 
-    await page
-      .locator(
-        `(//h3[@class="title clearfix" and contains(text(), "${contact_form_7_name}")]/..//select)[2]`
-      )
+    await this.page
+      .locator(selector.integration_map_cf7.select_email(contact_form_7_name))
       .selectOption("email");
 
-    await page.locator(`//button[contains(text(),"Save Settings")]`).click();
+    await this.page.locator(selector.integration_map_cf7.save_settings).click();
 
     expect(
-      await page.locator(`//p[@class="iziToast-message slideIn"]`).innerText()
+      await this.page
+        .locator(selector.integration_map_cf7.success_toast)
+        .innerText()
     ).toEqual("Settings saved successfully");
-
-    await browser.close();
   }
 
   async map_contact_form_7_API(list_id: string, contact_form_7_id: string) {
-    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/integrations/contact-forms/contact-form-7`;
-    let locator: string = `#wemail-vendor-js-extra`;
-    const base = new BasePage(this.request);
-    let header = await base.wordpress_nonce_cookie(
+    let page_url: string = selector.integration_map_cf7.page_url;
+    let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
+
+    const wpsite = new WPSitePage(this.page);
+    let header = await wpsite.wordpress_nonce_cookie(
       page_url,
       locator,
       false,
@@ -276,6 +228,8 @@ export class IntegrationsPage {
     );
 
     let contact_form_7_response: { message: string };
+
+    const base = new BasePage();
     contact_form_7_response = await base.response_checker(contact_form_7);
 
     try {
@@ -297,30 +251,36 @@ export class IntegrationsPage {
       data: Array<{ id: number; title: string }>;
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     contact_form_7_post_id_response = await base.response_checker(
       contact_form_7_post_id
     );
     let id: number = 0;
 
-    if (contact_form_7_post_id_response.data.length > 0) {
-      for (
-        let i: number = 0;
-        i < contact_form_7_post_id_response.data.length;
-        i++
-      ) {
-        if (
-          contact_form_7_post_id_response.data[i].title == contact_form_7_name
+    try {
+      if (contact_form_7_post_id_response.data.length > 0) {
+        for (
+          let i: number = 0;
+          i < contact_form_7_post_id_response.data.length;
+          i++
         ) {
-          id = contact_form_7_post_id_response.data[i].id;
-          break;
+          if (
+            contact_form_7_post_id_response.data[i].title == contact_form_7_name
+          ) {
+            id = contact_form_7_post_id_response.data[i].id;
+            break;
+          }
         }
       }
-    }
-    if (id == 0) {
-      console.log("Created Contact form 7 Not Found");
+      if (id == 0) {
+        console.log("Created Contact form 7 Not Found");
+        expect(contact_form_7_post_id.ok()).toBeFalsy();
+      }
+    } catch (err) {
+      console.log(contact_form_7_post_id_response);
       expect(contact_form_7_post_id.ok()).toBeFalsy();
     }
+
     return id;
   }
 
@@ -360,7 +320,7 @@ message
 
     let submit_contact_form_7_response: { message: string };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     submit_contact_form_7_response = await base.response_checker(
       submit_contact_form_7
     );
@@ -376,38 +336,37 @@ message
   }
 
   async delete_contact_form_7(contact_form_7_name: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
-
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(`${data.wordpress_site_data.url}/admin.php?page=wpcf7`, {
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(selector.integration_create_cf7.page_url, {
       waitUntil: "networkidle",
     });
 
-    await page
-      .locator(
-        `//a[text()="${contact_form_7_name}"]/../../..//input[@type="checkbox"]`
-      )
+    await this.page
+      .locator(selector.integration_delete_cf7.select_cf7(contact_form_7_name))
       .click();
 
-    await page.locator("#bulk-action-selector-top").selectOption("Delete");
-    await page.locator("#doaction").click();
-    await page.waitForLoadState("networkidle");
+    await this.page
+      .locator(selector.integration_affiliate_actions.select_bulk_action)
+      .selectOption("Delete");
+    await this.page
+      .locator(selector.integration_affiliate_actions.do_action)
+      .click();
+    await this.page.waitForLoadState("networkidle");
     expect(
-      await page.locator('//p[text()="Contact form deleted."]').isVisible()
+      await this.page
+        .locator(selector.integration_delete_cf7.delete_toast)
+        .isVisible()
     ).toBeTruthy();
   }
 
   async woocom_integrations(list_id: string) {
-    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/e-commerce/woocommerce/setup`;
-    let locator: string = `#wemail-vendor-js-extra`;
-    const base = new BasePage(this.request);
-    let header = await base.wordpress_nonce_cookie(
+    let page_url: string = selector.integration_woocom.page_url;
+    let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
+
+    const wpsite = new WPSitePage(this.page);
+    let header = await wpsite.wordpress_nonce_cookie(
       page_url,
       locator,
       false,
@@ -432,6 +391,8 @@ message
     );
 
     let woocom_integrations_response: { message: string };
+
+    const base = new BasePage();
     woocom_integrations_response = await base.response_checker(
       woocom_integrations
     );
@@ -469,7 +430,7 @@ message
     };
     let prod_id: number = 0;
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     woocom_product_create_response = await base.response_checker(
       woocom_product_create
     );
@@ -506,7 +467,7 @@ message
     };
     let order_id: number = 0;
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     woocom_order_create_response = await base.response_checker(
       woocom_order_create
     );
@@ -545,7 +506,7 @@ message
       status: "",
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     woocom_order_complete_response = await base.response_checker(
       woocom_order_complete
     );
@@ -576,7 +537,7 @@ message
       billing: { email: "" },
     };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     woocom_order_delete_response = await base.response_checker(
       woocom_order_delete
     );
@@ -605,7 +566,7 @@ message
 
     let woocom_product_delete_response: { id: number } = { id: 0 };
 
-    const base = new BasePage(this.request);
+    const base = new BasePage();
     woocom_product_delete_response = await base.response_checker(
       woocom_product_delete
     );
@@ -619,10 +580,10 @@ message
   }
 
   async wperp_integrations(list_id: string) {
-    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=wemail#/integrations/c-r-m/wp-erp-crm/erp-crm-contacts`;
-    let locator: string = `#wp-api-request-js-extra`;
-    const base = new BasePage(this.request);
-    let header = await base.wordpress_nonce_cookie(
+    let page_url: string = selector.integration_wperp.page_url;
+    let locator: string = selector.integration_wperp.nonce_locator;
+    const wpsite = new WPSitePage(this.page);
+    let header = await wpsite.wordpress_nonce_cookie(
       page_url,
       locator,
       false,
@@ -649,6 +610,8 @@ message
     );
 
     let wperp_integrations_response: { message: string };
+
+    const base = new BasePage();
     wperp_integrations_response = await base.response_checker(
       wperp_integrations
     );
@@ -664,12 +627,15 @@ message
   }
 
   async wperp_crm_contact_create(contcat_user_email: string) {
-    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=erp-crm&section=contact`;
-    let locator: string = `#_wpnonce`;
-    let popup_locator: string = `#erp-customer-new`;
+    let page_url: string =
+      selector.integration_wperp.crm_contact_create_page_url;
+    let locator: string =
+      selector.integration_wperp.contact_create_nonce_locator;
+    let popup_locator: string =
+      selector.integration_wperp.contact_create_popup_nonce_locator;
 
-    const base = new BasePage(this.request);
-    let header = await base.wordpress_nonce_cookie(
+    const wpsite = new WPSitePage(this.page);
+    let header = await wpsite.wordpress_nonce_cookie(
       page_url,
       locator,
       true,
@@ -681,7 +647,7 @@ message
     form_data.append("contact[meta][photo_id]", "0");
     form_data.append("contact[main][first_name]", "Jhon");
     form_data.append("contact[main][last_name]", "Doe");
-    form_data.append("contact[main][email]", contcat_user_email.toLowerCase());
+    form_data.append("contact[main][email]", contcat_user_email);
     form_data.append("contact[main][phone]", "");
     form_data.append("contact[meta][life_stage]", "customer");
     form_data.append("contact[meta][contact_owner]", "1");
@@ -730,13 +696,14 @@ message
 
     let crm_contact_id: string = "";
 
+    const base = new BasePage();
     wperp_crm_contact_create_response = await base.response_checker(
       wperp_crm_contact_create
     );
 
     try {
       expect(wperp_crm_contact_create_response.data.data.email).toEqual(
-        contcat_user_email.toLowerCase()
+        contcat_user_email
       );
       crm_contact_id = wperp_crm_contact_create_response.data.data.id;
     } catch (err) {
@@ -748,11 +715,13 @@ message
   }
 
   async wperp_crm_contact_delete(wperp_crm_customer_id: string) {
-    let page_url: string = `${data.wordpress_site_data.url}/admin.php?page=erp-crm&section=contact`;
-    let locator: string = `#erp-crm-contact-js-extra`;
+    let page_url: string =
+      selector.integration_wperp.crm_contact_create_page_url;
+    let locator: string =
+      selector.integration_wperp.contact_delete_nonce_locator;
 
-    const base = new BasePage(this.request);
-    let header = await base.wordpress_nonce_cookie(
+    const wpsite = new WPSitePage(this.page);
+    let header = await wpsite.wordpress_nonce_cookie(
       page_url,
       locator,
       false,
@@ -782,6 +751,7 @@ message
       success: boolean;
     };
 
+    const base = new BasePage();
     wperp_crm_contact_delete_response = await base.response_checker(
       wperp_crm_contact_delete
     );
@@ -795,57 +765,48 @@ message
   }
 
   async create_wp_user(username: string, user_email: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
-
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(`${data.wordpress_site_data.url}/user-new.php`, {
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(selector.wp_user.page_url, {
       waitUntil: "networkidle",
     });
 
-    await page.locator("#user_login").click();
-    await page.locator("#user_login").fill(username);
-    await page.locator("#email").fill(user_email.toLowerCase());
-    await page.locator("#pass1").fill("12344321");
-    await page.locator(".pw-checkbox").click();
-    await page.locator("#send_user_notification").click();
-    await page.locator("#createusersub").click();
+    await this.page.locator(selector.wp_user.username).click();
+    await this.page.locator(selector.wp_user.username).fill(username);
+    await this.page
+      .locator(selector.wp_user.email)
+      .fill(user_email.toLowerCase());
+    await this.page.locator(selector.wp_user.password).fill("12344321");
+    await this.page.locator(selector.wp_user.weak_password).click();
+    await this.page.locator(selector.wp_user.user_notification).click();
+    await this.page.locator(selector.wp_user.add_user).click();
 
-    await page.waitForLoadState("networkidle");
-
-    await browser.close();
+    await this.page.waitForLoadState("networkidle");
   }
 
   async delete_wp_user(username: string) {
-    const browser = await firefox.launch();
-    // const context = await browser.newContext({
-    //   userAgent:
-    //     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0",
-    // });
-    const context = await browser.newContext({ storageState: "state.json" });
-    const page = await context.newPage();
-    await page.goto(data.wordpress_site_data.url, { waitUntil: "networkidle" });
-    await page.goto(`${data.wordpress_site_data.url}/users.php`, {
+    await this.page.goto(data.wordpress_site_data.url, {
+      waitUntil: "networkidle",
+    });
+    await this.page.goto(selector.wp_user.users_list_page_url, {
       waitUntil: "networkidle",
     });
 
-    await page
-      .locator(`//a[text()="${username}"]/../../..//input[@type="checkbox"]`)
+    await this.page.locator(selector.wp_user.select_user(username)).click();
+
+    await this.page
+      .locator(selector.integration_affiliate_actions.select_bulk_action)
+      .selectOption("Delete");
+    await this.page
+      .locator(selector.integration_affiliate_actions.do_action)
       .click();
 
-    await page.locator("#bulk-action-selector-top").selectOption("Delete");
-    await page.locator("#doaction").click();
+    await this.page.waitForLoadState("networkidle");
 
-    await page.waitForLoadState("networkidle");
-
-    await page.locator("#submit").click();
-    await page.waitForLoadState("networkidle");
-
-    await browser.close();
+    await this.page
+      .locator(selector.integration_create_affiliate.affiliate_submit)
+      .click();
+    await this.page.waitForLoadState("networkidle");
   }
 }
