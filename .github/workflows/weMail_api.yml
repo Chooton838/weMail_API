@@ -210,10 +210,10 @@ jobs:
               id: slack
               uses: slackapi/slack-github-action@v1.24.0
               with:
-                channel-id: 'SLACK_CHANNEL_ID' # ID of Slack Channel you want to post to
-                slack-message: 'posting from a github action!' # The message you want to post
+                  channel-id: C06BHS669U1 # ID of Slack Channel you want to post to
+                  slack-message: "posting from a github action!" # The message you want to post
               env:
-                SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+                  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
     notify-on-failure:
         runs-on: ubuntu-latest
