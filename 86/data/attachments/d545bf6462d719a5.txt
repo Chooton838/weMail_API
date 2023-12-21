@@ -1,0 +1,36 @@
+{
+  data: [
+    {
+      id: 'de4e08c2-0ee7-4f2c-af6e-0877441ef189',
+      name: 'Automation - libero quos',
+      sent: 0,
+      subscribers: 0,
+      status: 'active',
+      total_emails: 1,
+      clicked: 0,
+      opened: 0,
+      unsubscribed: 0,
+      bounced: 0,
+      failed: 0,
+      creator: [Object],
+      utm_campaign: null,
+      created_at: '2023-12-21T14:04:17+00:00',
+      updated_at: '2023-12-21T14:04:24+00:00'
+    }
+  ],
+  links: {
+    first: 'https://staging.getwemail.io/v1/automations?page=1',
+    last: 'https://staging.getwemail.io/v1/automations?page=1',
+    prev: null,
+    next: null
+  },
+  meta: {
+    current_page: 1,
+    from: 1,
+    last_page: 1,
+    path: 'https://staging.getwemail.io/v1/automations',
+    per_page: 15,
+    to: 1,
+    total: 1
+  }
+}
