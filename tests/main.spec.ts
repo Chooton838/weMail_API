@@ -359,25 +359,25 @@ test.describe("Forms Functionalities", () => {
 
 	// For test Form Submission from Frontend - remove .skip from next three test ( * - e2e) and put .skip on 4th & 5th test ( * - API)
 
-	// test.skip("Forms Sync. with WP Site - e2e", async ({ page }) => {
-	// 	const admin = new AdminPage(page);
-	// 	await admin.form_sync_with_frontend();
-	// });
+	test.skip("Forms Sync. with WP Site - e2e", async ({ page }) => {
+		const admin = new AdminPage(page);
+		await admin.form_sync_with_frontend();
+	});
 
-	// test.skip("Forms Added into Site Frontend - e2e", async ({ page }) => {
-	// 	const admin = new AdminPage(page);
-	// 	form_page_url = await admin.form_publish(forms_id[0]);
-	// });
+	test.skip("Forms Added into Site Frontend - e2e", async ({ page }) => {
+		const admin = new AdminPage(page);
+		form_page_url = await admin.form_publish(forms_id[0]);
+	});
 
-	// test.skip("Form Submission from Frontend - e2e", async ({ page }) => {
-	// 	if (form_page_url == null) {
-	// 		console.log("Page Url Not Found");
-	// 		test.fail();
-	// 	} else {
-	// 		const admin = new AdminPage(page);
-	// 		await admin.form_submit(form_page_url, subscriber_email);
-	// 	}
-	// });
+	test.skip("Form Submission from Frontend - e2e", async ({ page }) => {
+		if (form_page_url == null) {
+			console.log("Page Url Not Found");
+			test.fail();
+		} else {
+			const admin = new AdminPage(page);
+			await admin.form_submit(form_page_url, subscriber_email);
+		}
+	});
 
 	test("Forms Sync. with WP Site - API", async ({ request, page }) => {
 		const forms = new FormPage(request, page);
@@ -1065,10 +1065,10 @@ test.describe("Functionalities of Contact Form 7 Integration", () => {
 		await integrations.map_contact_form_7(list_name, contact_form_7_name);
 	});
 
-	// test.skip("weMail List <-> Contact Form 7 - API", async ({ request, page }) => {
-	// 	const integrations = new IntegrationsPage(request, page);
-	// 	await integrations.map_contact_form_7_API(data.list_data.list_id, contact_form_7_id);
-	// });
+	test.skip("weMail List <-> Contact Form 7 - API", async ({ request, page }) => {
+		const integrations = new IntegrationsPage(request, page);
+		await integrations.map_contact_form_7_API(data.list_data.list_id, contact_form_7_id);
+	});
 
 	test("Get Contact Form 7 ID", async ({ request, page }) => {
 		const integrations = new IntegrationsPage(request, page);
@@ -1309,24 +1309,24 @@ test.describe("Functionalities of WP ERP Integration", () => {
 		expect(await automation.automation_status(automation_id)).toEqual("active");
 	});
 
-	// test.skip("Check Automation Activity", async ({ request }) => {
-	// 	let automation_activity_response: {
-	// 		data: [{ id: string; email: string }];
-	// 	};
-	// 	const automation = new AutomationPage(request);
+	test.skip("Check Automation Activity", async ({ request }) => {
+		let automation_activity_response: {
+			data: [{ id: string; email: string }];
+		};
+		const automation = new AutomationPage(request);
 
-	// 	for (let i: number = 0; i <= 15; i++) {
-	// 		automation_activity_response = await automation.automation_activity(automation_id);
-	// 		if (automation_activity_response.data.length > 0) {
-	// 			console.log(`res - ${automation_activity_response.data} - ${i}`);
-	// 			expect(automation_activity_response.data[0].id).toEqual(data.subscriber_data.subscriber_id);
-	// 			break;
-	// 		} else {
-	// 			console.log(`res - ${automation_activity_response.data} - ${i}`);
-	// 			await new Promise((r) => setTimeout(r, 10000));
-	// 		}
-	// 	}
-	// });
+		for (let i: number = 0; i <= 15; i++) {
+			automation_activity_response = await automation.automation_activity(automation_id);
+			if (automation_activity_response.data.length > 0) {
+				console.log(`res - ${automation_activity_response.data} - ${i}`);
+				expect(automation_activity_response.data[0].id).toEqual(data.subscriber_data.subscriber_id);
+				break;
+			} else {
+				console.log(`res - ${automation_activity_response.data} - ${i}`);
+				await new Promise((r) => setTimeout(r, 10000));
+			}
+		}
+	});
 
 	test("Automation Delete", async ({ request }) => {
 		const automation = new AutomationPage(request);
