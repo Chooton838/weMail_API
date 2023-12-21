@@ -1,0 +1,3 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"skipped","Thu Dec 21 10:08:58 GMT 2023","Thu Dec 21 10:08:58 GMT 2023","2","api_test_suite","main.spec.ts","Forms Functionalities","","","Forms Sync. with WP Site - e2e",""
+"failed","Thu Dec 21 10:09:01 GMT 2023","Thu Dec 21 10:09:01 GMT 2023","35","api_test_suite","main.spec.ts","Forms Functionalities","","","Forms Sync. with WP Site - API",""
