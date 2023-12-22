@@ -210,8 +210,8 @@ jobs:
               id: slack
               uses: slackapi/slack-github-action@v1.24.0
               with:
-                  channel-id: ${{ secrets.CHANNEL_ID }} # ID of Slack Channel you want to post to
-                  slack-message: "posting from a github action! - ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}. Workflow Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" # The message you want to post
+                  channel-id: ${{ secrets.CHANNEL_ID }},C06BHS00VUZ # ID of Slack Channel you want to post to
+                  slack-message: "@here weMail API Automation Test Suite Result - ${{ github.job }} job from the ${{ github.workflow }} worflow of ${{ github.repository }} repository has ${{ job.status }}. Workflow Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" # The message you want to post
               env:
                   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
