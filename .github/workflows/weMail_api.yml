@@ -209,6 +209,7 @@ jobs:
             - name: Publish to slack channel via bot token
               id: slack
               uses: slackapi/slack-github-action@v1.24.0
+              if: always()
               with:
                   channel-id: ${{ secrets.CHANNEL_ID }},C06BHS00VUZ # ID of Slack Channel you want to post to
                   slack-message: >

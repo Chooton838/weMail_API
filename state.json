@@ -1,4 +1,85 @@
 {
-	"cookies": [],
-	"origins": []
+  "cookies": [
+    {
+      "name": "wordpress_test_cookie",
+      "value": "WP%20Cookie%20check",
+      "domain": "staging.wedevsqa.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "cf_clearance",
+      "value": "NE.h8GKtJ_pg0qLOmEX9T_oe781kP2JJa_JvR.BkuY4-1703238533-0-2-8259984d.13e1abbe.c6e8dfd1-0.2.1703238533",
+      "domain": ".wedevsqa.com",
+      "path": "/",
+      "expires": 1734774533,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "wordpress_sec_927309f1a650e927d9120473a43aeba1",
+      "value": "Chooton%7C1703411336%7CUPriGRRYAHubxJ4UPt2jcS87Oc4NWNSjBbIdDQArMDv%7C7acaee82f5230dc4bfd6a1ed0b2436ca040c7491f048a5e09135ea065c4fe582",
+      "domain": "staging.wedevsqa.com",
+      "path": "/wp-content/plugins",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "wordpress_sec_927309f1a650e927d9120473a43aeba1",
+      "value": "Chooton%7C1703411336%7CUPriGRRYAHubxJ4UPt2jcS87Oc4NWNSjBbIdDQArMDv%7C7acaee82f5230dc4bfd6a1ed0b2436ca040c7491f048a5e09135ea065c4fe582",
+      "domain": "staging.wedevsqa.com",
+      "path": "/wp-admin",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "wordpress_logged_in_927309f1a650e927d9120473a43aeba1",
+      "value": "Chooton%7C1703411336%7CUPriGRRYAHubxJ4UPt2jcS87Oc4NWNSjBbIdDQArMDv%7C74354fb257288ce4d733cb684ba1569f9775c1b7419fe14f3d0402ad292fc612",
+      "domain": "staging.wedevsqa.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "tk_ai",
+      "value": "woo%3ALJynwauk9HdEB7TB3dn4TAw6",
+      "domain": "staging.wedevsqa.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "wp-settings-1",
+      "value": "libraryContent%3Dbrowse%26advImgDetails%3Dshow",
+      "domain": "staging.wedevsqa.com",
+      "path": "/",
+      "expires": 1734774540,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "wp-settings-time-1",
+      "value": "1703238538",
+      "domain": "staging.wedevsqa.com",
+      "path": "/",
+      "expires": 1734774540,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": []
 }

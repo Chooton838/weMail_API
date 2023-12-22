@@ -6,194 +6,162 @@ import * as selector from "../utils/selectors";
 import { WPSitePage } from "../utils/wp_site";
 
 export class FormPage {
-  readonly request: APIRequestContext;
-  readonly page: Page;
+	readonly request: APIRequestContext;
+	readonly page: Page;
 
-  constructor(request: APIRequestContext, page: Page) {
-    this.request = request;
-    this.page = page;
-  }
+	constructor(request: APIRequestContext, page: Page) {
+		this.request = request;
+		this.page = page;
+	}
 
-  async form_create(form_data: {}) {
-    let page_url: string = selector.wemail_forms_selectors.forms_page_url;
-    let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
-    let response: {
-      form_id: string;
-      header: { nonce: string; cookie: string; api_key: string };
-    } = {
-      form_id: "",
-      header: {
-        nonce: "",
-        cookie: "",
-        api_key: "",
-      },
-    };
+	async form_create(form_data: {}) {
+		let page_url: string = selector.wemail_forms_selectors.forms_page_url;
+		let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
+		let response: {
+			form_id: string;
+			header: { nonce: string; cookie: string; api_key: string };
+		} = {
+			form_id: "",
+			header: {
+				nonce: "",
+				cookie: "",
+				api_key: "",
+			},
+		};
 
-    const wpsite = new WPSitePage(this.page);
-    response.header = await wpsite.wordpress_nonce_cookie(
-      page_url,
-      locator,
-      false,
-      ""
-    );
+		const wpsite = new WPSitePage(this.page);
+		response.header = await wpsite.wordpress_nonce_cookie(page_url, locator, false, "");
 
-    const form_create = await this.request.post(
-      `${config.use?.baseURL}/v1/forms`,
-      { data: form_data }
-    );
+		const form_create = await this.request.post(`${config.use?.baseURL}/v1/forms`, { data: form_data });
 
-    let form_create_response: { data: { id: string }; message: string };
+		let form_create_response: { data: { id: string }; message: string };
 
-    const base = new BasePage();
-    form_create_response = await base.response_checker(form_create);
+		const base = new BasePage();
+		form_create_response = await base.response_checker(form_create);
 
-    try {
-      expect(form_create_response.message).toEqual(
-        "Form created successfully."
-      );
-      response.form_id = form_create_response.data.id;
-    } catch (err) {
-      console.log(form_create_response);
-      expect(form_create.ok()).toBeFalsy();
-    }
-    return response;
-  }
+		try {
+			expect(form_create_response.message).toEqual("Form created successfully.");
+			response.form_id = form_create_response.data.id;
+		} catch (err) {
+			console.log(form_create_response);
+			expect(form_create.ok()).toBeFalsy();
+		}
+		return response;
+	}
 
-  async form_update(form_id: string, form_data: {}) {
-    const form_update = await this.request.put(
-      `${config.use?.baseURL}/v1/forms/${form_id}`,
-      { data: form_data }
-    );
+	async form_update(form_id: string, form_data: {}) {
+		const form_update = await this.request.put(`${config.use?.baseURL}/v1/forms/${form_id}`, { data: form_data });
 
-    let form_update_response: { data: { id: string }; message: string };
+		let form_update_response: { data: { id: string }; message: string };
 
-    const base = new BasePage();
-    form_update_response = await base.response_checker(form_update);
+		const base = new BasePage();
+		form_update_response = await base.response_checker(form_update);
 
-    try {
-      expect(form_update_response.message).toEqual(
-        "Form updated successfully."
-      );
-    } catch (err) {
-      console.log(form_update_response);
-      expect(form_update.ok()).toBeFalsy();
-    }
-  }
+		try {
+			expect(form_update_response.message).toEqual("Form updated successfully.");
+		} catch (err) {
+			console.log(form_update_response);
+			expect(form_update.ok()).toBeFalsy();
+		}
+	}
 
-  async form_sync(forms_id: string[]) {
-    const form_sync = await this.request.get(
-      `${config.use?.baseURL}/v1/overview/forms?refresh=true`
-    );
+	async form_sync(forms_id: string[]) {
+		const form_sync = await this.request.get(`${config.use?.baseURL}/v1/overview/forms?refresh=true`);
 
-    let form_sync_response: { forms: Array<{ id: string }> };
+		let form_sync_response: { forms: Array<{ id: string }> };
 
-    const base = new BasePage();
-    form_sync_response = await base.response_checker(form_sync);
+		const base = new BasePage();
+		form_sync_response = await base.response_checker(form_sync);
 
-    try {
-      let flag: boolean = false;
-      for (let i: number = 0; i < form_sync_response.forms.length; i++) {
-        for (let j: number = 0; j < forms_id.length; j++) {
-          if (form_sync_response.forms[i].id == forms_id[j]) {
-            flag = true;
-            break;
-          }
-        }
-      }
+		try {
+			let flag: boolean = false;
+			for (let i: number = 0; i < form_sync_response.forms.length; i++) {
+				for (let j: number = 0; j < forms_id.length; j++) {
+					if (form_sync_response.forms[i].id == forms_id[j]) {
+						flag = true;
+						break;
+					}
+				}
+			}
 
-      if (flag == false) {
-        console.log("Created Form Not Found");
-        expect(form_sync.ok()).toBeFalsy();
-      }
-    } catch (err) {
-      console.log(form_sync_response);
-      expect(form_sync.ok()).toBeFalsy();
-    }
-  }
+			if (flag == false) {
+				console.log("Created Form Not Found");
+				expect(form_sync.ok()).toBeFalsy();
+			}
+		} catch (err) {
+			console.log(form_sync_response);
+			expect(form_sync.ok()).toBeFalsy();
+		}
+	}
 
-  async form_delete(form_id: string) {
-    const form_delete = await this.request.delete(
-      `${config.use?.baseURL}/v1/forms`,
-      { data: { ids: [form_id] } }
-    );
+	async form_delete(form_id: string) {
+		const form_delete = await this.request.delete(`${config.use?.baseURL}/v1/forms`, { data: { ids: [form_id] } });
 
-    let form_delete_response: { deleted: boolean };
+		let form_delete_response: { deleted: boolean };
 
-    const base = new BasePage();
-    form_delete_response = await base.response_checker(form_delete);
+		const base = new BasePage();
+		form_delete_response = await base.response_checker(form_delete);
 
-    try {
-      expect(form_delete_response.deleted).toEqual(true);
-    } catch (err) {
-      console.log(form_delete_response);
-      expect(form_delete.ok()).toBeFalsy();
-    }
-  }
+		try {
+			expect(form_delete_response.deleted).toEqual(true);
+		} catch (err) {
+			console.log(form_delete_response);
+			expect(form_delete.ok()).toBeFalsy();
+		}
+	}
 
-  async form_sync_with_frontend() {
-    let page_url: string = selector.wemail_forms_selectors.forms_page_url;
-    let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
+	async form_sync_with_frontend() {
+		let page_url: string = selector.wemail_forms_selectors.forms_page_url;
+		let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
 
-    const wpsite = new WPSitePage(this.page);
-    let header = await wpsite.wordpress_nonce_cookie(
-      page_url,
-      locator,
-      false,
-      ""
-    );
+		const wpsite = new WPSitePage(this.page);
+		let header = await wpsite.wordpress_nonce_cookie(page_url, locator, false, "");
 
-    const form_sync_with_frontend = await this.request.put(
-      `${data.rest_url}/wemail/v1/forms/sync`,
-      {
-        headers: { "X-WP-Nonce": header.nonce, Cookie: header.cookie },
-      }
-    );
+		console.log(header);
+    console.log((`${data.rest_url}/wemail/v1/forms/sync`);
 
-    let form_sync_with_frontend_response: { success: boolean };
+		const form_sync_with_frontend = await this.request.put(`${data.rest_url}/wemail/v1/forms/sync`, {
+			headers: { "X-WP-Nonce": header.nonce, Cookie: header.cookie },
+		});
 
-    const base = new BasePage();
-    form_sync_with_frontend_response = await base.response_checker(
-      form_sync_with_frontend
-    );
+		let form_sync_with_frontend_response: { success: boolean };
 
-    try {
-      expect(form_sync_with_frontend_response.success).toEqual(true);
-    } catch (err) {
-      console.log(form_sync_with_frontend_response);
-      expect(form_sync_with_frontend.ok()).toBeFalsy();
-    }
-  }
+		const base = new BasePage();
+		form_sync_with_frontend_response = await base.response_checker(form_sync_with_frontend);
 
-  async form_submit(
-    api_endpoint: string,
-    form_data: string | {},
-    header: { nonce: string; cookie: string; api_key: string },
-    response_message: string
-  ) {
-    let content_type: string = "multipart/form-data";
-    if (typeof form_data == "string") {
-      content_type = "application/x-www-form-urlencoded; charset=UTF-8";
-    }
+		try {
+			expect(form_sync_with_frontend_response.success).toEqual(true);
+		} catch (err) {
+			console.log(form_sync_with_frontend_response);
+			expect(form_sync_with_frontend.ok()).toBeFalsy();
+		}
+	}
 
-    const form_submit = await this.request.post(api_endpoint, {
-      headers: {
-        "X-WP-Nonce": header.nonce,
-        Cookie: header.cookie,
-        "Content-Type": content_type,
-      },
-      data: form_data,
-    });
+	async form_submit(api_endpoint: string, form_data: string | {}, header: { nonce: string; cookie: string; api_key: string }, response_message: string) {
+		let content_type: string = "multipart/form-data";
+		if (typeof form_data == "string") {
+			content_type = "application/x-www-form-urlencoded; charset=UTF-8";
+		}
 
-    let form_submit_response: { message: string };
+		const form_submit = await this.request.post(api_endpoint, {
+			headers: {
+				"X-WP-Nonce": header.nonce,
+				Cookie: header.cookie,
+				"Content-Type": content_type,
+			},
+			data: form_data,
+		});
 
-    const base = new BasePage();
-    form_submit_response = await base.response_checker(form_submit);
+		let form_submit_response: { message: string };
 
-    try {
-      expect(form_submit_response.message).toEqual(response_message);
-    } catch (err) {
-      console.log(form_submit_response);
-      expect(form_submit.ok()).toBeFalsy();
-    }
-  }
+		const base = new BasePage();
+		form_submit_response = await base.response_checker(form_submit);
+
+		try {
+			expect(form_submit_response.message).toEqual(response_message);
+		} catch (err) {
+			console.log(form_submit_response);
+			expect(form_submit.ok()).toBeFalsy();
+		}
+	}
 }
