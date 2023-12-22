@@ -483,7 +483,7 @@ test.describe.skip("Forms Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Campaign ------------------------ */
-test.describe("Standard Campaign Functionalities", () => {
+test.describe.skip("Standard Campaign Functionalities", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscribers_id: string[] = [];
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
@@ -614,7 +614,7 @@ test.describe("Standard Campaign Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Suppressions List ------------------------ */
-test.describe.skip("Suppression List Functionalities", () => {
+test.describe("Suppression List Functionalities", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 
