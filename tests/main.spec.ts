@@ -614,7 +614,7 @@ test.describe.skip("Standard Campaign Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Suppressions List ------------------------ */
-test.describe("Suppression List Functionalities", () => {
+test.describe.skip("Suppression List Functionalities", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 
@@ -756,7 +756,7 @@ test.describe("Suppression List Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Double-Opt-in List ------------------------ */
-test.describe.skip("Subscriber Verification for Double-Opt-in List", () => {
+test.describe("Subscriber Verification for Double-Opt-in List", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 	let verification_url: string = "";

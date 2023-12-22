@@ -145,7 +145,7 @@ jobs:
               # working-directory: ./tests/api_automation
               run: |
                   npm ci
-                  npm install allure-commandline
+                  # npm install allure-commandline
                   npx playwright install firefox
 
             - name: Run Playwright tests on Staging
@@ -212,10 +212,10 @@ jobs:
               with:
                   channel-id: ${{ secrets.CHANNEL_ID }},C06BHS00VUZ # ID of Slack Channel you want to post to
                   slack-message: |
-                      "<!here> weMail API Automation Test Suite Result - 
+                      <!here> weMail API Automation Test Suite Result - 
                       ${{ github.job }} job from the ${{ github.workflow }} worflow of ${{ github.repository }} repository has ${{ job.status }}. 
-                      Workflow Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-                      cc: <!D06AYJ0BJ6S>"
+                      [Here is Workflow Run URL, https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}]
+                      cc: <!U06B7LNRWBW>
               env:
                   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
