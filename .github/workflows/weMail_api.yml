@@ -186,15 +186,15 @@ jobs:
             #   if: always()
             #   run: echo https://chooton838.github.io/weMail_API/${{ github.run_number }}
 
-            # - name: Publish Test Report
-            #   uses: mikepenz/action-junit-report@v3
-            #   if: always() # always run even if the previous step fails
-            #   with:
-            #       report_paths: "playwright-report/results.xml"
-            #       # report_paths: "./tests/api_automation/playwright-report/results.xml"
-            #       include_passed: true,
-            #       check_retries: true,
-            #       detailed_summary: true,
+            - name: Publish Test Report
+              uses: mikepenz/action-junit-report@v3
+              if: always() # always run even if the previous step fails
+              with:
+                  report_paths: "playwright-report/results.xml"
+                  # report_paths: "./tests/api_automation/playwright-report/results.xml"
+                  include_passed: true,
+                  check_retries: true,
+                  detailed_summary: true,
 
             - name: Archive playwright artifacts (HTML Report)
               uses: actions/upload-artifact@v3
@@ -211,10 +211,11 @@ jobs:
               uses: slackapi/slack-github-action@v1.24.0
               with:
                   channel-id: ${{ secrets.CHANNEL_ID }},C06BHS00VUZ # ID of Slack Channel you want to post to
-                  slack-message: |
+                  slack-message: >
                       <!here> weMail API Automation Test Suite Result - 
-                      ${{ github.job }} job from the ${{ github.workflow }} worflow of ${{ github.repository }} repository has ${{ job.status }}. 
-                      [Here is Workflow Run URL, https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}]
+                      The ${{ github.job }} job within the ${{ github.workflow }} workflow in the ${{ github.repository }} repository has ${{ job.status }}.
+
+                      Here is the <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Details of Workflow Run>
                       cc: <!U06B7LNRWBW>
               env:
                   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

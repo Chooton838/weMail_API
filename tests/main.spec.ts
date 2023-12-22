@@ -262,7 +262,7 @@ test.describe.skip("Functionalities of List (Tag, Segment, Custom Field) & Subsc
 });
 
 /* ------------------------ Functionalities of Forms ------------------------ */
-test.describe.skip("Forms Functionalities", () => {
+test.describe("Forms Functionalities", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 
@@ -756,7 +756,7 @@ test.describe.skip("Suppression List Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Double-Opt-in List ------------------------ */
-test.describe("Subscriber Verification for Double-Opt-in List", () => {
+test.describe.skip("Subscriber Verification for Double-Opt-in List", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 	let verification_url: string = "";
