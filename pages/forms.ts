@@ -121,22 +121,17 @@ export class FormPage {
 			headers: { "X-WP-Nonce": header.nonce, Cookie: header.cookie },
 		});
 
-		console.log(header.nonce);
-		console.log(header.cookie);
-
 		let form_sync_with_frontend_response: { success: boolean };
 
 		const base = new BasePage();
 		form_sync_with_frontend_response = await base.response_checker(form_sync_with_frontend);
 
-		console.log(form_sync_with_frontend_response);
-
-		// try {
-		// 	expect(form_sync_with_frontend_response.success).toEqual(true);
-		// } catch (err) {
-		// 	console.log(form_sync_with_frontend_response);
-		// 	expect(form_sync_with_frontend.ok()).toBeFalsy();
-		// }
+		try {
+			expect(form_sync_with_frontend_response.success).toEqual(true);
+		} catch (err) {
+			console.log(form_sync_with_frontend_response);
+			expect(form_sync_with_frontend.ok()).toBeFalsy();
+		}
 	}
 
 	async form_submit(api_endpoint: string, form_data: string | {}, header: { nonce: string; cookie: string; api_key: string }, response_message: string) {

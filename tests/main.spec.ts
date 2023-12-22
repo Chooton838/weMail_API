@@ -63,7 +63,7 @@ test.beforeAll(async ({ request }) => {
 });
 
 /* ------------------------ Functionalities of List (Tag, Segment, Custom Field) & Subscriber ------------------------ */
-test.describe.skip("Functionalities of List (Tag, Segment, Custom Field) & Subscriber", () => {
+test.describe("Functionalities of List (Tag, Segment, Custom Field) & Subscriber", () => {
 	let list_name: string = data.list_data.list_name();
 	let tag_name: string = data.tag_data.tag_name();
 	let segment_name: string = data.segment_data.segment_name();
@@ -267,7 +267,7 @@ test.describe("Forms Functionalities", () => {
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 
 	let forms_id: string[] = [];
-	// let form_page_url: string | null;
+	let form_page_url: string | null;
 	let header: { nonce: string; cookie: string; api_key: string } = {
 		nonce: "",
 		cookie: "",
@@ -278,13 +278,13 @@ test.describe("Forms Functionalities", () => {
 	let automation_id: string = "";
 	let delay_id: string = "";
 
-	test.skip("Forms - List Create", async ({ request }) => {
+	test("Forms - List Create", async ({ request }) => {
 		const list = new ListPage(request);
 		data.list_data.list_id = await list.list_create(list_name);
 		data.form_data.list_id = data.list_data.list_id;
 	});
 
-	test.skip("Automation Create", async ({ request }) => {
+	test("Automation Create", async ({ request }) => {
 		data.welcome_automation_create_data.name = automation_name;
 		data.welcome_automation_create_data.triggers[0].payload.list_id = data.list_data.list_id;
 
@@ -292,22 +292,22 @@ test.describe("Forms Functionalities", () => {
 		automation_id = await automation.automation_create(data.welcome_automation_create_data);
 	});
 
-	test.skip("Automation Details", async ({ request }) => {
+	test("Automation Details", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		delay_id = await automation.get_automation_details(automation_id);
 	});
 
-	test.skip("Delete Automation Delay", async ({ request }) => {
+	test("Delete Automation Delay", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		await automation.delete_automation_delay(automation_id, delay_id);
 	});
 
-	test.skip("Automation Activation", async ({ request }) => {
+	test("Automation Activation", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		await automation.automation_activation(automation_id, automation_name);
 	});
 
-	test.skip("Inline Form Create", async ({ request, page }) => {
+	test("Inline Form Create", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
@@ -324,7 +324,7 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test.skip("Modal Form Create", async ({ request, page }) => {
+	test("Modal Form Create", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
@@ -333,7 +333,7 @@ test.describe("Forms Functionalities", () => {
 		forms_id.push((await form.form_create(data.form_data)).form_id);
 	});
 
-	test.skip("Forms Update", async ({ request, page }) => {
+	test("Forms Update", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		if (forms_id.length > 0) {
@@ -346,7 +346,7 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test.skip("Form Sync with APP", async ({ request, page }) => {
+	test("Form Sync with APP", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		if (forms_id.length > 0) {
@@ -357,35 +357,34 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	// For test Form Submission from Frontend - remove .skip from next three test ( * - e2e) and put .skip on 4th & 5th test ( * - API)
-
-	// test.skip("Forms Sync. with WP Site - e2e", async ({ page }) => {
-	// 	const admin = new AdminPage(page);
-	// 	await admin.form_sync_with_frontend();
-	// });
-
-	// test.skip("Forms Added into Site Frontend - e2e", async ({ page }) => {
-	// 	const admin = new AdminPage(page);
-	// 	form_page_url = await admin.form_publish(forms_id[0]);
-	// });
-
-	// test.skip("Form Submission from Frontend - e2e", async ({ page }) => {
-	// 	if (form_page_url == null) {
-	// 		console.log("Page Url Not Found");
-	// 		test.fail();
-	// 	} else {
-	// 		const admin = new AdminPage(page);
-	// 		await admin.form_submit(form_page_url, subscriber_email);
-	// 	}
-	// });
-
-	test("Forms Sync. with WP Site - API", async ({ request, page }) => {
-		const forms = new FormPage(request, page);
-		await forms.form_sync_with_frontend();
-		// await forms.endpoint_check();
+	test("Forms Sync. with WP Site - e2e", async ({ page }) => {
+		const admin = new AdminPage(page);
+		await admin.form_sync_with_frontend();
 	});
 
-	test.skip("From Submission - API", async ({ request, page }) => {
+	// For test Form Submission from Frontend - remove .skip from next two test ( * - e2e) and put .skip on 4th test ( * - API)
+
+	test.skip("Forms Added into Site Frontend - e2e", async ({ page }) => {
+		const admin = new AdminPage(page);
+		form_page_url = await admin.form_publish(forms_id[0]);
+	});
+
+	test.skip("Form Submission from Frontend - e2e", async ({ page }) => {
+		if (form_page_url == null) {
+			console.log("Page Url Not Found");
+			test.fail();
+		} else {
+			const admin = new AdminPage(page);
+			await admin.form_submit(form_page_url, subscriber_email);
+		}
+	});
+
+	test.skip("Forms Sync. with WP Site - API", async ({ request, page }) => {
+		const forms = new FormPage(request, page);
+		await forms.form_sync_with_frontend();
+	});
+
+	test("From Submission - API", async ({ request, page }) => {
 		if (flag == true) {
 			let api_endpoint: string = `${data.rest_url}/wemail/v1/forms/${forms_id[0]}`;
 			let response_message: string = "Your subscription has been confirmed. You've been added to our list & will hear from us soon.";
@@ -405,7 +404,7 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test.skip("Subscriber's info - Signed up through Form", async ({ request }) => {
+	test("Subscriber's info - Signed up through Form", async ({ request }) => {
 		// Used below commented code when Subscriber Signed-UP through e2e form submission
 
 		// if (form_page_url == null) {
@@ -430,12 +429,12 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test.skip("Check Automation Status", async ({ request }) => {
+	test("Check Automation Status", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		expect(await automation.automation_status(automation_id)).toEqual("active");
 	});
 
-	test.skip("Check Automation Activity", async ({ request }) => {
+	test("Check Automation Activity", async ({ request }) => {
 		let automation_activity_response: {
 			data: [{ id: string; email: string }];
 		};
@@ -452,12 +451,12 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test.skip("Automation Delete", async ({ request }) => {
+	test("Automation Delete", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		await automation.automation_delete(automation_id);
 	});
 
-	test.skip("Form Delete", async ({ request, page }) => {
+	test("Form Delete", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 		if (forms_id.length > 0) {
 			for (let i: number = 0; i < forms_id.length; i++) {
@@ -469,12 +468,12 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test.skip("Form's Subscriber Delete", async ({ request }) => {
+	test("Form's Subscriber Delete", async ({ request }) => {
 		const subscriber = new SubscriberPage(request);
 		await subscriber.subscriber_delete(data.list_data.list_id, data.subscriber_data.subscriber_id);
 	});
 
-	test.skip("Delete Forms Test List", async ({ request }) => {
+	test("Delete Forms Test List", async ({ request }) => {
 		let lists: Array<string> = [];
 		lists.push(data.list_data.list_id);
 
@@ -484,7 +483,7 @@ test.describe("Forms Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Campaign ------------------------ */
-test.describe.skip("Standard Campaign Functionalities", () => {
+test.describe("Standard Campaign Functionalities", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscribers_id: string[] = [];
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
@@ -615,7 +614,7 @@ test.describe.skip("Standard Campaign Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Suppressions List ------------------------ */
-test.describe.skip("Suppression List Functionalities", () => {
+test.describe("Suppression List Functionalities", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 
@@ -757,7 +756,7 @@ test.describe.skip("Suppression List Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Double-Opt-in List ------------------------ */
-test.describe.skip("Subscriber Verification for Double-Opt-in List", () => {
+test.describe("Subscriber Verification for Double-Opt-in List", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 	let verification_url: string = "";
@@ -813,7 +812,7 @@ test.describe.skip("Subscriber Verification for Double-Opt-in List", () => {
 });
 
 /* ------------------------ Functionalities of Affiliate WP Integration ------------------------ */
-test.describe.skip("Functionalities of Affiliate WP Integration", () => {
+test.describe("Functionalities of Affiliate WP Integration", () => {
 	let list_name: string = data.list_data.list_name();
 	let affiliate_username: string = faker.lorem.words(1);
 	let affiliate_user_email: string = data.subscriber_data.subscriber_email();
@@ -935,7 +934,7 @@ test.describe.skip("Functionalities of Affiliate WP Integration", () => {
 });
 
 /* ------------------------ Functionalities of Automation Feature ------------------------ */
-test.describe.skip("Functionalities of Automation Feature", () => {
+test.describe("Functionalities of Automation Feature", () => {
 	let list_name: string = data.list_data.list_name();
 	let automation_name: string = `Automation - ${faker.lorem.words(2)}`;
 	let automation_id: string = "";
@@ -1018,7 +1017,7 @@ test.describe.skip("Functionalities of Automation Feature", () => {
 });
 
 /* ------------------------ Functionalities of Contact Form 7 Integration ------------------------ */
-test.describe.skip("Functionalities of Contact Form 7 Integration", () => {
+test.describe("Functionalities of Contact Form 7 Integration", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 	let automation_name: string = `Automation - ${faker.lorem.words(2)}`;
@@ -1066,7 +1065,7 @@ test.describe.skip("Functionalities of Contact Form 7 Integration", () => {
 		await integrations.map_contact_form_7(list_name, contact_form_7_name);
 	});
 
-	test.skip("weMail List <-> Contact Form 7 - API", async ({ request, page }) => {
+	test("weMail List <-> Contact Form 7 - API", async ({ request, page }) => {
 		const integrations = new IntegrationsPage(request, page);
 		await integrations.map_contact_form_7_API(data.list_data.list_id, contact_form_7_id);
 	});
@@ -1135,7 +1134,7 @@ test.describe.skip("Functionalities of Contact Form 7 Integration", () => {
 //need update for checking automation activity
 
 /* ------------------------ Functionalities of WooCommerce Integration ------------------------ */
-test.describe.skip("Functionalities of WooCommerce Integration", () => {
+test.describe("Functionalities of WooCommerce Integration", () => {
 	let list_name: string = data.list_data.list_name();
 	let automation_name: string = `Automation - ${faker.lorem.words(2)}`;
 	let automation_id: string = "";
@@ -1254,7 +1253,7 @@ test.describe.skip("Functionalities of WooCommerce Integration", () => {
 });
 
 /* ------------------------ Functionalities of WP ERP Integration ------------------------ */
-test.describe.skip("Functionalities of WP ERP Integration", () => {
+test.describe("Functionalities of WP ERP Integration", () => {
 	let list_name = data.list_data.list_name();
 	let wperp_crm_customer_email: string = data.subscriber_data.subscriber_email();
 	let wperp_crm_customer_id: string = "";
@@ -1310,7 +1309,7 @@ test.describe.skip("Functionalities of WP ERP Integration", () => {
 		expect(await automation.automation_status(automation_id)).toEqual("active");
 	});
 
-	test.skip("Check Automation Activity", async ({ request }) => {
+	test("Check Automation Activity", async ({ request }) => {
 		let automation_activity_response: {
 			data: [{ id: string; email: string }];
 		};
@@ -1354,7 +1353,7 @@ test.describe.skip("Functionalities of WP ERP Integration", () => {
 });
 
 /* ------------------------ Functionalities of Exclude Feature on Campaign ------------------------ */
-test.describe.skip("Functionalities of Exclude Feature on Campaign", () => {
+test.describe("Functionalities of Exclude Feature on Campaign", () => {
 	let list_name: string = data.list_data.list_name();
 	let tag_id: string = "";
 	let tag_name: string = `${faker.lorem.words(1)}${faker.random.numeric(1)}`;
@@ -1497,4 +1496,8 @@ test.describe.skip("Functionalities of Exclude Feature on Campaign", () => {
 		const list = new ListPage(request);
 		await list.list_delete(lists);
 	});
+});
+
+test.afterAll(async () => {
+	fs.writeFile("state.json", '{"cookies":[],"origins": []}', function () {});
 });
