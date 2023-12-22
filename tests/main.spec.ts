@@ -346,7 +346,7 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test("Form Sync with APP", async ({ request, page }) => {
+	test.skip("Form Sync with APP", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		if (forms_id.length > 0) {

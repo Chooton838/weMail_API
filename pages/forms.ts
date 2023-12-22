@@ -117,9 +117,6 @@ export class FormPage {
 		const wpsite = new WPSitePage(this.page);
 		let header = await wpsite.wordpress_nonce_cookie(page_url, locator, false, "");
 
-		console.log(header);
-		console.log(`${data.rest_url}/wemail/v1/forms/sync`);
-
 		const form_sync_with_frontend = await this.request.put(`${data.rest_url}/wemail/v1/forms/sync`, {
 			headers: { "X-WP-Nonce": header.nonce, Cookie: header.cookie },
 		});
