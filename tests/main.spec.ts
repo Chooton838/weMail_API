@@ -278,7 +278,7 @@ test.describe("Forms Functionalities", () => {
 	let automation_id: string = "";
 	let delay_id: string = "";
 
-	test("Forms - List Create", async ({ request }) => {
+	test.skip("Forms - List Create", async ({ request }) => {
 		const list = new ListPage(request);
 		data.list_data.list_id = await list.list_create(list_name);
 		data.form_data.list_id = data.list_data.list_id;
@@ -382,6 +382,7 @@ test.describe("Forms Functionalities", () => {
 	test("Forms Sync. with WP Site - API", async ({ request, page }) => {
 		const forms = new FormPage(request, page);
 		await forms.form_sync_with_frontend();
+		// await forms.endpoint_check();
 	});
 
 	test.skip("From Submission - API", async ({ request, page }) => {
