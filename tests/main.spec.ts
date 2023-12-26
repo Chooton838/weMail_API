@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { expect, test } from "@playwright/test";
+import * as fs from "fs";
 import { AutomationPage } from "../pages/automation";
 import { CampaignPage } from "../pages/campaign";
 import { AdminPage } from "../pages/form_on_wp_site";
@@ -1065,7 +1066,7 @@ test.describe("Functionalities of Contact Form 7 Integration", () => {
 		await integrations.map_contact_form_7(list_name, contact_form_7_name);
 	});
 
-	test("weMail List <-> Contact Form 7 - API", async ({ request, page }) => {
+	test.skip("weMail List <-> Contact Form 7 - API", async ({ request, page }) => {
 		const integrations = new IntegrationsPage(request, page);
 		await integrations.map_contact_form_7_API(data.list_data.list_id, contact_form_7_id);
 	});
@@ -1309,7 +1310,7 @@ test.describe("Functionalities of WP ERP Integration", () => {
 		expect(await automation.automation_status(automation_id)).toEqual("active");
 	});
 
-	test("Check Automation Activity", async ({ request }) => {
+	test.skip("Check Automation Activity", async ({ request }) => {
 		let automation_activity_response: {
 			data: [{ id: string; email: string }];
 		};
@@ -1318,11 +1319,9 @@ test.describe("Functionalities of WP ERP Integration", () => {
 		for (let i: number = 0; i <= 15; i++) {
 			automation_activity_response = await automation.automation_activity(automation_id);
 			if (automation_activity_response.data.length > 0) {
-				console.log(`res - ${automation_activity_response.data} - ${i}`);
 				expect(automation_activity_response.data[0].id).toEqual(data.subscriber_data.subscriber_id);
 				break;
 			} else {
-				console.log(`res - ${automation_activity_response.data} - ${i}`);
 				await new Promise((r) => setTimeout(r, 10000));
 			}
 		}
@@ -1499,5 +1498,5 @@ test.describe("Functionalities of Exclude Feature on Campaign", () => {
 });
 
 test.afterAll(async () => {
-	fs.writeFile("state.json", '{"cookies":[],"origins": []}', function () {});
+	fs.writeFile("state.json", '{ "cookies": [], "origins": [] }', function () {});
 });

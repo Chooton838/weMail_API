@@ -8,7 +8,10 @@ export class BasePage {
 			expect(request.ok()).toBeTruthy();
 			return await request.json();
 		} catch (err) {
-			console.log(`Response status code is: ${request.status()}, & status text is: ${request.statusText()}, & text is: ${await request.text()}`);
+			console.log(`Response status code is: ${request.status()} & status text is: ${request.statusText()}`);
+			if ((await request.text())[0] != "<") {
+				console.log(await request.text());
+			}
 			expect(request.ok()).toBeTruthy();
 		}
 	}
@@ -18,7 +21,7 @@ export class BasePage {
 		 * "userAgent" - Added on browser.newContext to send the request using custom userAgent
 		 */
 
-		fs.writeFile("state.json", '{"cookies":[],"origins": []}', function () {});
+		fs.writeFile("state.json", '{ "cookies": [], "origins": [] }', function () {});
 
 		const browser = await firefox.launch();
 		// const context = await browser.newContext({
