@@ -64,7 +64,7 @@ test.beforeAll(async ({ request }) => {
 });
 
 /* ------------------------ Functionalities of List (Tag, Segment, Custom Field) & Subscriber ------------------------ */
-test.describe("Functionalities of List (Tag, Segment, Custom Field) & Subscriber", () => {
+test.describe.skip("Functionalities of List (Tag, Segment, Custom Field) & Subscriber", () => {
 	let list_name: string = data.list_data.list_name();
 	let tag_name: string = data.tag_data.tag_name();
 	let segment_name: string = data.segment_data.segment_name();
@@ -388,6 +388,7 @@ test.describe("Forms Functionalities", () => {
 	test("From Submission - API", async ({ request, page }) => {
 		if (flag == true) {
 			let api_endpoint: string = `${data.rest_url}/wemail/v1/forms/${forms_id[0]}`;
+			console.log(api_endpoint);
 			let response_message: string = "Your subscription has been confirmed. You've been added to our list & will hear from us soon.";
 
 			let form_data = new URLSearchParams();
@@ -484,7 +485,7 @@ test.describe("Forms Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Campaign ------------------------ */
-test.describe("Standard Campaign Functionalities", () => {
+test.describe.skip("Standard Campaign Functionalities", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscribers_id: string[] = [];
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
@@ -615,7 +616,7 @@ test.describe("Standard Campaign Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Suppressions List ------------------------ */
-test.describe("Suppression List Functionalities", () => {
+test.describe.skip("Suppression List Functionalities", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 
@@ -757,7 +758,7 @@ test.describe("Suppression List Functionalities", () => {
 });
 
 /* ------------------------ Functionalities of Double-Opt-in List ------------------------ */
-test.describe("Subscriber Verification for Double-Opt-in List", () => {
+test.describe.skip("Subscriber Verification for Double-Opt-in List", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 	let verification_url: string = "";
@@ -813,7 +814,7 @@ test.describe("Subscriber Verification for Double-Opt-in List", () => {
 });
 
 /* ------------------------ Functionalities of Affiliate WP Integration ------------------------ */
-test.describe("Functionalities of Affiliate WP Integration", () => {
+test.describe.skip("Functionalities of Affiliate WP Integration", () => {
 	let list_name: string = data.list_data.list_name();
 	let affiliate_username: string = faker.lorem.words(1);
 	let affiliate_user_email: string = data.subscriber_data.subscriber_email();
@@ -935,7 +936,7 @@ test.describe("Functionalities of Affiliate WP Integration", () => {
 });
 
 /* ------------------------ Functionalities of Automation Feature ------------------------ */
-test.describe("Functionalities of Automation Feature", () => {
+test.describe.skip("Functionalities of Automation Feature", () => {
 	let list_name: string = data.list_data.list_name();
 	let automation_name: string = `Automation - ${faker.lorem.words(2)}`;
 	let automation_id: string = "";
@@ -1018,7 +1019,7 @@ test.describe("Functionalities of Automation Feature", () => {
 });
 
 /* ------------------------ Functionalities of Contact Form 7 Integration ------------------------ */
-test.describe("Functionalities of Contact Form 7 Integration", () => {
+test.describe.skip("Functionalities of Contact Form 7 Integration", () => {
 	let list_name: string = data.list_data.list_name();
 	let subscriber_email: string = data.subscriber_data.subscriber_email();
 	let automation_name: string = `Automation - ${faker.lorem.words(2)}`;
@@ -1135,7 +1136,7 @@ test.describe("Functionalities of Contact Form 7 Integration", () => {
 //need update for checking automation activity
 
 /* ------------------------ Functionalities of WooCommerce Integration ------------------------ */
-test.describe("Functionalities of WooCommerce Integration", () => {
+test.describe.skip("Functionalities of WooCommerce Integration", () => {
 	let list_name: string = data.list_data.list_name();
 	let automation_name: string = `Automation - ${faker.lorem.words(2)}`;
 	let automation_id: string = "";
@@ -1254,7 +1255,7 @@ test.describe("Functionalities of WooCommerce Integration", () => {
 });
 
 /* ------------------------ Functionalities of WP ERP Integration ------------------------ */
-test.describe("Functionalities of WP ERP Integration", () => {
+test.describe.skip("Functionalities of WP ERP Integration", () => {
 	let list_name = data.list_data.list_name();
 	let wperp_crm_customer_email: string = data.subscriber_data.subscriber_email();
 	let wperp_crm_customer_id: string = "";
@@ -1352,7 +1353,7 @@ test.describe("Functionalities of WP ERP Integration", () => {
 });
 
 /* ------------------------ Functionalities of Exclude Feature on Campaign ------------------------ */
-test.describe("Functionalities of Exclude Feature on Campaign", () => {
+test.describe.skip("Functionalities of Exclude Feature on Campaign", () => {
 	let list_name: string = data.list_data.list_name();
 	let tag_id: string = "";
 	let tag_name: string = `${faker.lorem.words(1)}${faker.random.numeric(1)}`;

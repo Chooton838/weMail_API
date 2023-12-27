@@ -155,6 +155,7 @@ export class FormPage {
 		form_submit_response = await base.response_checker(form_submit);
 
 		try {
+			console.log(form_submit_response);
 			expect(form_submit_response.message).toEqual(response_message);
 		} catch (err) {
 			console.log(form_submit_response);
