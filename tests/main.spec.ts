@@ -14,6 +14,8 @@ import { SuppressionPage } from "../pages/suppression";
 import config from "../playwright.config";
 import { BasePage } from "../utils/base_functions";
 import * as data from "../utils/data";
+import * as selector from "../utils/selectors";
+import { WPSitePage } from "../utils/wp_site";
 
 /* ------------------------ Login ------------------------ */
 test.beforeAll(async ({ request }) => {
@@ -279,15 +281,40 @@ test.describe("Forms Functionalities", () => {
 	let automation_id: string = "";
 	let delay_id: string = "";
 
-	test("Forms - List Create", async ({ request }) => {
+	test("Forms - List Create", async ({ request, page }) => {
 		const list = new ListPage(request);
 		data.list_data.list_id = await list.list_create(list_name);
 		data.form_data.list_id = data.list_data.list_id;
+
 		console.log(`${data.rest_url}`);
+
+		let page_url: string = selector.wemail_forms_selectors.forms_page_url;
+		let locator: string = selector.wemail_forms_selectors.forms_nonce_locator;
+		let response: {
+			form_id: string;
+			header: { nonce: string; cookie: string; api_key: string };
+		} = {
+			form_id: "",
+			header: {
+				nonce: "",
+				cookie: "",
+				api_key: "",
+			},
+		};
+
+		const wpsite = new WPSitePage(page);
+		response.header = await wpsite.wordpress_nonce_cookie(page_url, locator, false, "");
+
+		console.log(response.header);
+
 		const test_request = await request.get(`https://staging.wedevsqa.com/wp-json/wemail/v1/`, {
+			// headers: {
+			// 	"X-WP-Nonce": "d97cd28b3d",
+			// 	Cookie: "wordpress_logged_in_927309f1a650e927d9120473a43aeba1=Chooton%7C1704255946%7C5TEDKQCy4gN4R2xMbKWLhGcZzPhwbURdHNZh49AKO2T%7C6fb92ab10cb9f84bda1f7836a897233758285c3c8a9bb1f33471de1fe2e2eccc",
+			// },
 			headers: {
-				"X-WP-Nonce": "d97cd28b3d",
-				Cookie: "wordpress_logged_in_927309f1a650e927d9120473a43aeba1=Chooton%7C1704255946%7C5TEDKQCy4gN4R2xMbKWLhGcZzPhwbURdHNZh49AKO2T%7C6fb92ab10cb9f84bda1f7836a897233758285c3c8a9bb1f33471de1fe2e2eccc",
+				"X-WP-Nonce": response.header.nonce,
+				Cookie: response.header.cookie,
 			},
 		});
 		const base = new BasePage();
