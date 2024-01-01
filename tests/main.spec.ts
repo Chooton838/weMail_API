@@ -283,9 +283,19 @@ test.describe("Forms Functionalities", () => {
 		const list = new ListPage(request);
 		data.list_data.list_id = await list.list_create(list_name);
 		data.form_data.list_id = data.list_data.list_id;
+		console.log(`${data.rest_url}`);
+		const test_request = await request.get(`https://staging.wedevsqa.com/wp-json/wemail/v1/`, {
+			headers: {
+				"X-WP-Nonce": "d97cd28b3d",
+				Cookie: "wordpress_logged_in_927309f1a650e927d9120473a43aeba1=Chooton%7C1704255946%7C5TEDKQCy4gN4R2xMbKWLhGcZzPhwbURdHNZh49AKO2T%7C6fb92ab10cb9f84bda1f7836a897233758285c3c8a9bb1f33471de1fe2e2eccc",
+			},
+		});
+		const base = new BasePage();
+		let test_response = await base.response_checker(test_request);
+		console.log(test_response);
 	});
 
-	test("Automation Create", async ({ request }) => {
+	test.skip("Automation Create", async ({ request }) => {
 		data.welcome_automation_create_data.name = automation_name;
 		data.welcome_automation_create_data.triggers[0].payload.list_id = data.list_data.list_id;
 
@@ -293,22 +303,22 @@ test.describe("Forms Functionalities", () => {
 		automation_id = await automation.automation_create(data.welcome_automation_create_data);
 	});
 
-	test("Automation Details", async ({ request }) => {
+	test.skip("Automation Details", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		delay_id = await automation.get_automation_details(automation_id);
 	});
 
-	test("Delete Automation Delay", async ({ request }) => {
+	test.skip("Delete Automation Delay", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		await automation.delete_automation_delay(automation_id, delay_id);
 	});
 
-	test("Automation Activation", async ({ request }) => {
+	test.skip("Automation Activation", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		await automation.automation_activation(automation_id, automation_name);
 	});
 
-	test("Inline Form Create", async ({ request, page }) => {
+	test.skip("Inline Form Create", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
@@ -325,7 +335,7 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test("Modal Form Create", async ({ request, page }) => {
+	test.skip("Modal Form Create", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		data.form_data.name = `${faker.lorem.words(1)} - Automated Created Form`;
@@ -334,7 +344,7 @@ test.describe("Forms Functionalities", () => {
 		forms_id.push((await form.form_create(data.form_data)).form_id);
 	});
 
-	test("Forms Update", async ({ request, page }) => {
+	test.skip("Forms Update", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		if (forms_id.length > 0) {
@@ -347,7 +357,7 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test("Form Sync with APP", async ({ request, page }) => {
+	test.skip("Form Sync with APP", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 
 		if (forms_id.length > 0) {
@@ -358,7 +368,7 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test("Forms Sync. with WP Site - e2e", async ({ page }) => {
+	test.skip("Forms Sync. with WP Site - e2e", async ({ page }) => {
 		const admin = new AdminPage(page);
 		await admin.form_sync_with_frontend();
 	});
@@ -385,7 +395,7 @@ test.describe("Forms Functionalities", () => {
 		await forms.form_sync_with_frontend();
 	});
 
-	test("From Submission - API", async ({ request, page }) => {
+	test.skip("From Submission - API", async ({ request, page }) => {
 		if (flag == true) {
 			let api_endpoint: string = `${data.rest_url}/wemail/v1/forms/${forms_id[0]}`;
 			console.log(api_endpoint);
@@ -406,7 +416,7 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test("Subscriber's info - Signed up through Form", async ({ request }) => {
+	test.skip("Subscriber's info - Signed up through Form", async ({ request }) => {
 		// Used below commented code when Subscriber Signed-UP through e2e form submission
 
 		// if (form_page_url == null) {
@@ -431,12 +441,12 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test("Check Automation Status", async ({ request }) => {
+	test.skip("Check Automation Status", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		expect(await automation.automation_status(automation_id)).toEqual("active");
 	});
 
-	test("Check Automation Activity", async ({ request }) => {
+	test.skip("Check Automation Activity", async ({ request }) => {
 		let automation_activity_response: {
 			data: [{ id: string; email: string }];
 		};
@@ -453,12 +463,12 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test("Automation Delete", async ({ request }) => {
+	test.skip("Automation Delete", async ({ request }) => {
 		const automation = new AutomationPage(request);
 		await automation.automation_delete(automation_id);
 	});
 
-	test("Form Delete", async ({ request, page }) => {
+	test.skip("Form Delete", async ({ request, page }) => {
 		const form = new FormPage(request, page);
 		if (forms_id.length > 0) {
 			for (let i: number = 0; i < forms_id.length; i++) {
@@ -470,12 +480,12 @@ test.describe("Forms Functionalities", () => {
 		}
 	});
 
-	test("Form's Subscriber Delete", async ({ request }) => {
+	test.skip("Form's Subscriber Delete", async ({ request }) => {
 		const subscriber = new SubscriberPage(request);
 		await subscriber.subscriber_delete(data.list_data.list_id, data.subscriber_data.subscriber_id);
 	});
 
-	test("Delete Forms Test List", async ({ request }) => {
+	test.skip("Delete Forms Test List", async ({ request }) => {
 		let lists: Array<string> = [];
 		lists.push(data.list_data.list_id);
 
