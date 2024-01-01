@@ -321,9 +321,9 @@ test.describe("Forms Functionalities", () => {
 		console.log(await test_request.status());
 		console.log(await test_request.url());
 		console.log(await test_request.headers());
-		// const base = new BasePage();
-		// let test_response = await base.response_checker(test_request);
-		// console.log(test_response);
+		const base = new BasePage();
+		let test_response = await base.response_checker(test_request);
+		console.log(test_response);
 	});
 
 	test.skip("Automation Create", async ({ request }) => {
