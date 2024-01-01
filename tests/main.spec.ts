@@ -17,6 +17,8 @@ import * as data from "../utils/data";
 
 /* ------------------------ Login ------------------------ */
 test.beforeAll(async ({ request }) => {
+	fs.writeFile("state.json", '{ "cookies": [], "origins": [] }', function () {});
+
 	// weMail App Login
 	let app_login_data: { username: string; password: string } = {
 		username: config.use?.httpCredentials?.username!,
