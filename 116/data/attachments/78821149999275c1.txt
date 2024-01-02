@@ -1,0 +1,10 @@
+https://staging.wedevsqa.com/wp-json/wemail/v1/forms/ab3c2202-aeef-4f4d-804b-c57914a33778
+{
+  mode: 'new-subscribe',
+  message: "Your subscription has been confirmed. You've been added to our list & will hear from us soon.",
+  data: {
+    on_submit: 'show_message',
+    message: 'Thanks for signing up!',
+    redirect_to: null
+  }
+}
