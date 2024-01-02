@@ -390,7 +390,6 @@ test.describe("Forms Functionalities", () => {
 	test("From Submission - API", async ({ request, page }) => {
 		if (flag == true) {
 			let api_endpoint: string = `${data.rest_url}/wemail/v1/forms/${forms_id[0]}`;
-			console.log(api_endpoint);
 			let response_message: string = "Your subscription has been confirmed. You've been added to our list & will hear from us soon.";
 
 			let form_data = new URLSearchParams();

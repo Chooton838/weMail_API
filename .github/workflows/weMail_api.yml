@@ -117,8 +117,11 @@ jobs:
               with:
                   channel-id: ${{ secrets.CHANNEL_ID }} # ID of Slack Channel you want to post to
                   slack-message: >
-                      <!here> weMail API Automation Test Suite Result (On weMail Production Server) - 
-                      The ${{ github.job }} job status within the ${{ github.workflow }} workflow in the ${{ github.repository }} repository is - *${{ job.status }}*.
+                      <!here> weMail API Automation Test Suite Result is - *${{ job.status }}*
+
+                      The test has run on weMail *Production Server*.
+
+                      The ${{ github.job }} job has run on the ${{ github.repository }} repository under the ${{ github.workflow }} workflow.
 
                       Here is the <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Details of Workflow Run>
               env:
@@ -206,8 +209,11 @@ jobs:
               with:
                   channel-id: ${{ secrets.CHANNEL_ID }} # ID of Slack Channel you want to post to
                   slack-message: >
-                      <!here> weMail API Automation Test Suite Result (On weMail Staging Server) - 
-                      The ${{ github.job }} job status within the ${{ github.workflow }} workflow in the ${{ github.repository }} repository is - *${{ job.status }}*.
+                      <!here> weMail API Automation Test Suite Result is - *${{ job.status }}*
+
+                      The test has run on weMail *Staging Server*.
+
+                      The ${{ github.job }} job has run on the ${{ github.repository }} repository under the ${{ github.workflow }} workflow.
 
                       Here is the <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Details of Workflow Run>
               env:

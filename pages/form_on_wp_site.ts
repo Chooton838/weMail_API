@@ -85,14 +85,16 @@ export class AdminPage {
 		// Exclude Tag
 		await this.page.locator(selector.campaign_selectors.exclude_tag_select).click();
 		await this.page.locator(selector.campaign_selectors.exclude_tag_placeholder).click();
-		await this.page.waitForTimeout(1000);
+		await this.page.waitForTimeout(2000);
 		await this.page.locator(selector.campaign_selectors.exclude_tag_input).fill(tag_name);
 		await this.page.keyboard.press("Enter");
+
+		await this.page.waitForTimeout(2000);
 
 		// Exclude Segment
 		await this.page.locator(selector.campaign_selectors.exclude_segment_select).click();
 		await this.page.locator(selector.campaign_selectors.exclude_segment_placeholder).click();
-		await this.page.waitForTimeout(1000);
+		await this.page.waitForTimeout(2000);
 		await this.page.locator(selector.campaign_selectors.exclude_segment_input).fill(segment_name);
 		await this.page.keyboard.press("Enter");
 
