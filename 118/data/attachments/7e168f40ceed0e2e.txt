@@ -1,0 +1,4 @@
+Response status code is: 404 & status text is: Not Found
+{
+    "message": "No query results for model [App\\Subscriber]."
+}
