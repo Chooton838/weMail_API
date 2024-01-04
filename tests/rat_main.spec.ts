@@ -28,7 +28,7 @@ test.beforeAll(async ({ request }) => {
 
   //Activate-plugin
   // let plugins_name: string[] = ["contact-form-7", "wpforms-lite"];
-  let plugins_name: string[] = ["wpforms-lite"];
+  let plugins_name: string[] = ["ninja-forms"];
   for (let i: number = 0; i < plugins_name.length; i++) {
     await base.activate_plugin(plugins_name[i]);
   }
@@ -99,7 +99,7 @@ test.beforeAll(async ({ request }) => {
 // });
 
 /* ------------------------ Functionalities of WP Forms Integration ------------------------ */
-test.describe.only("Functionalities of WP Forms Integration", () => {
+test.describe("Functionalities of WP Forms Integration", () => {
   data2.integrations.wp_forms.list_id = "";
   data2.integrations.wp_forms.list_name = `[QA] ${faker.lorem.words(2)}`;
   data2.integrations.wp_forms.wp_forms_id = "";
@@ -182,15 +182,15 @@ test.describe.only("Functionalities of WP Forms Integration", () => {
 
 /* ------------------------ Functionalities of WP Forms Integration ------------------------ */
 test.describe.only("Functionalities of Ninja Forms Integration", () => {
-  data2.integrations.wp_forms.list_id = "";
-  data2.integrations.wp_forms.list_name = `[QA] ${faker.lorem.words(2)}`;
-  data2.integrations.wp_forms.wp_forms_id = "";
-  data2.integrations.wp_forms.wp_forms_name = `[QA]${faker.lorem.words(2)}`;
-  data2.integrations.wp_forms.subscriber_id = "";
-  data2.integrations.wp_forms.form_subscriber_name = faker.name.firstName();
-  data2.integrations.wp_forms.form_subscriber_email = `${data2.integrations.wp_forms.form_subscriber_name}man@gmail.com`;
-  data2.integrations.wp_forms.wp_forms_shortcode = "";
-  data2.integrations.wp_forms.wp_form_page_name = "[QA] WPForms";
+  data2.integrations.ninja_forms.list_id = "";
+  data2.integrations.ninja_forms.list_name = `[QA] ${faker.lorem.words(2)}`;
+  data2.integrations.ninja_forms.wp_forms_id = "";
+  data2.integrations.ninja_forms.wp_forms_name = `[QA]${faker.lorem.words(2)}`;
+  data2.integrations.ninja_forms.subscriber_id = "";
+  data2.integrations.ninja_forms.form_subscriber_name = faker.name.firstName();
+  data2.integrations.ninja_forms.form_subscriber_email = `${data2.integrations.wp_forms.form_subscriber_name}man@gmail.com`;
+  data2.integrations.ninja_forms.wp_forms_shortcode = "";
+  data2.integrations.ninja_forms.wp_form_page_name = "[QA] WPForms";
 
   test("WP Forms - List Create", async ({ request }) => {
     const list = new ListPage(request);
@@ -199,22 +199,22 @@ test.describe.only("Functionalities of Ninja Forms Integration", () => {
 
   test("Create WP Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.create_wp_forms(data2.integrations.wp_forms.wp_forms_name);
+    await integrations.create_ninja_forms(data2.integrations.wp_forms.wp_forms_name);
   });
 
   test("weMail List <-Map-> WP Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.map_wp_forms(data2.integrations.wp_forms.list_name, data2.integrations.wp_forms.wp_forms_name);
+    await integrations.map_ninja_forms(data2.integrations.wp_forms.list_name, data2.integrations.wp_forms.wp_forms_name);
   });
 
   test.skip("weMail List <-Map-> WP Forms - API", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.map_wp_forms(data2.integrations.wp_forms.list_id, data2.integrations.wp_forms.wp_forms_id);
+    await integrations.map_ninja_forms(data2.integrations.wp_forms.list_id, data2.integrations.wp_forms.wp_forms_id);
   });
 
   test("Get WP Forms ID", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    data2.integrations.wp_forms.wp_forms_id = (await integrations.wp_forms_post_id(data2.integrations.wp_forms.wp_forms_name)).toString();
+    data2.integrations.wp_forms.wp_forms_id = (await integrations.ninja_forms_post_id(data2.integrations.wp_forms.wp_forms_name)).toString();
   });
 
   test("Get WP Forms Shortcode - e2e", async ({ request }) => {
