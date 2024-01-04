@@ -216,5 +216,7 @@ jobs:
                       The ${{ github.job }} job has run on the ${{ github.repository }} repository under the ${{ github.workflow }} workflow.
 
                       Here is the <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Details of Workflow Run>
+
+                      cc: <!C06BHS00VUZ> , C06BHS00VUZ, <#C06BHS00VUZ|random>, <#C06BHS00VUZ>, <#random>
               env:
                   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
