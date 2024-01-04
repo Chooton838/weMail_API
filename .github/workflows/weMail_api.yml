@@ -217,6 +217,6 @@ jobs:
 
                       Here is the <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Details of Workflow Run>
 
-                      cc: <!C06BHS00VUZ> , C06BHS00VUZ, <#C06BHS00VUZ|random>, <#C06BHS00VUZ>, <#random>
+                      cc: <#C06BHS00VUZ>, @U06B7LNRWBW, <!U06B7LNRWBW>, U06B7LNRWBW, <#U06B7LNRWBW>
               env:
                   SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
