@@ -17,6 +17,18 @@ let data2: {
       wp_forms_shortcode: string;
       wp_form_page_name: string;
     };
+
+    ninja_forms: {
+      list_id: string;
+      list_name: string;
+      ninja_forms_id: string;
+      ninja_forms_name: string;
+      subscriber_id: string;
+      form_subscriber_email: string;
+      form_subscriber_name: string;
+      ninja_forms_shortcode: string;
+      ninja_form_page_name: string;
+    };
   };
 } = {
   integrations: {
