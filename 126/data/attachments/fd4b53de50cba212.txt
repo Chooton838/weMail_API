@@ -1,0 +1,79 @@
+Subscriber Not Found
+{
+  data: [
+    {
+      id: '7e61d5aeac5275a2c9bb056a0459ed95',
+      first_name: 'asperiores',
+      last_name: null,
+      email: 'hertha_lakin@yahoo.com',
+      mobile: null,
+      phone: null,
+      address1: null,
+      address2: null,
+      city: null,
+      state: null,
+      country: null,
+      date_of_birth: null,
+      timezone: null,
+      status: 'subscribed',
+      action_at: '2024-01-04T13:26:33+00:00',
+      created_at: null,
+      updated_at: null
+    }
+  ],
+  links: {
+    first: 'https://staging.getwemail.io/v1/lists/4af37a45-aa77-42ea-a3de-fd73cae6fe91/subscribers?page=1',
+    last: 'https://staging.getwemail.io/v1/lists/4af37a45-aa77-42ea-a3de-fd73cae6fe91/subscribers?page=1',
+    prev: null,
+    next: null
+  },
+  meta: {
+    current_page: 1,
+    from: 1,
+    last_page: 1,
+    path: 'https://staging.getwemail.io/v1/lists/4af37a45-aa77-42ea-a3de-fd73cae6fe91/subscribers',
+    per_page: 15,
+    to: 1,
+    total: 1
+  },
+  stats: { subscribed: 1, unsubscribed: 0, unconfirmed: 0 }
+}
+{
+  data: [
+    {
+      id: '7e61d5aeac5275a2c9bb056a0459ed95',
+      first_name: 'asperiores',
+      last_name: null,
+      email: 'hertha_lakin@yahoo.com',
+      mobile: null,
+      phone: null,
+      address1: null,
+      address2: null,
+      city: null,
+      state: null,
+      country: null,
+      date_of_birth: null,
+      timezone: null,
+      status: 'subscribed',
+      action_at: '2024-01-04T13:26:33+00:00',
+      created_at: null,
+      updated_at: null
+    }
+  ],
+  links: {
+    first: 'https://staging.getwemail.io/v1/lists/4af37a45-aa77-42ea-a3de-fd73cae6fe91/subscribers?page=1',
+    last: 'https://staging.getwemail.io/v1/lists/4af37a45-aa77-42ea-a3de-fd73cae6fe91/subscribers?page=1',
+    prev: null,
+    next: null
+  },
+  meta: {
+    current_page: 1,
+    from: 1,
+    last_page: 1,
+    path: 'https://staging.getwemail.io/v1/lists/4af37a45-aa77-42ea-a3de-fd73cae6fe91/subscribers',
+    per_page: 15,
+    to: 1,
+    total: 1
+  },
+  stats: { subscribed: 1, unsubscribed: 0, unconfirmed: 0 }
+}
