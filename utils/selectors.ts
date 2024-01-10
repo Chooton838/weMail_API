@@ -1,4 +1,4 @@
-import { data2 } from "./data2";
+import { wp_forms_integration, ninja_forms_integration, } from "./data2";
 
 export const selectors = {
   integrations: {
@@ -22,19 +22,19 @@ export const selectors = {
 
       /*--------------------Map wp_forms--------------------*/
       //Checkbox
-      select_checkbox: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]//input[@type="checkbox"]`,
+      select_checkbox: `//h3[@class="title clearfix" and contains(text(), "${wp_forms_integration.wp_forms_name}")]//input[@type="checkbox"]`,
       //Click list dropdown
-      click_dropdown_selection: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//div[@class="multiselect__tags"]`,
+      click_dropdown_selection: `//h3[@class="title clearfix" and contains(text(), "${wp_forms_integration.wp_forms_name}")]/..//div[@class="multiselect__tags"]`,
       //Type list name
-      type_list_name: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`,
+      type_list_name: `//h3[@class="title clearfix" and contains(text(), "${wp_forms_integration.wp_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`,
       //Select list
-      select_list: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`,
+      select_list: `//h3[@class="title clearfix" and contains(text(), "${wp_forms_integration.wp_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`,
       //Overwrite checkbox
-      overwrite_checkbox: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/../form//input[@type="checkbox"]`,
+      overwrite_checkbox: `//h3[@class="title clearfix" and contains(text(), "${wp_forms_integration.wp_forms_name}")]/../form//input[@type="checkbox"]`,
       //Select first_name
-      select_first_name: `(//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//select)[1]`,
+      select_first_name: `(//h3[@class="title clearfix" and contains(text(), "${wp_forms_integration.wp_forms_name}")]/..//select)[1]`,
       //Select email
-      select_email: `(//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//select)[2]`,
+      select_email: `(//h3[@class="title clearfix" and contains(text(), "${wp_forms_integration.wp_forms_name}")]/..//select)[2]`,
       //Save map settings
       save_map_settings: `//button[contains(text(),"Save Settings")]`,
       //Validate saved success message
@@ -89,31 +89,31 @@ export const selectors = {
       //Validate form created
       validate_new_form_created: '(//td[@data-colname="Name"]//strong)[1]',
 
-      /*--------------------Map wp_forms--------------------*/
+      /*--------------------Map ninja_forms--------------------*/
       //Checkbox
-      select_checkbox: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]//input[@type="checkbox"]`,
+      select_checkbox: `//h3[@class="title clearfix" and contains(text(), "${ninja_forms_integration.ninja_forms_name}")]//input[@type="checkbox"]`,
       //Click list dropdown
-      click_dropdown_selection: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//div[@class="multiselect__tags"]`,
+      click_dropdown_selection: `//h3[@class="title clearfix" and contains(text(), "${ninja_forms_integration.ninja_forms_name}")]/..//div[@class="multiselect__tags"]`,
       //Type list name
-      type_list_name: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`,
+      type_list_name: `//h3[@class="title clearfix" and contains(text(), "${ninja_forms_integration.ninja_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`,
       //Select list
-      select_list: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`,
+      select_list: `//h3[@class="title clearfix" and contains(text(), "${ninja_forms_integration.ninja_forms_name}")]/..//div[@class="multiselect__tags"]//input[@type="text"]`,
       //Overwrite checkbox
-      overwrite_checkbox: `//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/../form//input[@type="checkbox"]`,
+      overwrite_checkbox: `//h3[@class="title clearfix" and contains(text(), "${ninja_forms_integration.ninja_forms_name}")]/../form//input[@type="checkbox"]`,
       //Select first_name
-      select_first_name: `(//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//select)[1]`,
+      select_first_name: `(//h3[@class="title clearfix" and contains(text(), "${ninja_forms_integration.ninja_forms_name}")]/..//select)[1]`,
       //Select email
-      select_email: `(//h3[@class="title clearfix" and contains(text(), "${data2.integrations.wp_forms.wp_forms_name}")]/..//select)[2]`,
+      select_email: `(//h3[@class="title clearfix" and contains(text(), "${ninja_forms_integration.ninja_forms_name}")]/..//select)[2]`,
       //Save map settings
       save_map_settings: `//button[contains(text(),"Save Settings")]`,
       //Validate saved success message
       validate_saved_success: `//p[@class="iziToast-message slideIn"]`,
 
-      /*--------------------Get wp_forms shortcode--------------------*/
+      /*--------------------Get ninja_forms shortcode--------------------*/
       //Shortcode
-      shortcode_item1: '(//td[@data-colname="Shortcode"])[1]',
+      shortcode_item_with_set_name: `//a[contains(text(),"${ninja_forms_integration.ninja_forms_name}")]//../../../td[2]`,
 
-      /*--------------------Create page for wp_forms--------------------*/
+      /*--------------------Create page for ninja_forms--------------------*/
       //Give page name
       add_page_title: '//h1[@aria-label="Add title"]',
       //Fill shortcode
@@ -127,7 +127,7 @@ export const selectors = {
       validate_page_published: '//div[text()="is now live."]',
 
       /*--------------------Frontend.Subscriber-end--------------------*/
-      /*--------------------Submit wp_forms by Subscriber--------------------*/
+      /*--------------------Submit ninja_forms by Subscriber--------------------*/
       //Subscriber first name
       subscriber_fname: '//input[@class="wpforms-field-name-first wpforms-field-required"]',
       //Subscriber last name

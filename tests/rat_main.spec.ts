@@ -117,33 +117,33 @@ test.describe("Functionalities of WP Forms Integration", () => {
 
   test("Create WP Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.create_wp_forms(wp_forms_name);
+    await integrations.create_ninja_forms(wp_forms_name);
   });
 
   test("weMail List <-Map-> WP Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.map_wp_forms(list_name, wp_forms_name);
+    await integrations.map_ninja_forms(list_name, wp_forms_name);
   });
 
   test.skip("weMail List <-Map-> WP Forms - API", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.map_wp_forms(list_id, wp_forms_id);
+    await integrations.map_ninja_forms(list_id, wp_forms_id);
   });
 
   test("Get WP Forms ID", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    wp_forms_id = (await integrations.wp_forms_post_id(wp_forms_name)).toString();
+    wp_forms_id = (await integrations.ninja_forms_post_id(wp_forms_name)).toString();
   });
 
   test("Get WP Forms Shortcode - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    wp_forms_shortcode = (await integrations.get_wp_forms_shortcode()).toString();
+    wp_forms_shortcode = (await integrations.get_ninja_forms_shortcode()).toString();
     console.log(wp_forms_shortcode);
   });
 
   test("Create Page, WP Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.create_wp_forms_page(wp_form_page_name, wp_forms_shortcode);
+    await integrations.create_ninja_forms_page(wp_form_page_name, wp_forms_shortcode);
   });
 
   test("Submit WP Forms - e2e", async ({ request }) => {
@@ -171,7 +171,7 @@ test.describe("Functionalities of WP Forms Integration", () => {
     await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
-  test("Delete Test List", async ({ request }) => {
+  test("Delete Test List -  WP Forms", async ({ request }) => {
     let lists: Array<string> = [];
     lists.push(list_id);
 
@@ -192,68 +192,68 @@ test.describe.only("Functionalities of Ninja Forms Integration", () => {
   let ninja_forms_shortcode = ninja_forms_integration.ninja_forms_shortcode;
   let ninja_form_page_name = ninja_forms_integration.ninja_form_page_name;
 
-  test("WP Forms - List Create", async ({ request }) => {
+  test("Ninja Forms - List Create", async ({ request }) => {
     const list = new ListPage(request);
     list_id = await list.list_create(list_name);
   });
 
-  test("Create WP Forms - e2e", async ({ request }) => {
+  test("Create Ninja Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
     await integrations.create_ninja_forms(ninja_forms_name);
   });
 
-  test("weMail List <-Map-> WP Forms - e2e", async ({ request }) => {
+  test("weMail List <-Map-> Ninja Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
     await integrations.map_ninja_forms(list_name, ninja_forms_name);
   });
 
-  test.skip("weMail List <-Map-> WP Forms - API", async ({ request }) => {
+  test.skip("weMail List <-Map-> Ninja Forms - API", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
     await integrations.map_ninja_forms(list_id, ninja_forms_id);
   });
 
-  test("Get WP Forms ID", async ({ request }) => {
+  test("Get Ninja Forms ID", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
     ninja_forms_id = (await integrations.ninja_forms_post_id(ninja_forms_name)).toString();
   });
 
-  test("Get WP Forms Shortcode - e2e", async ({ request }) => {
+  test("Get Ninja Forms Shortcode - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    ninja_forms_shortcode = (await integrations.get_wp_forms_shortcode()).toString();
+    ninja_forms_shortcode = (await integrations.get_ninja_forms_shortcode()).toString();
     console.log(ninja_forms_shortcode);
   });
 
-  test("Create Page, WP Forms - e2e", async ({ request }) => {
+  test("Create Page, Ninja Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.create_wp_forms_page(ninja_form_page_name, ninja_forms_shortcode);
+    await integrations.create_ninja_forms_page(ninja_form_page_name, ninja_forms_shortcode);
   });
 
-  test("Submit WP Forms - e2e", async ({ request }) => {
+  test("Submit Ninja Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
-    await integrations.submit_wp_forms(ninja_form_page_name, ninja_forms_id, form_subscriber_email.toLowerCase(), form_subscriber_name);
+    await integrations.submit_ninja_forms(ninja_form_page_name, ninja_forms_id, form_subscriber_email.toLowerCase(), form_subscriber_name);
   });
 
-  test("Subscriber's info - Signed up through WP Forms", async ({ request }) => {
+  test("Subscriber's info - Signed up through Ninja Forms", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
     subscriber_id = await subscriber.subscribers_list(list_id, form_subscriber_email);
   });
 
-  test("Delete WP Forms - e2e", async ({ request }) => {
+  test("Delete Ninja Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
     await integrations.delete_wp_forms(ninja_forms_name);
   });
 
-  test("Delete Page WP Forms - e2e", async ({ request }) => {
+  test("Delete Page Ninja Forms - e2e", async ({ request }) => {
     const integrations = new RatIntegrationsPage(request);
     await integrations.delete_wp_forms_page(ninja_form_page_name);
   });
 
-  test("Subscriber Delete - Signed up through WP Forms", async ({ request }) => {
+  test("Subscriber Delete - Signed up through Ninja Forms", async ({ request }) => {
     const subscriber = new SubscriberPage(request);
     await subscriber.subscriber_delete(list_id, subscriber_id);
   });
 
-  test("Delete Test List", async ({ request }) => {
+  test("Delete Test List - Ninja Forms", async ({ request }) => {
     let lists: Array<string> = [];
     lists.push(list_id);
 
